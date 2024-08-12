@@ -26,9 +26,13 @@
 }
 
 a.tile {
+    border: none;
+    border-width: var(--border-width);
+    border-radius: 0;
     color: var(--text);
     text-decoration: none;
     display: block;
+    background: none;
 }
 
 /* action bar */

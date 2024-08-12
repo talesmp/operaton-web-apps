@@ -23,6 +23,7 @@ export function App() {
         <Route path="/" component={Home} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/processes" component={Processes} />
+        <Route path="/processes/:id" component={Processes} />
         <Route default component={NotFound} />
       </Router>
     </LocationProvider>

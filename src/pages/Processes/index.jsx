@@ -1,37 +1,59 @@
-import { signal } from "@preact/signals";
-import { get_process_defintions, login } from "../../api";
+import { signal, effect } from "@preact/signals";
+import { useLocation, useRoute } from "preact-iso";
+import * as api from "../../api";
 
-const fetched = signal({ status: "uninitialized" });
+// const { path, query, params } = useRoute();
 
-{
-  try {
-    const result = await get_process_defintions();
-    fetched.value = { status: "success", data: result };
-  } catch (error) {
-    fetched.value = { status: "error", message: error };
-  }
-}
+const process_definitions = signal({ status: "uninitialized" });
+const process_definition = signal(null);
+const selected_process_definition = signal(null);
+
+await api.fetch_to_signal(process_definitions, api.get_process_definitions);
 
 export const Processes = () => (
   <>
     <aside>
       <ul class="tile-list">
-        {fetched.value.data.map((process) => (
+        {process_definitions.value.data.map((process) => (
           <Process {...process} />
         ))}
       </ul>
     </aside>
     <main>
       <h1>Process Defintions</h1>
-      {fetched.value.status}
+      <p>
+        Name:
+        {process_definition.value !== null
+          ? process_definition.value.name
+          : "Loading"}
+      </p>
     </main>
   </>
 );
 
-const Process = ({ definition, selected }) => (
+const update_selected_process_definition = (id) => {
+  selected_process_definition.value = id;
+
+  // api.fetch_to_signal(process_definition, () => api.get_process_definition(id));
+
+  api
+    .get_process_definition(id)
+    .then((json) => (process_definition.value = json));
+
+  effect(() => console.log(process_definition.value));
+};
+
+const Process = ({ definition: { id, name, version } }) => (
   <li>
-    <a href="" target="_blank" class={selected ? "tile selected" : "tile"}>
-      <h2>{definition.name}</h2>
+    <a
+      href={"/processes/" + id}
+      class={
+        id === selected_process_definition.value ? "tile selected" : "tile"
+      }
+      onClick={() => update_selected_process_definition(id)}
+    >
+      <h2>{name}</h2>
+      <small>{version}</small>
     </a>
   </li>
 );

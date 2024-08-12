@@ -1,0 +1,73 @@
+div#app {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "aside main";
+    grid-template-rows: fit-content(4rem) auto 2rem;
+    grid-template-columns: 20rem auto;
+    height: 100vh;
+}
+
+div#app > main {
+    grid-area: main;
+    padding: var(--spacing-1);
+    overflow-y: auto;
+}
+
+div#app > header {
+    grid-area: header;
+    display: flex;
+    gap: var(--spacing-2);
+    align-items: center;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-bottom: var(--border);
+}
+
+div#app > aside {
+    grid-area: aside;
+    border-right: var(--border);
+    border-bottom: var(--border);
+    overflow-y: auto;
+}
+
+div#app > footer {
+    border-right: var(--border);
+    grid-area: footer;
+}
+
+/* header */
+
+header > nav menu {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-2);
+    padding: var(--spacing-1);
+}
+
+header > nav > menu {
+    padding: 0;
+    letter-spacing: 0.03rem;
+}
+
+header > nav menu > li > a.active {
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+header > nav menu > li > a.active::after {
+    content: " ";
+    display: block;
+    margin: 0.1rem auto -0.2rem auto;
+    width: 2rem;
+    height: 0.2rem;
+    background-color: var(--color-primary);
+    /* position: absolute; */
+    border-radius: 10rem;
+    top: 0;
+}
+
+header > nav menu a {
+    color: var(--text);
+    text-decoration: none;
+}

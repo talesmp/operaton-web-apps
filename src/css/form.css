@@ -1,0 +1,76 @@
+form {
+    column-width: 20rem;
+}
+
+form > * {
+    break-inside: avoid-column;
+}
+
+button {
+    border: var(--border-width-2) solid var(--color-primary-transparent);
+    /* border-width: 0; */
+    background-clip: padding-box;
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius-2);
+    padding: var(--spacing-1) var(--spacing-2);
+    color: white;
+    font-weight: bold;
+
+    display: flex;
+    gap: var(--spacing-1);
+
+    font-size: var(--small-font-size);
+}
+
+button.secondary {
+    background: var(--background);
+    color: var(--color-primary);
+}
+
+button.danger {
+    background: var(--background);
+    border-color: var(--color-danger-transparent);
+    color: var(--color-danger);
+}
+
+/* TODO: better name? */
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2rem;
+    gap: var(--spacing-1);
+}
+
+.input-wrapper:first-child {
+    margin-top: 0;
+}
+
+button:hover {
+    cursor: pointer;
+    border-style: dotted;
+}
+
+*:focus {
+    outline: var(--border-width-2) dashed var(--color-primary);
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    margin-top: 1rem;
+}
+
+input,
+select,
+textarea {
+    padding: var(--spacing-1);
+    border: var(--border);
+    border-radius: var(--border-radius);
+    background: var(--background);
+}
+
+:where(input, select, textarea):disabled {
+    background: var(--background-2);
+    color: var(--text-2);
+}

@@ -1,32 +1,37 @@
-import preactLogo from "../../assets/preact.svg";
+import { signal } from "@preact/signals";
+import { get_process_defintions, login } from "../../api";
 
-const processes = [
-  { name: "Approve Invoice" },
-  { name: "Book Trip", selected: true },
-];
+const fetched = signal({ status: "uninitialized" });
+
+{
+  try {
+    const result = await get_process_defintions();
+    fetched.value = { status: "success", data: result };
+  } catch (error) {
+    fetched.value = { status: "error", message: error };
+  }
+}
 
 export const Processes = () => (
   <>
     <aside>
       <ul class="tile-list">
-        {processes.map((process) => (
+        {fetched.value.data.map((process) => (
           <Process {...process} />
         ))}
       </ul>
     </aside>
     <main>
-      <a href="https://preactjs.com" target="_blank">
-        <img src={preactLogo} alt="Preact logo" height="160" width="160" />
-      </a>
-      <h1>Operaton</h1>
+      <h1>Process Defintions</h1>
+      {fetched.value.status}
     </main>
   </>
 );
 
-const Process = ({ name, selected }) => (
+const Process = ({ definition, selected }) => (
   <li>
     <a href="" target="_blank" class={selected ? "tile selected" : "tile"}>
-      <h2>{name}</h2>
+      <h2>{definition.name}</h2>
     </a>
   </li>
 );

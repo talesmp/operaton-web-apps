@@ -7,6 +7,7 @@ The accompanying web app for the Operaton BPM system.
 You require the following software to run the app
 
 - An uptodate version of `node.js` 
+- A mock API for the backend
 
 ## Running the app
 

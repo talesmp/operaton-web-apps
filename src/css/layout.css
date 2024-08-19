@@ -3,7 +3,7 @@ div#app {
     grid-template-areas:
         "header header"
         "aside main";
-    grid-template-rows: fit-content(4rem) auto 2rem;
+    grid-template-rows: fit-content(4rem) auto;
     grid-template-columns: 20rem auto;
     height: 100vh;
 }
@@ -26,7 +26,6 @@ div#app > header {
 div#app > aside {
     grid-area: aside;
     border-right: var(--border);
-    border-bottom: var(--border);
     overflow-y: auto;
 }
 

@@ -1,35 +1,28 @@
 import { signal, effect } from "@preact/signals";
 
-const base_url = "http://localhost:8888/camunda/api";
-
-let formData = new FormData();
-formData.append("username", "demo");
-formData.append("password", "demo");
-
-export const login = () =>
-  fetch(base_url + "/admin/auth/user/default/login/cockpit", {
-    method: "POST",
-    mode: "no-cors",
-    body: "username=demo&password=demo", //formData,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    // body: JSON.stringify({ username: "demo", password: "demo" }),
-  });
-
-const process_defintions_url =
-  base_url +
-  "/cockpit/plugin/base/default/process-definition/statistics?firstResult=0&maxResults=50&sortBy=name&sortOrder=asc";
+const base_url = "http://localhost:8888/engine-rest";
 
 const get_process_definitions = () =>
-  fetch("http://localhost:8888/engine-rest/process-definition/statistics").then(
-    (response) => response.json(),
+  fetch(base_url + "/process-definition/statistics").then((response) =>
+    response.json(),
   );
 
 const get_process_definition = (id) =>
-  fetch("http://localhost:8888/engine-rest/process-definition/" + id).then(
-    (response) => response.json(),
+  fetch(base_url + "/process-definition/" + id).then((response) =>
+    response.json(),
   );
+
+const get_process_instance_list = (defintion_id) =>
+  fetch(
+    base_url +
+      "/history/process-instance?" +
+      new URLSearchParams({
+        unfinished: true,
+        sortBy: "startTime",
+        sortOrder: "asc",
+        processDefinitionId: defintion_id,
+      }).toString(),
+  ).then((response) => response.json());
 
 // helper
 //
@@ -42,4 +35,9 @@ const fetch_to_signal = async (target_signal, method) => {
   }
 };
 
-export { fetch_to_signal, get_process_definitions, get_process_definition };
+export {
+  fetch_to_signal,
+  get_process_definitions,
+  get_process_definition,
+  get_process_instance_list,
+};

@@ -3,32 +3,29 @@
 .tile-list {
     padding: 0;
     list-style: none;
-    margin: 0 var(--spacing-1);
+    margin: 1rem var(--spacing-1) 0 var(--spacing-1);
 }
 
 .tile-list .tile {
     border-top: var(--border-width) solid var(--border-color);
 }
 
-.tile-list li:first-child .tile,
-.tile-list li .tile.selected + .tile {
-    border: 0;
-}
-
-.tile {
-    padding: var(--spacing-2);
+.tile-list li:first-child.tile:not(.selected),
+.tile-list li.tile.selected + li.tile {
+    border-color: transparent;
 }
 
 .tile.selected {
     border-radius: var(--border-radius);
     border: var(--border-width-2) solid var(--color-primary);
     background-color: var(--color-primary-transparent);
+
+    margin: calc(-1 * var(--border-width));
 }
 
-a.tile {
-    border: none;
-    border-width: var(--border-width);
-    border-radius: 0;
+.tile a {
+    padding: var(--spacing-2);
+    border-radius: var(--border-radius);
     color: var(--text);
     text-decoration: none;
     display: block;
@@ -174,4 +171,11 @@ p#logo {
 
 .action-bar > li:first-child:has(a#skip-action-buttons-link) {
     border-right: none;
+}
+
+/* processes and defintions */
+
+h1 > span.selected {
+    font-weight: normal;
+    text-decoration: underline dashed;
 }

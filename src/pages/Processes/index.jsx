@@ -12,28 +12,33 @@ const process_instances = signal(null);
 await api.fetch_to_signal(process_definitions, api.get_process_definitions);
 
 export const Processes = () => (
-  <>
-    <aside>
+  <main class="split-layout">
+    <div id="selection">
+      {process_definition.value !== null ? (
+        <h1>
+          Process Definition
+          <span class="selected"> {process_definition.value.name}</span>
+        </h1>
+      ) : (
+        <h1>Process Definitions</h1>
+      )}
+
       <ul class="tile-list">
         {process_definitions.value.data.map((process) => (
           <Process {...process} />
         ))}
       </ul>
-    </aside>
-    <main>
-      <h1>Process Defintions</h1>
       <p>
         Name:
         {process_definition.value !== null
           ? process_definition.value.name
           : "Loading"}
       </p>
-      <p>
-        Instances:
-        {process_instances.value !== null ? <Instances /> : "?"}
-      </p>
-    </main>
-  </>
+      <p>Instances: </p>
+      {process_instances.value !== null ? <Instances /> : "?"}
+    </div>
+    <div id="preview">"a bpmn diagram"</div>
+  </main>
 );
 
 const update_selected_process_definition = (id) => {
@@ -61,12 +66,11 @@ const update_selected_process_definition = (id) => {
 };
 
 const Process = ({ definition: { id, name, version } }) => (
-  <li>
+  <li
+    class={id === selected_process_definition.value ? "tile selected" : "tile"}
+  >
     <a
       href={"/processes/" + id}
-      class={
-        id === selected_process_definition.value ? "tile selected" : "tile"
-      }
       onClick={() => update_selected_process_definition(id)}
     >
       <h2>{name}</h2>
@@ -95,8 +99,8 @@ const Instances = () => (
 
 const ProcessInstance = ({ id, startTime, state, businessKey }) => (
   <tr>
-    <td>{id}</td>
-    <td>{startTime}</td>
+    <td class="font-mono">{id.substring(0, 8)}</td>
+    <td>{new Date(Date.parse(startTime)).toLocaleString()}</td>
     <td>{state}</td>
     <td>{businessKey}</td>
   </tr>

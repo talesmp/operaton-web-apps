@@ -29,7 +29,7 @@ const get_process_instance_list = (defintion_id) =>
 const fetch_to_signal = async (target_signal, method) => {
   try {
     const result = await method();
-    effect(() => (target_signal.value = { status: "success", data: result }));
+    effect(() => (target_signal.value = result));
   } catch (error) {
     target_signal.value = { status: "error", message: error };
   }

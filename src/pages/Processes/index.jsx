@@ -3,7 +3,8 @@ import {createContext} from "preact";
 import {useContext, useEffect, useRef} from "preact/hooks";
 import {useLocation, useRoute} from "preact-iso";
 import * as api from "../../api";
-import * as Icons from "../../assets/icons.jsx"
+import * as Icons from "../../assets/icons.jsx";
+import ReactBpmn from "react-bpmn";
 
 const createProcessesState = () => {
     const process_definitions = signal(null);
@@ -11,13 +12,17 @@ const createProcessesState = () => {
     const selected_process_definition_id = signal(null);
     const process_instances = signal(null);
     const process_instance = signal(null);
+    const process_definition_diagram = signal(null);
+    const selection_values = signal(null);
 
     return {
         process_definitions,
         process_definition,
+        process_definition_diagram,
         selected_process_definition_id,
         process_instances,
-        process_instance
+        process_instance,
+        selection_values
     };
 };
 
@@ -40,6 +45,26 @@ const Processes = () => {
             .then((r) => (state.process_definitions.value = r));
     }, [state.process_definitions]);
 
+    // const viewer = new BpmnViewer({
+    //     container: '#canvas'
+    // });
+
+    // const show_diagram = () => {
+    //     viewer.importXML(state.process_definition_diagram.value).then((result) => {
+    //
+    //         const { warnings } = result;
+    //
+    //         console.log('success !', warnings);
+    //
+    //         viewer.get('canvas').zoom('fit-viewport');
+    //     }).catch((err) => {
+    //
+    //         const { warnings, message } = err;
+    //
+    //         console.log('something went wrong:', warnings, message);
+    //     });
+    // }
+
     return (
         <main class="split-layout">
             <div id="selection">
@@ -47,7 +72,18 @@ const Processes = () => {
                     ? <ProcessDefinitionSelection />
                     : <ProcessDefinitionDetails />}
             </div>
-            <div id="preview">"a bpmn diagram"</div>
+            <div id="preview">
+                {state.process_definition_diagram.value !== null
+                    ? <ReactBpmn
+                        diagramXML={state.process_definition_diagram.value.bpmn20Xml}
+                        onLoading={console.log("Loading BPMN...")}
+                        onShown={console.log("Hello BPMN...")}
+                        onError={console.log("Error BPMN...")}
+                    />
+                    : "Select Process Definition"}
+
+                <div id="canvas" />
+            </div>
         </main>
     );
 };
@@ -95,6 +131,13 @@ const ProcessDefinitionDetails = () => {
             })
     }, [state.process_definition, params.definition_id]);
 
+    useEffect(() => {
+        api.get_diagram(params.definition_id)
+            .then(res => {
+                state.process_definition_diagram.value = res
+            })
+    }, [params.definition_id, state.process_definition_diagram])
+
     console.log("Rerender 2: ", params.definition_id, state.process_definition.value)
 
     return (
@@ -109,18 +152,18 @@ const ProcessDefinitionDetails = () => {
 
 
             <div class="row gap">
-            <a className="tabs-back"
-               href={`/processes`}
-               title="Change Definition">
-                <Icons.arrow_left />
-                <Icons.list />
-            </a>
-            <dl>
-                <dt>Definition ID</dt>
-                <dd class="font-mono">{state.process_definition.value?.id ?? "-/-"}</dd>
-                <dt>Tenant ID</dt>
-                <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
-            </dl>
+                <a className="tabs-back"
+                   href={`/processes`}
+                   title="Change Definition">
+                    <Icons.arrow_left />
+                    <Icons.list />
+                </a>
+                <dl>
+                    <dt>Definition ID</dt>
+                    <dd class="font-mono">{state.process_definition.value?.id ?? "-/-"}</dd>
+                    <dt>Tenant ID</dt>
+                    <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
+                </dl>
             </div>
 
             <Tabs base_url={`/processes/${params.definition_id}`}
@@ -191,14 +234,6 @@ const Tabs = ({base_url, tabs, param_name = "tab"}) => {
     );
 }
 
-const clear_selected_definition = (state) => {
-    console.log("Back/Clear")
-    effect(() => {
-        state.process_definition.value = null;
-        state.selected_process_definition_id.value = null;
-        state.process_instances.value = null;
-    });
-};
 
 const ProcessDefinition = ({
                                definition: {id, name, key},
@@ -282,18 +317,18 @@ const InstanceDetails = () => {
         <div>
 
             <div class="row gap">
-            <a className="tabs-back"
-               href={`/processes/${params.definition_id}/instances`}
-               title="Change Instance">
-                <Icons.arrow_left />
-                <Icons.list />
-            </a>
-            <dl>
-                <dt>Instance ID</dt>
-                <dd>{state.process_instance.value?.id ?? "-/-"}</dd>
-                <dt>Business Key</dt>
-                <dd>{state.process_instance.value?.businessKey ?? "-/-"}</dd>
-            </dl>
+                <a className="tabs-back"
+                   href={`/processes/${params.definition_id}/instances`}
+                   title="Change Instance">
+                    <Icons.arrow_left />
+                    <Icons.list />
+                </a>
+                <dl>
+                    <dt>Instance ID</dt>
+                    <dd>{state.process_instance.value?.id ?? "-/-"}</dd>
+                    <dt>Business Key</dt>
+                    <dd>{state.process_instance.value?.businessKey ?? "-/-"}</dd>
+                </dl>
             </div>
 
             <Tabs
@@ -315,6 +350,31 @@ const ProcessInstance = ({id, startTime, state, businessKey}) => (
         <td>{businessKey}</td>
     </tr>
 );
+
+const InstanceVariables = () => {
+    const state = useContext(ProcessesState);
+    const {params} = useRoute();
+
+    useEffect(() => {
+        api.get_process_instance_variables(params.selection_id).then(res => state.selection_values.value = res)
+    }, [params.selection_id, state.selection_values]);
+
+    if (state.selection_values.value !== null) {
+        console.log("Selection: ", Object.entries(state.selection_values.value));
+    }
+
+    return (
+        <dl>
+            {state.selection_values.value !== null
+                ? Object.entries(state.selection_values.value).map(
+                (kv) => (<>
+                    <dt>{kv[0]}</dt>
+                    <dd>{kv[1].value} ({kv[1].type})</dd>
+                </>))
+            : "Loading ..."}
+        </dl>
+    )
+}
 
 
 const process_definition_tabs = [
@@ -349,7 +409,7 @@ const process_instance_tabs = [
         name: "Variables",
         id: "vars",
         pos: 0,
-        target: <p>Variables</p>
+        target: <InstanceVariables />
     },
     {
         name: "Instance Incidents",

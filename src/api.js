@@ -30,21 +30,22 @@ const get_process_instance = (instance_id) =>
         `${base_url}/process-instance/${instance_id}`
     ).then((response) => response.json());
 
-// helper
-//
-const fetch_to_signal = async (target_signal, method) => {
-    try {
-        const result = await method();
-        effect(() => (target_signal.value = result));
-    } catch (error) {
-        target_signal.value = {status: "error", message: error};
-    }
-};
+const get_process_instance_variables = (instance_id) =>
+    fetch(
+        `${base_url}/process-instance/${instance_id}/variables`
+    ).then((response) => response.json());
+
+
+const get_diagram = (definition_id) =>
+    fetch(
+        `${base_url}/process-definition/${definition_id}/xml`
+    ).then(response => response.json())
 
 export {
-    fetch_to_signal,
     get_process_definitions,
     get_process_definition,
+    get_diagram,
     get_process_instance_list,
-    get_process_instance
+    get_process_instance,
+    get_process_instance_variables
 };

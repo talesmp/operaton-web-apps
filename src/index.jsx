@@ -24,8 +24,10 @@ export function App() {
         <Route path="/" component={Home} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/processes" component={ProcessesPage} />
-        <Route path="/processes/:id" component={ProcessesPage} />
-        <Route path="/processes/:id/:tab" component={ProcessesPage} />
+        <Route path="/processes/:definition_id" component={ProcessesPage} />
+        <Route path="/processes/:definition_id/:tab" component={ProcessesPage} />
+        <Route path="/processes/:definition_id/:tab/:selection_id" component={ProcessesPage} />
+        <Route path="/processes/:definition_id/:tab/:selection_id/:tab2" component={ProcessesPage} />
         <Route default component={NotFound} />
       </Router>
     </LocationProvider>

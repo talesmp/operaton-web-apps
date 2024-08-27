@@ -1,6 +1,6 @@
 import {effect, signal} from "@preact/signals";
 import {createContext} from "preact";
-import {useContext, useEffect} from "preact/hooks";
+import {useContext, useEffect, useRef} from "preact/hooks";
 import {useLocation, useRoute} from "preact-iso";
 import * as api from "../../api";
 
@@ -9,16 +9,19 @@ const createProcessesState = () => {
     const process_definition = signal(null);
     const selected_process_definition_id = signal(null);
     const process_instances = signal(null);
+    const process_instance = signal(null);
 
     return {
         process_definitions,
         process_definition,
         selected_process_definition_id,
         process_instances,
+        process_instance
     };
 };
 
 const ProcessesState = createContext(undefined);
+
 
 const ProcessesPage = () => (
     <ProcessesState.Provider value={createProcessesState()}>
@@ -39,10 +42,9 @@ const Processes = () => {
     return (
         <main class="split-layout">
             <div id="selection">
-                {!params?.id
+                {!params?.definition_id
                     ? <ProcessDefinitionSelection />
-                    : <ProcessDefinitionDetails />
-                }
+                    : <ProcessDefinitionDetails />}
             </div>
             <div id="preview">"a bpmn diagram"</div>
         </main>
@@ -75,24 +77,24 @@ const ProcessDefinitionSelection = () => {
                 </tbody>
             </table>
         </>
-    )
-        ;
+    );
 }
 
 const ProcessDefinitionDetails = () => {
     const state = useContext(ProcessesState);
     const {params} = useRoute();
 
+    console.log("Rerender 1: ", params.definition_id, state.process_definition.value)
 
     useEffect(() => {
         api
-            .get_process_definition(params.id)
-            .then((res) => (state.process_definition.value = res));
+            .get_process_definition(params.definition_id)
+            .then((res) => {
+                state.process_definition.value = res
+            })
+    }, [state.process_definition, params.definition_id]);
 
-        api
-            .get_process_instance_list(params.id)
-            .then((json) => (state.process_instances.value = json));
-    }, [params.id, state.process_definition, state.process_instances]);
+    console.log("Rerender 2: ", params.definition_id, state.process_definition.value)
 
     return (
         <>
@@ -100,7 +102,7 @@ const ProcessDefinitionDetails = () => {
                 Process Definition
                 <span
                     class="selected">&nbsp;
-                    {state.process_definition?.value?.name ?? "Loading..."}
+                    {state.process_definition.value?.name}
                 </span>
             </h1>
 
@@ -108,63 +110,42 @@ const ProcessDefinitionDetails = () => {
                onClick={() => clear_selected_definition(state)}>Back</a>
             <dl>
                 <dt>Definition ID</dt>
-                <dd class="font-mono">{state.process_definition.value?.id}</dd>
-                {/*<dt>Deployment ID</dt>*/}
-                {/*<dd>{state.process_definition.value?.deploymentId}</dd>*/}
+                <dd class="font-mono">{state.process_definition.value?.id ?? "-/-"}</dd>
                 <dt>Tenant ID</dt>
                 <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
-                {/*<dt>Definition Version</dt>*/}
-                {/*<dd>{state.process_definition.value?.version ?? "-/-"}</dd>*/}
-                {/*<dt>Definition Key</dt>*/}
-                {/*<dd>{state.process_definition.value?.key ?? "-/-"}</dd>*/}
             </dl>
 
-            <Tabs />
+            <Tabs base_url={`/processes/${params.definition_id}`}
+                  tabs={process_definition_tabs} />
         </>
     )
 }
 
-const Tabs = () => {
-    const {params: {id, tab}} = useRoute();
-    const {route} = useLocation();
+const Tabs = ({base_url, tabs, param_name = "tab"}) => {
+    const {params} = useRoute();
+    const {route, path} = useLocation();
+    const tab = params[param_name]
 
-    const base_url = `/processes/${id}`;
-    const tab_list = [
-        {
-            name: "Instances",
-            id: "instances",
-            pos: 0
-        },
-        {
-            name: "Incidents",
-            id: "incidents",
-            pos: 1
-        },
-        {
-            name: "Called Definitions",
-            id: "called_definitions",
-            pos: 2
-        },
-        {
-            name: "Jobs",
-            id: "jobs",
-            pos: 3
-        }]
+    if (tab === null) {
+        route(`${path}/$tabs[0].id}`)
+    }
+
+    console.log("Tab List: ", param_name, params[param_name])
 
     const change_tab = (event, current_tab) => {
         if (event.key === 'ArrowRight') {
-            const new_tab = tab_list[
-                tab_list.length !== current_tab.pos + 1
+            const new_tab = tabs[
+                tabs.length !== current_tab.pos + 1
                     ? current_tab.pos + 1
                     : 0];
-            document.getElementById(`tab-${new_tab.id}`).focus()
+            document.getElementById(`${param_name}-${new_tab.id}`).focus()
             route(`${base_url}/${new_tab.id}`);
         } else if (event.key === 'ArrowLeft') {
-            const new_tab = tab_list[
+            const new_tab = tabs[
                 0 !== current_tab.pos
                     ? current_tab.pos - 1
-                    : tab_list.length - 1];
-            document.getElementById(`tab-${new_tab.id}`).focus()
+                    : tabs.length - 1];
+            document.getElementById(`${param_name}-${new_tab.id}`).focus()
             route(`${base_url}/${new_tab.id}`);
 
         }
@@ -175,10 +156,10 @@ const Tabs = () => {
             <div class="tab-selection" role="tablist"
                  aria-labelledby="tablist-1">
 
-                {tab_list.map(tab_name => {
+                {tabs.map(tab_name => {
                         return (
                             <a key={`tablist-${tab_name.id}`}
-                               id={`tab-${tab_name.id}`}
+                               id={`${param_name}-${tab_name.id}`}
                                role="tab"
                                aria-selected="true"
                                aria-controls={`tabpanel-${tab_name.id}}`}
@@ -195,19 +176,15 @@ const Tabs = () => {
                  id={`tabpanel-${tab}`}
                  role="tabpanel"
                  tabIndex="0"
-                 aria-labelledby={`tab-${tab}`}>
-                {{
-                    instances: <Instances />,
-                    incidents: <p>Incidents</p>,
-                    called_definitions: <p>Called Definitions</p>,
-                    jobs: <p>Jobs</p>
-                }[tab]}
+                 aria-labelledby={`${param_name}-${tab}`}>
+                {tabs.find(tab_ => tab === tab_.id)?.target || "Select a tab"}
             </div>
         </div>
     );
 }
 
 const clear_selected_definition = (state) => {
+    console.log("Back/Clear")
     effect(() => {
         state.process_definition.value = null;
         state.selected_process_definition_id.value = null;
@@ -224,7 +201,7 @@ const ProcessDefinition = ({
     return (
         <tr>
             <td>
-                <a href={`/processes/${id}`}>
+                <a href={`/processes/${id}/instances`}>
                     {name}
                 </a>
             </td>
@@ -247,8 +224,19 @@ const ProcessDefinition = ({
 const Instances = () => {
     const state = useContext(ProcessesState);
 
-    return (
-        <table>
+    const {params} = useRoute();
+
+    useEffect(() => {
+        api
+            .get_process_instance_list(params.definition_id)
+            .then((json) => (state.process_instances.value = json));
+    }, [params.definition_id, state.process_instances]);
+
+    effect(() =>
+        console.log("Selected Instance: ", params));
+
+    return !params?.selection_id
+        ? (<table>
             <thead>
             <tr>
                 <th>ID</th>
@@ -258,20 +246,125 @@ const Instances = () => {
             </tr>
             </thead>
             <tbody>
-            {state.process_instances?.value?.map((instance) => (
+            {state.process_instances.value?.map((instance) => (
                 <ProcessInstance key={instance.id} {...instance} />
-            )) ?? "Loading..."}
+            )) ?? <p>"Loading..."</p>}
             </tbody>
-        </table>);
+        </table>)
+        : (<InstanceDetails />);
 };
+
+const InstanceDetails = () => {
+    console.log("Hello There Details")
+
+    const state = useContext(ProcessesState);
+    const {params, path} = useRoute();
+    const path_ = useRef(path)
+
+
+    useEffect(() => {
+        api
+            .get_process_instance(params.selection_id)
+            .then((res) => {
+                state.process_instance.value = res
+            })
+    }, [state.process_instance, params.selection_id]);
+
+    return (
+        <div>
+            <dl>
+                <dt>Instance ID</dt>
+                <dd>{state.process_instance.value?.id ?? "-/-"}</dd>
+                <dt>Business Key</dt>
+                <dd>{state.process_instance.value?.businessKey ?? "-/-"}</dd>
+            </dl>
+            <a href={`/processes/${params.definition_id}/instances`}>
+                Change Instance
+            </a>
+
+            <Tabs base_url={`/processes/${params.definition_id}/instances/${params.selection_id}`}
+                  tabs={process_instance_tabs}
+                  param_name={"tab2"} />
+
+        </div>
+    )
+}
+
 
 const ProcessInstance = ({id, startTime, state, businessKey}) => (
     <tr>
-        <td class="font-mono">{id.substring(0, 8)}</td>
+        <td class="font-mono"><a
+            href={`./instances/${id}/vars`}> {id.substring(0, 8)}</a></td>
         <td>{new Date(Date.parse(startTime)).toLocaleString()}</td>
         <td>{state}</td>
         <td>{businessKey}</td>
     </tr>
 );
+
+
+const process_definition_tabs = [
+    {
+        name: "Instances",
+        id: "instances",
+        pos: 0,
+        target: <Instances />
+    },
+    {
+        name: "Incidents",
+        id: "incidents",
+        pos: 1,
+        target: <p>Incidents</p>
+    },
+    {
+        name: "Called Definitions",
+        id: "called_definitions",
+        pos: 2,
+        target: <p>Called Definitions</p>
+    },
+    {
+        name: "Jobs",
+        id: "jobs",
+        pos: 3,
+        target: <p>Jobs</p>
+    }]
+
+
+const process_instance_tabs = [
+    {
+        name: "Variables",
+        id: "vars",
+        pos: 0,
+        target: <p>Variables</p>
+    },
+    {
+        name: "Instance Incidents",
+        id: "instance_incidents",
+        pos: 1,
+        target: <p>Incidents</p>
+    },
+    {
+        name: "Called Instances",
+        id: "called_instances",
+        pos: 2,
+        target: <p>Called Instances</p>
+    },
+    {
+        name: "User Tasks",
+        id: "user_tasks",
+        pos: 3,
+        target: <p>User Tasks</p>
+    },
+    {
+        name: "Jobs",
+        id: "jobs",
+        pos: 4,
+        target: <p>Jobs</p>
+    },
+    {
+        name: "External Tasks",
+        id: "external_tasks",
+        pos: 5,
+        target: <p>External Tasks</p>
+    }]
 
 export {ProcessesPage}

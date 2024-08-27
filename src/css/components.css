@@ -146,12 +146,14 @@ h1 > span.selected {
 
 .tabs > .tab-selection > a {
     border: var(--border);
-    border-bottom: 0;
     padding: var(--spacing-1);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
-    margin-bottom: calc(-1 * var(--border-width));
     color: var(--text);
     text-decoration: none;
+    border-bottom-color: transparent;
+    display: inline-block;
+    position: relative;
+    top: var(--border-width);
 }
 
 .tabs > .tab-selection > a[aria-selected="true"] {
@@ -160,6 +162,9 @@ h1 > span.selected {
     border-top-color: var(--color-primary);
     color: var(--color-primary);
     font-weight: bold;
+    /*margin-bottom: calc(-1 * var(--border-width));*/
+    border-bottom-color: var(--background);
+    z-index: 2;
 }
 
 .tabs > .selected-tab {
@@ -181,4 +186,7 @@ h1 > span.selected {
 .tabs-back > svg {
     height: 1rem;
     width: 1rem;
+    color: var(--text);
+    stroke-width: .1rem;
+    stroke-linecap: round;
 }

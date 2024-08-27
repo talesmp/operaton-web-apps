@@ -7,6 +7,10 @@ menu {
     margin: 0;
 }
 
+a, a:visited {
+    color: var(--color-primary)
+}
+
 table {
     display: block;
     max-width: -moz-fit-content;

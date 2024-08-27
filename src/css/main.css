@@ -26,11 +26,20 @@ th {
     padding: 0 var(--spacing-2) var(--spacing-2) 0;
 }
 
+dl {
+    margin-top: var(--spacing-1);
+    margin-bottom: 0;
+}
+
 dt {
+    margin-top: var(--spacing-1);
     font-weight: bold;
 }
 
+dt:first-child {
+    margin-top: 0;
+}
+
 dd {
-    margin-bottom: var(--spacing-1);
     margin-left: var(--spacing-2);
 }

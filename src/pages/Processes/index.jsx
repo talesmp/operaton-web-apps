@@ -3,6 +3,7 @@ import {createContext} from "preact";
 import {useContext, useEffect, useRef} from "preact/hooks";
 import {useLocation, useRoute} from "preact-iso";
 import * as api from "../../api";
+import * as Icons from "../../assets/icons.jsx"
 
 const createProcessesState = () => {
     const process_definitions = signal(null);
@@ -106,14 +107,21 @@ const ProcessDefinitionDetails = () => {
                 </span>
             </h1>
 
-            <a href="/processes"
-               onClick={() => clear_selected_definition(state)}>Back</a>
+
+            <div class="row gap">
+            <a className="tabs-back"
+               href={`/processes`}
+               title="Change Definition">
+                <Icons.arrow_left />
+                <Icons.list />
+            </a>
             <dl>
                 <dt>Definition ID</dt>
                 <dd class="font-mono">{state.process_definition.value?.id ?? "-/-"}</dd>
                 <dt>Tenant ID</dt>
                 <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
             </dl>
+            </div>
 
             <Tabs base_url={`/processes/${params.definition_id}`}
                   tabs={process_definition_tabs} />
@@ -161,7 +169,7 @@ const Tabs = ({base_url, tabs, param_name = "tab"}) => {
                             <a key={`tablist-${tab_name.id}`}
                                id={`${param_name}-${tab_name.id}`}
                                role="tab"
-                               aria-selected="true"
+                               aria-selected={tab === tab_name.id}
                                aria-controls={`tabpanel-${tab_name.id}}`}
                                href={`${base_url}/${tab_name.id}`}
                                tabIndex={tab !== tab_name.id ? '-1' : null}
@@ -272,19 +280,26 @@ const InstanceDetails = () => {
 
     return (
         <div>
+
+            <div class="row gap">
+            <a className="tabs-back"
+               href={`/processes/${params.definition_id}/instances`}
+               title="Change Instance">
+                <Icons.arrow_left />
+                <Icons.list />
+            </a>
             <dl>
                 <dt>Instance ID</dt>
                 <dd>{state.process_instance.value?.id ?? "-/-"}</dd>
                 <dt>Business Key</dt>
                 <dd>{state.process_instance.value?.businessKey ?? "-/-"}</dd>
             </dl>
-            <a href={`/processes/${params.definition_id}/instances`}>
-                Change Instance
-            </a>
+            </div>
 
-            <Tabs base_url={`/processes/${params.definition_id}/instances/${params.selection_id}`}
-                  tabs={process_instance_tabs}
-                  param_name={"tab2"} />
+            <Tabs
+                base_url={`/processes/${params.definition_id}/instances/${params.selection_id}`}
+                tabs={process_instance_tabs}
+                param_name={"tab2"} />
 
         </div>
     )

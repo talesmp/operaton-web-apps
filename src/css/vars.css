@@ -44,6 +44,7 @@
     --border-radius-2: 0.4rem;
     --border-width: 0.1rem;
     --border-width-2: 0.15rem;
+    --border-width-3: 0.25rem;
 
     /* components */
     --border: var(--border-width) solid var(--border-color);

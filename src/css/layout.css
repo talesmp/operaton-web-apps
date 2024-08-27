@@ -63,3 +63,11 @@ header > nav menu a {
     color: var(--text);
     text-decoration: none;
 }
+
+.row {
+    display: flex;
+}
+
+.gap {
+    gap: var(--spacing-2)
+}

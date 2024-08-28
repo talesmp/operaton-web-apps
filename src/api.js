@@ -1,5 +1,8 @@
 const base_url = 'http://localhost:8888/engine-rest'
 
+let headers = new Headers();
+headers.set('Authorization', 'Basic ' + window.btoa(unescape(encodeURIComponent("demo:demo")))); //TODO authentication
+
 const get_process_definitions = (state) =>
   fetch(`${base_url}/process-definition/statistics`)
     .then(response => response.json())
@@ -68,6 +71,16 @@ const get_diagram = (state, definition_id) =>
     .then(response => response.json())
     .then(json => state.process_definition_diagram.value = json)
 
+// getting all tasks, when no sorting is provided it will use "name" and ascending
+const get_task_list = (sort_key, sort_order) => {
+    const sort = sort_key ? sort_key : "name";
+    const order = sort_order ? sort_order : "asc";
+
+    return fetch(base_url + "/task?sortBy=" + sort + "&sortOrder=" + order, {headers: headers}).then((response) =>
+        response.json(),
+    );
+}
+
 export {
   get_process_definitions,
   get_process_definition,
@@ -81,4 +94,5 @@ export {
   get_process_incidents,
   get_called_process_definitions,
   get_job_definitions,
+  get_task_list
 }

@@ -81,6 +81,12 @@ const get_task_list = (sort_key, sort_order) => {
     );
 }
 
+const get_process_definition_list = (ids) => {
+    return fetch(base_url + "/process-definition?processDefinitionIdIn=" + ids, {headers: headers}).then((response) =>
+        response.json(),
+    );
+}
+
 export {
   get_process_definitions,
   get_process_definition,
@@ -94,5 +100,6 @@ export {
   get_process_incidents,
   get_called_process_definitions,
   get_job_definitions,
-  get_task_list
+  get_task_list,
+  get_process_definition_list
 }

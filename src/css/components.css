@@ -1,4 +1,4 @@
-/* tile & tile-list */
+/* tile & tile-list & tile-filter */
 
 .tile {
     border: var(--border);
@@ -13,6 +13,7 @@
 
 .tile-list .tile {
     border-top: var(--border-width) solid var(--border-color);
+    font-size: var(--small-font-size);
 }
 
 .tile-list li:first-child.tile:not(.selected),
@@ -28,13 +29,42 @@
     margin: calc(-1 * var(--border-width));
 }
 
-.tile a {
+.tile a, .tile a:visited {
     padding: var(--spacing-2);
     border-radius: var(--border-radius);
     color: var(--text);
     text-decoration: none;
     display: block;
     background: none;
+}
+
+.tile h4 {
+    font-weight: normal;
+    margin-bottom: var(--spacing-2);
+}
+
+.tile .tile-row {
+    display: flex; width: 100%;
+}
+
+.tile-row div {
+    width: 50%;
+}
+
+.tile-row .tile-right {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.tile-filter {
+    margin: 1rem var(--spacing-2) 0 var(--spacing-2);
+}
+
+.tile-filter .filter-header {
+    background-color: var(--border-color);
+    font-size: var(--small-font-size);
+    padding: var(--spacing-1);
+    border-radius: var(--border-radius);
 }
 
 /* action bar */

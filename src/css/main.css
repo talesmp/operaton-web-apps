@@ -62,3 +62,9 @@ dt:first-child {
 dd {
     margin-left: var(--spacing-2);
 }
+
+aside {
+    width: 16rem;
+    min-height: 100%;
+    border-right: var(--border-width) solid var(--border-color);
+}

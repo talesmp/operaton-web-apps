@@ -56,3 +56,7 @@ p {
 .font-mono {
     font-family: "IBM Plex Mono", "Courier New", Courier, monospace;
 }
+
+h4 {
+    font-size: var(--h4-size);
+}

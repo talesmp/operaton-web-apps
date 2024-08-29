@@ -6,6 +6,10 @@ export const Tasks = () => (
     <>
         <div style="display: flex">
             <aside>
+                <div class="tile-filter">
+                    <div class="filter-header">Filter Tasks & Search</div>
+                </div>
+
                 <ul class="tile-list">
                     <TaskList />
                 </ul>
@@ -22,8 +26,8 @@ export const Tasks = () => (
 
 // using function component here because of hooks and state handling
 function TaskList() {
-    const [tasks, setTasks] = useState([]);
-    const [selected, setSelected] = useState(0);
+    const [tasks, setTasks] = useState([]); // task list
+    const [selected, setSelected] = useState(0); // the selected task
 
     useEffect(() => {
         api.get_task_list().then((list) => {
@@ -46,15 +50,24 @@ function TaskList() {
     }, []);
 
     return (
-        tasks.map( task => (<Task task={task} selected={task.id === selected} setSelected={setSelected} />))
+        tasks.map( task => (<TaskTile task={task} selected={task.id === selected} setSelected={setSelected} />))
     );
 }
 
-const Task = ({task, selected, setSelected}) => (
+const TaskTile = ({task, selected, setSelected}) => (
     <li class={selected ? "tile selected" : "tile"}>
-        <a href="" data-task-id={task.id} onClick={() => setSelected(task.id)} >
-            <div>{task.def_name}</div>
-            <h2>{task.name}</h2>
+        <a href="" data-task-id={task.id} onClick={() => setSelected(task.id)}>
+            <div className="tile-row">
+                <div>{task.def_name}</div>
+                <div className="tile-right">Date</div>
+            </div>
+            <h4>{task.name}</h4>
+            <div className="tile-row">
+                <div>Assigned to</div>
+                <div className="tile-right">Priority {task.priority}</div>
+            </div>
         </a>
     </li>
 );
+
+

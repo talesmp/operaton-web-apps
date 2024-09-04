@@ -2,32 +2,9 @@ import preactLogo from "../../assets/preact.svg";
 import { useEffect, useState } from 'preact/hooks';
 import * as api from "../../api";
 
-export const Tasks = () => (
-    <>
-        <div style="display: flex">
-            <aside>
-                <div class="tile-filter">
-                    <div class="filter-header">Filter Tasks & Search</div>
-                </div>
-
-                <ul class="tile-list">
-                    <TaskList />
-                </ul>
-            </aside>
-            <main>
-                <a href="https://preactjs.com" target="_blank">
-                    <img src={preactLogo} alt="Preact logo" height="160" width="160" />
-                </a>
-                <h1>Operaton</h1>
-            </main>
-        </div>
-    </>
-);
-
-// using function component here because of hooks and state handling
-function TaskList() {
+export function Tasks() {
     const [tasks, setTasks] = useState([]); // task list
-    const [selected, setSelected] = useState(0); // the selected task
+    const [selected, setSelected] = useState({}); // the selected task
 
     useEffect(() => {
         api.get_task_list().then((list) => {
@@ -44,26 +21,40 @@ function TaskList() {
                         setTasks(list); // store task list
                     }
                 );
-
         });
-        //
     }, []);
 
     return (
-        tasks.map( task => (<TaskTile task={task} selected={task.id === selected} setSelected={setSelected} />))
+        <div style="display: flex">
+            <aside>
+                <div class="tile-filter">
+                    <div class="filter-header">Filter Tasks & Search</div>
+                </div>
+
+                <ul class="tile-list">
+                    {tasks.map( task => (<TaskTile task={task} selected={task.id === selected.id} setSelected={setSelected} />))}
+                </ul>
+            </aside>
+            <main>
+                <a href="https://preactjs.com" target="_blank">
+                    <img src={preactLogo} alt="Preact logo" height="160" width="160" />
+                </a>
+                <h1>Operaton</h1>
+            </main>
+        </div>
     );
 }
 
 const TaskTile = ({task, selected, setSelected}) => (
     <li class={selected ? "tile selected" : "tile"}>
-        <a href="" data-task-id={task.id} onClick={() => setSelected(task.id)}>
+        <a href="" data-task-id={task.id} onClick={() => setSelected(task)}>
             <div className="tile-row">
                 <div>{task.def_name}</div>
                 <div className="tile-right">Date</div>
             </div>
             <h4>{task.name}</h4>
             <div className="tile-row">
-                <div>Assigned to</div>
+                <div>Assigned to <b>{task.assignee ? task.assignee : "no one"}</b></div>
                 <div className="tile-right">Priority {task.priority}</div>
             </div>
         </a>

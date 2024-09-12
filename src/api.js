@@ -77,13 +77,19 @@ const get_task_list = (sort_key, sort_order) => {
     const order = sort_order ? sort_order : "asc";
 
     return fetch(base_url + "/task?sortBy=" + sort + "&sortOrder=" + order, {headers: headers}).then((response) =>
-        response.json(),
+        response.json()
     );
 }
 
 const get_process_definition_list = (ids) => {
     return fetch(base_url + "/process-definition?processDefinitionIdIn=" + ids, {headers: headers}).then((response) =>
-        response.json(),
+        response.json()
+    );
+}
+
+const get_generated_form = (task_id) => {
+    return fetch( `${base_url}/task/${task_id}/rendered-form`, {headers: headers}).then((response) =>
+        response.text()
     );
 }
 
@@ -101,5 +107,6 @@ export {
   get_called_process_definitions,
   get_job_definitions,
   get_task_list,
-  get_process_definition_list
+  get_process_definition_list,
+  get_generated_form
 }

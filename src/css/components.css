@@ -449,3 +449,71 @@ div.accordion {
     font-size: var(--h5-size);
     padding-bottom: var(--spacing-1);
 }
+
+/* task tabs */
+.task-tabs {
+    display: flex;
+    width: max-content;
+    margin-top: var(--spacing-3);
+    /* padding: var(--spacing-1) 0; */
+    font-size: var(--small-font-size);
+    font-weight: bold;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.task-tabs > div {
+    /*padding: 0 var(--spacing-2); */
+    padding: var(--spacing-1) var(--spacing-2);
+    border-right: 1px solid var(--border-color);
+}
+
+.task-tabs > div:last-child {
+    border-right: none;
+}
+
+.task-tabs > div.selected {
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color-2);
+    background-color: var(--background-2);
+}
+
+.tab-content {
+    margin-top: var(--spacing-3);
+}
+
+.tab-content.hide {
+    display:none;
+}
+
+.generated-form form {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.generated-form .form-group {
+    /*max-width: 24rem;*/
+    width: 40%;
+    margin-right: var(--spacing-3);
+    margin-top: var(--spacing-2);
+}
+
+.generated-form .form-group label {
+    display: block;
+    font-size: var(--small-font-size);
+    font-weight: bold;
+    margin-bottom: var(--spacing-1);
+}
+
+.generated-form .form-group input {
+    width: 80%;
+}
+
+.generated-form .form-group .input-group-btn {
+    display: none;
+}
+
+.generated-form .form-group .help-block {
+    display: none;
+}

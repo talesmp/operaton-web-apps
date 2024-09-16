@@ -1,72 +1,25 @@
-import {effect, signal} from "@preact/signals";
-import {createContext} from "preact";
-import {useContext, useEffect, useRef} from "preact/hooks";
+import {effect} from "@preact/signals";
+import {useContext, useEffect} from "preact/hooks";
 import {useLocation, useRoute} from "preact-iso";
 import * as api from "../../api";
 import * as Icons from "../../assets/icons.jsx";
 import ReactBpmn from "react-bpmn";
+import {AppState} from "../../state.js";
 
-const createProcessesState = () => {
-    const process_definitions = signal(null);
-    const process_definition = signal(null);
-    const selected_process_definition_id = signal(null);
-    const process_instances = signal(null);
-    const process_instance = signal(null);
-    const process_definition_diagram = signal(null);
-    const selection_values = signal(null);
-
-    return {
-        process_definitions,
-        process_definition,
-        process_definition_diagram,
-        selected_process_definition_id,
-        process_instances,
-        process_instance,
-        selection_values
-    };
-};
-
-const ProcessesState = createContext(undefined);
-
-
-const ProcessesPage = () => (
-    <ProcessesState.Provider value={createProcessesState()}>
-        <Processes />
-    </ProcessesState.Provider>
-);
-
-const Processes = () => {
-    const state = useContext(ProcessesState);
+const ProcessesPage = () => {
+    const state = useContext(AppState);
     const {params} = useRoute();
 
     useEffect(() => {
-        api
-            .get_process_definitions()
-            .then((r) => (state.process_definitions.value = r));
-    }, [state.process_definitions]);
+            api
+                .get_process_definitions()
+                .then((r) => (state.process_definitions.value = r))
+        },
+        [state.process_definitions])
 
-    // const viewer = new BpmnViewer({
-    //     container: '#canvas'
-    // });
-
-    // const show_diagram = () => {
-    //     viewer.importXML(state.process_definition_diagram.value).then((result) => {
-    //
-    //         const { warnings } = result;
-    //
-    //         console.log('success !', warnings);
-    //
-    //         viewer.get('canvas').zoom('fit-viewport');
-    //     }).catch((err) => {
-    //
-    //         const { warnings, message } = err;
-    //
-    //         console.log('something went wrong:', warnings, message);
-    //     });
-    // }
 
     return (
-        <main class="split-layout">
+        <main id="processes" class="split-layout">
             <div id="selection">
                 {!params?.definition_id
                     ? <ProcessDefinitionSelection />
@@ -89,7 +42,7 @@ const Processes = () => {
 };
 
 const ProcessDefinitionSelection = () => {
-    const state = useContext(ProcessesState);
+    const state = useContext(AppState);
 
     return (
         <>
@@ -118,7 +71,7 @@ const ProcessDefinitionSelection = () => {
 }
 
 const ProcessDefinitionDetails = () => {
-    const state = useContext(ProcessesState);
+    const state = useContext(AppState);
     const {params} = useRoute();
 
     console.log("Rerender 1: ", params.definition_id, state.process_definition.value)
@@ -138,7 +91,6 @@ const ProcessDefinitionDetails = () => {
             })
     }, [params.definition_id, state.process_definition_diagram])
 
-    console.log("Rerender 2: ", params.definition_id, state.process_definition.value)
 
     return (
         <>
@@ -160,7 +112,7 @@ const ProcessDefinitionDetails = () => {
                 </a>
                 <dl>
                     <dt>Definition ID</dt>
-                    <dd class="font-mono">{state.process_definition.value?.id ?? "-/-"}</dd>
+                    <dd class="font-mono copy-on-click" onClick={copyToClipboard}>{state.process_definition.value?.id ?? "-/-"}</dd>
                     <dt>Tenant ID</dt>
                     <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
                 </dl>
@@ -265,7 +217,7 @@ const ProcessDefinition = ({
 };
 
 const Instances = () => {
-    const state = useContext(ProcessesState);
+    const state = useContext(AppState);
 
     const {params} = useRoute();
 
@@ -300,10 +252,8 @@ const Instances = () => {
 const InstanceDetails = () => {
     console.log("Hello There Details")
 
-    const state = useContext(ProcessesState);
-    const {params, path} = useRoute();
-    const path_ = useRef(path)
-
+    const state = useContext(AppState);
+    const {params} = useRoute();
 
     useEffect(() => {
         api
@@ -352,7 +302,7 @@ const ProcessInstance = ({id, startTime, state, businessKey}) => (
 );
 
 const InstanceVariables = () => {
-    const state = useContext(ProcessesState);
+    const state = useContext(AppState);
     const {params} = useRoute();
 
     useEffect(() => {
@@ -367,11 +317,12 @@ const InstanceVariables = () => {
         <dl>
             {state.selection_values.value !== null
                 ? Object.entries(state.selection_values.value).map(
-                (kv) => (<>
-                    <dt>{kv[0]}</dt>
-                    <dd>{kv[1].value} ({kv[1].type})</dd>
-                </>))
-            : "Loading ..."}
+                    // eslint-disable-next-line react/jsx-key
+                    (kv) => (<>
+                        <dt>{kv[0]}</dt>
+                        <dd>{kv[1].value} ({kv[1].type})</dd>
+                    </>))
+                : "Loading ..."}
         </dl>
     )
 }
@@ -441,5 +392,8 @@ const process_instance_tabs = [
         pos: 5,
         target: <p>External Tasks</p>
     }]
+
+const copyToClipboard = (event) =>
+    navigator.clipboard.writeText(event.target.innerText);
 
 export {ProcessesPage}

@@ -190,3 +190,17 @@ h1 > span.selected {
     stroke-width: .1rem;
     stroke-linecap: round;
 }
+
+/* bpmn diagram */
+
+#processes .react-bpmn-diagram-container {
+    height: 100%;
+}
+
+/*  */
+/*  */
+/*  */
+
+.copy-on-click:hover {
+    cursor: copy;
+}

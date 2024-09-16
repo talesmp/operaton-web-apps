@@ -7,6 +7,7 @@ const createAppState = () => {
     const selected_process_definition_id = signal(null);
     const process_instances = signal(null);
     const process_instance = signal(null);
+    const process_incidents = signal(null);
     const process_definition_diagram = signal(null);
     const selection_values = signal(null);
 
@@ -17,6 +18,7 @@ const createAppState = () => {
         selected_process_definition_id,
         process_instances,
         process_instance,
+        process_incidents,
         selection_values
     };
 };

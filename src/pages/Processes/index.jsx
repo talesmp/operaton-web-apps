@@ -1,21 +1,23 @@
-import {effect, useSignalEffect} from "@preact/signals";
-import {useContext, useEffect} from "preact/hooks";
-import {useLocation, useRoute} from "preact-iso";
+import {useSignalEffect} from "@preact/signals";
+import {useContext} from "preact/hooks";
+import {useRoute} from "preact-iso";
 import * as api from "../../api";
 import * as Icons from "../../assets/icons.jsx";
 import ReactBpmn from "react-bpmn";
 import {AppState} from "../../state.js";
+import {Suspense} from "react";
+import {Tabs} from "../../components/Tabs.jsx";
 
 const ProcessesPage = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    useSignalEffect(() => {
-        api
-            .get_process_definitions()
-            .then((r) => (state.process_definitions.value = r))
-    })
+    api.get_process_definitions(state)
 
+    if (params.definition_id) {
+        api.get_process_definition(state, params.definition_id)
+        api.get_diagram(state, params.definition_id)
+    }
 
     return (
         <main id="processes" class="split-layout">
@@ -24,21 +26,29 @@ const ProcessesPage = () => {
                     ? <ProcessDefinitionSelection />
                     : <ProcessDefinitionDetails />}
             </div>
-            <div id="preview">
-                {state.process_definition_diagram.value !== null
-                    ? <ReactBpmn
-                        diagramXML={state.process_definition_diagram.value.bpmn20Xml}
-                        onLoading={console.log("Loading BPMN...")}
-                        onShown={console.log("Hello BPMN...")}
-                        onError={console.log("Error BPMN...")}
-                    />
-                    : "Select Process Definition"}
-
-                <div id="canvas" />
-            </div>
+            <ProcessDiagram />
         </main>
     );
 };
+
+const ProcessDiagram = () => {
+    const state = useContext(AppState);
+    const {params} = useRoute();
+
+    return (
+        <div id="preview">
+            {state.process_definition_diagram.value !== null && params.definition_id !== undefined
+                ? <ReactBpmn
+                    diagramXML={state.process_definition_diagram.value.bpmn20Xml}
+                    onLoading={console.log("Loading BPMN...") || null}
+                    onShown={console.log("Hello BPMN...") || null}
+                    onError={console.log("Error BPMN...") || null}
+                />
+                : "Select Process Definition"}
+
+            <div id="canvas" />
+        </div>)
+}
 
 const ProcessDefinitionSelection = () => {
     const state = useContext(AppState);
@@ -73,32 +83,16 @@ const ProcessDefinitionDetails = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    console.log("Rerender 1: ", params.definition_id, state.process_definition.value)
-
-    useSignalEffect(() => {
-        api
-            .get_process_definition(params.definition_id)
-            .then((res) => {
-                state.process_definition.value = res
-            })
-    });
-
-    useEffect(() => {
-        api.get_diagram(params.definition_id)
-            .then(res => {
-                state.process_definition_diagram.value = res
-            })
-    }, [params.definition_id, state.process_definition_diagram])
-
-
     return (
         <>
             <h1>
                 Process Definition
-                <span
-                    class="selected">&nbsp;
-                    {state.process_definition.value?.name}
-                </span>
+                <Suspense fallback={<span>...</span>}>
+                    <span
+                        class="selected">&nbsp;
+                        {state.process_definition.value?.name}
+                    </span>
+                </Suspense>
             </h1>
 
 
@@ -111,10 +105,14 @@ const ProcessDefinitionDetails = () => {
                 </a>
                 <dl>
                     <dt>Definition ID</dt>
-                    <dd class="font-mono copy-on-click"
-                        onClick={copyToClipboard}>{state.process_definition.value?.id ?? "-/-"}</dd>
+                    <Suspense fallback={<dd>...</dd>}>
+                        <dd class="font-mono copy-on-click"
+                            onClick={copyToClipboard}>{state.process_definition.value?.id ?? "-/-"}</dd>
+                    </Suspense>
                     <dt>Tenant ID</dt>
-                    <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
+                    <Suspense fallback={<dd>...</dd>}>
+                        <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
+                    </Suspense>
                 </dl>
             </div>
 
@@ -122,68 +120,6 @@ const ProcessDefinitionDetails = () => {
                   tabs={process_definition_tabs} />
         </>
     )
-}
-
-const Tabs = ({base_url, tabs, param_name = "tab"}) => {
-    const {params} = useRoute();
-    const {route, path} = useLocation();
-    const tab = params[param_name]
-
-    if (tab === null) {
-        route(`${path}/$tabs[0].id}`)
-    }
-
-    console.log("Tab List: ", param_name, params[param_name])
-
-    const change_tab = (event, current_tab) => {
-        if (event.key === 'ArrowRight') {
-            const new_tab = tabs[
-                tabs.length !== current_tab.pos + 1
-                    ? current_tab.pos + 1
-                    : 0];
-            document.getElementById(`${param_name}-${new_tab.id}`).focus()
-            route(`${base_url}/${new_tab.id}`);
-        } else if (event.key === 'ArrowLeft') {
-            const new_tab = tabs[
-                0 !== current_tab.pos
-                    ? current_tab.pos - 1
-                    : tabs.length - 1];
-            document.getElementById(`${param_name}-${new_tab.id}`).focus()
-            route(`${base_url}/${new_tab.id}`);
-
-        }
-    }
-
-    return (
-        <div class="tabs" id="process-details-tabs">
-            <div class="tab-selection" role="tablist"
-                 aria-labelledby="tablist-1">
-
-                {tabs.map(tab_name => {
-                        return (
-                            <a key={`tablist-${tab_name.id}`}
-                               id={`${param_name}-${tab_name.id}`}
-                               role="tab"
-                               aria-selected={tab === tab_name.id}
-                               aria-controls={`tabpanel-${tab_name.id}}`}
-                               href={`${base_url}/${tab_name.id}`}
-                               tabIndex={tab !== tab_name.id ? '-1' : null}
-                               onKeyDown={(event) => change_tab(event, tab_name)}
-                            >
-                                {tab_name.name}
-                            </a>)
-                    }
-                )}
-            </div>
-            <div class="selected-tab"
-                 id={`tabpanel-${tab}`}
-                 role="tabpanel"
-                 tabIndex="0"
-                 aria-labelledby={`${param_name}-${tab}`}>
-                {tabs.find(tab_ => tab === tab_.id)?.target || "Select a tab"}
-            </div>
-        </div>
-    );
 }
 
 
@@ -227,9 +163,6 @@ const Instances = () => {
             .then((json) => (state.process_instances.value = json));
     });
 
-    effect(() =>
-        console.log("Selected Instance: ", params));
-
     return !params?.selection_id
         ? (<table>
             <thead>
@@ -250,7 +183,6 @@ const Instances = () => {
 };
 
 const InstanceDetails = () => {
-    console.log("Hello There Details")
 
     const state = useContext(AppState);
     const {params} = useRoute();
@@ -308,10 +240,6 @@ const InstanceVariables = () => {
     useSignalEffect(() => {
         api.get_process_instance_variables(params.selection_id).then(res => state.selection_values.value = res)
     });
-
-    if (state.selection_values.value !== null) {
-        console.log("Selection: ", Object.entries(state.selection_values.value));
-    }
 
     return (
         <dl>

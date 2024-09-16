@@ -1,4 +1,4 @@
-import {effect} from "@preact/signals";
+import {effect, useSignalEffect} from "@preact/signals";
 import {useContext, useEffect} from "preact/hooks";
 import {useLocation, useRoute} from "preact-iso";
 import * as api from "../../api";
@@ -10,12 +10,11 @@ const ProcessesPage = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    useEffect(() => {
-            api
-                .get_process_definitions()
-                .then((r) => (state.process_definitions.value = r))
-        },
-        [state.process_definitions])
+    useSignalEffect(() => {
+        api
+            .get_process_definitions()
+            .then((r) => (state.process_definitions.value = r))
+    })
 
 
     return (
@@ -76,13 +75,13 @@ const ProcessDefinitionDetails = () => {
 
     console.log("Rerender 1: ", params.definition_id, state.process_definition.value)
 
-    useEffect(() => {
+    useSignalEffect(() => {
         api
             .get_process_definition(params.definition_id)
             .then((res) => {
                 state.process_definition.value = res
             })
-    }, [state.process_definition, params.definition_id]);
+    });
 
     useEffect(() => {
         api.get_diagram(params.definition_id)
@@ -112,7 +111,8 @@ const ProcessDefinitionDetails = () => {
                 </a>
                 <dl>
                     <dt>Definition ID</dt>
-                    <dd class="font-mono copy-on-click" onClick={copyToClipboard}>{state.process_definition.value?.id ?? "-/-"}</dd>
+                    <dd class="font-mono copy-on-click"
+                        onClick={copyToClipboard}>{state.process_definition.value?.id ?? "-/-"}</dd>
                     <dt>Tenant ID</dt>
                     <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
                 </dl>
@@ -221,11 +221,11 @@ const Instances = () => {
 
     const {params} = useRoute();
 
-    useEffect(() => {
+    useSignalEffect(() => {
         api
             .get_process_instance_list(params.definition_id)
             .then((json) => (state.process_instances.value = json));
-    }, [params.definition_id, state.process_instances]);
+    });
 
     effect(() =>
         console.log("Selected Instance: ", params));
@@ -255,13 +255,13 @@ const InstanceDetails = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    useEffect(() => {
+    useSignalEffect(() => {
         api
             .get_process_instance(params.selection_id)
             .then((res) => {
                 state.process_instance.value = res
             })
-    }, [state.process_instance, params.selection_id]);
+    });
 
     return (
         <div>
@@ -305,9 +305,9 @@ const InstanceVariables = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    useEffect(() => {
+    useSignalEffect(() => {
         api.get_process_instance_variables(params.selection_id).then(res => state.selection_values.value = res)
-    }, [params.selection_id, state.selection_values]);
+    });
 
     if (state.selection_values.value !== null) {
         console.log("Selection: ", Object.entries(state.selection_values.value));

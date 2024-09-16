@@ -1,27 +1,24 @@
-import {signal, effect} from "@preact/signals";
-
 const base_url = "http://localhost:8888/engine-rest";
 
 const get_process_definitions = () =>
-    fetch(base_url + "/process-definition/statistics").then((response) =>
+    fetch(`${base_url}/process-definition/statistics`).then((response) =>
         response.json(),
     );
 
 const get_process_definition = (id) =>
-    fetch(base_url + "/process-definition/" + id).then((response) =>
+    fetch(`${base_url}/process-definition/${id}`).then((response) =>
         response.json(),
     );
 
 const get_process_instance_list = (defintion_id) =>
     fetch(
-        base_url +
-        "/history/process-instance?" +
-        new URLSearchParams({
-            unfinished: true,
-            sortBy: "startTime",
-            sortOrder: "asc",
-            processDefinitionId: defintion_id,
-        }).toString(),
+        `${base_url}/history/process-instance?${
+            new URLSearchParams({
+                unfinished: true,
+                sortBy: "startTime",
+                sortOrder: "asc",
+                processDefinitionId: defintion_id,
+            }).toString()}`,
     ).then((response) => response.json());
 
 

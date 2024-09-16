@@ -5,18 +5,17 @@ import * as api from "../../api";
 import * as Icons from "../../assets/icons.jsx";
 import ReactBpmn from "react-bpmn";
 import {AppState} from "../../state.js";
-import {Suspense} from "react";
 import {Tabs} from "../../components/Tabs.jsx";
 
 const ProcessesPage = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    api.get_process_definitions(state)
+    void api.get_process_definitions(state)
 
     if (params.definition_id) {
-        api.get_process_definition(state, params.definition_id)
-        api.get_diagram(state, params.definition_id)
+        void api.get_process_definition(state, params.definition_id)
+        void api.get_diagram(state, params.definition_id)
     }
 
     return (
@@ -32,69 +31,60 @@ const ProcessesPage = () => {
 };
 
 const ProcessDiagram = () => {
-    const state = useContext(AppState);
+    const {process_definition_diagram} = useContext(AppState);
     const {params} = useRoute();
+
+    const show_diagram =
+        process_definition_diagram.value !== null &&
+        params.definition_id !== undefined
 
     return (
         <div id="preview">
-            {state.process_definition_diagram.value !== null && params.definition_id !== undefined
+            {show_diagram
                 ? <ReactBpmn
-                    diagramXML={state.process_definition_diagram.value.bpmn20Xml}
-                    onLoading={console.log("Loading BPMN...") || null}
-                    onShown={console.log("Hello BPMN...") || null}
-                    onError={console.log("Error BPMN...") || null}
-                />
+                    diagramXML={process_definition_diagram.value.bpmn20Xml}
+                    onLoading={null}
+                    onShown={null}
+                    onError={null} />
                 : "Select Process Definition"}
-
-            <div id="canvas" />
-        </div>)
+        </div>
+    )
 }
 
-const ProcessDefinitionSelection = () => {
-    const state = useContext(AppState);
-
-    return (
-        <>
-            <h1>
-                Process Definitions
-            </h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Key</th>
-                    <th>Instances</th>
-                    <th>Incidents</th>
-                    <th>State</th>
-                </tr>
-                </thead>
-                <tbody>
-                {state.process_definitions.value?.map((process) => (
-                    <ProcessDefinition
-                        key={process.id} {...process} />
-                ))}
-                </tbody>
-            </table>
-        </>
-    );
-}
+const ProcessDefinitionSelection = () =>
+    <>
+        <h1>
+            Process Definitions
+        </h1>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Key</th>
+                <th>Instances</th>
+                <th>Incidents</th>
+                <th>State</th>
+            </tr>
+            </thead>
+            <tbody>
+            {useContext(AppState).process_definitions.value?.map(process =>
+                <ProcessDefinition key={process.id} {...process} />)}
+            </tbody>
+        </table>
+    </>
 
 const ProcessDefinitionDetails = () => {
-    const state = useContext(AppState);
+    const {process_definition} = useContext(AppState);
     const {params} = useRoute();
 
     return (
         <>
             <h1>
                 Process Definition
-                <Suspense fallback={<span>...</span>}>
-                    <span
-                        class="selected">&nbsp;
-                        {state.process_definition.value?.name}
-                    </span>
-                </Suspense>
+                <span class="selected">&nbsp;
+                    {process_definition.value?.name}
+                </span>
             </h1>
-
 
             <div class="row gap">
                 <a className="tabs-back"
@@ -105,14 +95,10 @@ const ProcessDefinitionDetails = () => {
                 </a>
                 <dl>
                     <dt>Definition ID</dt>
-                    <Suspense fallback={<dd>...</dd>}>
-                        <dd class="font-mono copy-on-click"
-                            onClick={copyToClipboard}>{state.process_definition.value?.id ?? "-/-"}</dd>
-                    </Suspense>
+                    <dd class="font-mono copy-on-click"
+                        onClick={copyToClipboard}>{process_definition.value?.id ?? "-/-"}</dd>
                     <dt>Tenant ID</dt>
-                    <Suspense fallback={<dd>...</dd>}>
-                        <dd>{state.process_definition.value?.tenantId ?? "-/-"}</dd>
-                    </Suspense>
+                    <dd>{process_definition.value?.tenantId ?? "-/-"}</dd>
                 </dl>
             </div>
 
@@ -123,45 +109,22 @@ const ProcessDefinitionDetails = () => {
 }
 
 
-const ProcessDefinition = ({
-                               definition: {id, name, key},
-                               instances,
-                               incidents
-                           }) => {
-    // const state = useContext(ProcessesState);
-    return (
+const ProcessDefinition =
+    ({definition: {id, name, key}, instances, incidents}) =>
         <tr>
-            <td>
-                <a href={`/processes/${id}/instances`}>
-                    {name}
-                </a>
-            </td>
-            <td>
-                {key}
-            </td>
-            <td>
-                {instances}
-            </td>
-            <td>
-                {incidents.length}
-            </td>
-            <td>
-                ?
-            </td>
+            <td><a href={`/processes/${id}/instances`}>{name}</a></td>
+            <td>{key}</td>
+            <td>{instances}</td>
+            <td>{incidents.length}</td>
+            <td>?</td>
         </tr>
-    );
-};
+
 
 const Instances = () => {
     const state = useContext(AppState);
-
     const {params} = useRoute();
 
-    useSignalEffect(() => {
-        api
-            .get_process_instance_list(params.definition_id)
-            .then((json) => (state.process_instances.value = json));
-    });
+    void api.get_process_instance_list(state, params.definition_id)
 
     return !params?.selection_id
         ? (<table>
@@ -174,30 +137,25 @@ const Instances = () => {
             </tr>
             </thead>
             <tbody>
-            {state.process_instances.value?.map((instance) => (
-                <ProcessInstance key={instance.id} {...instance} />
-            )) ?? <p>"Loading..."</p>}
+            <InstanceTableRows />
             </tbody>
         </table>)
         : (<InstanceDetails />);
 };
 
-const InstanceDetails = () => {
+const InstanceTableRows = () =>
+    useContext(AppState).process_instances.value?.map((instance) => (
+        <ProcessInstance key={instance.id} {...instance} />
+    )) ?? <p>...</p>
 
+const InstanceDetails = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
-    useSignalEffect(() => {
-        api
-            .get_process_instance(params.selection_id)
-            .then((res) => {
-                state.process_instance.value = res
-            })
-    });
+    void api.get_process_instance(state, params.selection_id)
 
     return (
         <div>
-
             <div class="row gap">
                 <a className="tabs-back"
                    href={`/processes/${params.definition_id}/instances`}
@@ -205,22 +163,24 @@ const InstanceDetails = () => {
                     <Icons.arrow_left />
                     <Icons.list />
                 </a>
-                <dl>
-                    <dt>Instance ID</dt>
-                    <dd>{state.process_instance.value?.id ?? "-/-"}</dd>
-                    <dt>Business Key</dt>
-                    <dd>{state.process_instance.value?.businessKey ?? "-/-"}</dd>
-                </dl>
+                <InstanceDetailsDescription />
             </div>
 
             <Tabs
                 base_url={`/processes/${params.definition_id}/instances/${params.selection_id}`}
                 tabs={process_instance_tabs}
                 param_name={"tab2"} />
-
         </div>
     )
 }
+
+const InstanceDetailsDescription = () =>
+    <dl>
+        <dt>Instance ID</dt>
+        <dd>{useContext(AppState).process_instance.value?.id ?? "-/-"}</dd>
+        <dt>Business Key</dt>
+        <dd>{useContext(AppState).process_instance.value?.businessKey ?? "-/-"}</dd>
+    </dl>
 
 
 const ProcessInstance = ({id, startTime, state, businessKey}) => (
@@ -237,13 +197,15 @@ const InstanceVariables = () => {
     const state = useContext(AppState);
     const {params} = useRoute();
 
+    const selection_exists = state.selection_values.value !== null
+
     useSignalEffect(() => {
-        api.get_process_instance_variables(params.selection_id).then(res => state.selection_values.value = res)
+        void api.get_process_instance_variables(state, params.selection_id)
     });
 
     return (
         <dl>
-            {state.selection_values.value !== null
+            {selection_exists
                 ? Object.entries(state.selection_values.value).map(
                     // eslint-disable-next-line react/jsx-key
                     (kv) => (<>
@@ -281,7 +243,6 @@ const process_definition_tabs = [
         pos: 3,
         target: <p>Jobs</p>
     }]
-
 
 const process_instance_tabs = [
     {
@@ -321,6 +282,7 @@ const process_instance_tabs = [
         target: <p>External Tasks</p>
     }]
 
+// fixme : extract to util file
 const copyToClipboard = (event) =>
     navigator.clipboard.writeText(event.target.innerText);
 

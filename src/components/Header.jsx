@@ -10,14 +10,14 @@ export function Header() {
         <menu>
           <menu>
             <li>
-              <a href="/tasks" class={url == "/tasks" && "active"}>
+              <a href="/tasks" class={url.startsWith("/tasks") && "active"}>
                 Tasks
               </a>
             </li>
           </menu>
           <menu>
             <li>
-              <a href="/processes" class={url == "/processes" && "active"}>
+              <a href="/processes" class={url.startsWith("/processes") && "active"}>
                 Processes
               </a>
             </li>

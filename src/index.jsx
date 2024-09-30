@@ -1,20 +1,20 @@
-import { render } from 'preact'
-import { LocationProvider, Router, Route } from 'preact-iso'
-import { AppState, createAppState } from './state.js'
+import {render} from "preact";
+import {LocationProvider, Router, Route} from "preact-iso";
+import {AppState, createAppState} from "./state.js";
 
 import { Header } from './components/Header.jsx'
 
-import { Home } from './pages/Home/index.jsx'
-import { Tasks } from './pages/Tasks/index.jsx'
-import { ProcessesPage } from './pages/Processes/index.jsx'
-import { NotFound } from './pages/_404.jsx'
+import { Home } from "./pages/Home/index.jsx";
+import { Tasks } from "./pages/Tasks/index.jsx";
+import { ProcessesPage } from "./pages/Processes/index.jsx";
+import { NotFound } from "./pages/_404.jsx";
 
-import './css/fonts.css'
-import './css/form.css'
-import './css/vars.css'
-import './css/layout.css'
-import './css/components.css'
-import './css/main.css'
+import "./css/fonts.css";
+import "./css/form.css";
+import "./css/vars.css";
+import "./css/layout.css";
+import "./css/components.css";
+import "./css/main.css";
 
 'use strict'
 

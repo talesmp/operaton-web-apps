@@ -1,4 +1,4 @@
-/* tile & tile-list & tile-filter */
+/* tile & tile-list */
 
 .tile {
     border: var(--border);
@@ -389,6 +389,42 @@ div.accordion {
 }
 
 
+
+/* bpmn diagram */
+
+#processes .react-bpmn-diagram-container {
+    height: 100%;
+}
+
+/*  */
+/*  */
+/*  */
+
+.copy-on-click {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.copy-on-click:hover {
+    cursor: copy;
+    text-shadow: 0 0 4px var(--color-primary-transparent);
+}
+
+
+.copy-on-click:hover::after {
+    content: url("../assets/icons/copy-to-clipboard.svg");
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+    stroke-width: .5rem;
+    text-shadow: 0 0 4px var(--color-primary-transparent);
+}
+
+.copy-on-click:active {
+    /*font-weight: bold;*/
+    text-shadow: 0 0 4px var(--color-primary);
+}
 
 /* task menu */
 .task-menu {

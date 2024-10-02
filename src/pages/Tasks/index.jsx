@@ -1,4 +1,3 @@
-import preactLogo from "../../assets/preact.svg";
 import { useEffect, useState, useContext } from 'preact/hooks';
 import * as api from "../../api";
 import * as formatter from "../../helper/formatter";
@@ -70,7 +69,7 @@ export function Tasks() {
 
                 <ul class="tile-list">
                     {tasks.map(task => (
-                        <TaskTile task={task} selected={task.id === selected.id} setSelected={setSelected} state={state}/>))}
+                        <TaskTile task={task} selected={task.id === selected.id} setSelected={setSelected} state={state} />))}
                 </ul>
             </aside>
             <main>

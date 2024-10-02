@@ -542,14 +542,30 @@ div.accordion {
     margin-bottom: var(--spacing-1);
 }
 
-.generated-form .form-group input {
+.generated-form .form-group input:not([type='checkbox']) {
     width: 80%;
 }
 
+.generated-form .form-group input[type="checkbox"] {
+    margin-left: 0;
+}
+
+/* button for date field that we don't need */
 .generated-form .form-group .input-group-btn {
     display: none;
 }
 
+/* error text for fields */
 .generated-form .form-group .help-block {
     display: none;
+}
+
+.generated-form .form-buttons {
+    width: 100%;
+    margin-top: var(--spacing-3);
+}
+
+.generated-form .form-buttons button {
+    display: inline-block;
+    margin-right: var(--spacing-1);
 }

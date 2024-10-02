@@ -1,13 +1,26 @@
 import preactLogo from "../../assets/preact.svg";
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState, useContext } from 'preact/hooks';
 import * as api from "../../api";
 import * as formatter from "../../helper/formatter";
 import { Task } from "./Task.jsx";
 import * as Icons from "../../assets/icons.jsx";
+import {AppState} from "../../state.js";
 
 export function Tasks() {
     const [tasks, setTasks] = useState([]); // task list on left bar
     const [selected, setSelected] = useState({}); // the selected task
+    const state = useContext(AppState);
+
+    // TODO remove it when we have a login
+    if (!state.user_profile.value) {
+        console.log("setting profile");
+        api.get_user_profile(state, null);
+    }
+
+    if (state.user_profile.value) {
+        console.log("user ID: " + state.user_profile.value.id);
+    }
+
 
     // get task list when page is initially loaded
     useEffect(() => {
@@ -57,7 +70,7 @@ export function Tasks() {
 
                 <ul class="tile-list">
                     {tasks.map(task => (
-                        <TaskTile task={task} selected={task.id === selected.id} setSelected={setSelected}/>))}
+                        <TaskTile task={task} selected={task.id === selected.id} setSelected={setSelected} state={state}/>))}
                 </ul>
             </aside>
             <main>
@@ -67,7 +80,7 @@ export function Tasks() {
     );
 }
 
-const TaskTile = ({task, selected, setSelected}) => (
+const TaskTile = ({task, selected, setSelected, state}) => (
     <li class={selected ? "tile selected" : "tile"}>
         <a href="" data-task-id={task.id} aria-labelledby={task.id} onClick={() => setSelected(task)}>
             <div className="tile-row">
@@ -76,7 +89,9 @@ const TaskTile = ({task, selected, setSelected}) => (
             </div>
             <h4 id={task.id}>{task.name}</h4>
             <div className="tile-row">
-                <div>Assigned to <b>{task.assignee ? task.assignee : "no one"}</b></div>
+                <div>Assigned to <b>{task.assignee ? // we compare the assignee with the current user ID, if it's equal show "me"
+                    (state.user_profile.value && state.user_profile.value.id === task.assignee ? "me" : task.assignee)
+                    : "no one"}</b></div>
                 <div className="tile-right">Priority {task.priority}</div>
             </div>
         </a>

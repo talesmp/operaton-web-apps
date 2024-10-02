@@ -3,6 +3,17 @@ const base_url = 'http://localhost:8888/engine-rest'
 let headers = new Headers();
 headers.set('Authorization', 'Basic ' + window.btoa(unescape(encodeURIComponent("demo:demo")))); //TODO authentication
 
+const get_user_profile = (state, user_name) => {
+    // TODO remove it when we have a login!
+    if (!user_name) {
+        user_name = "demo";
+    }
+
+    fetch( `${base_url}/user/${user_name}/profile`, {headers: headers})
+        .then(response => response.json())
+        .then(json => state.user_profile.value = json);
+}
+
 const get_process_definitions = (state) =>
   fetch(`${base_url}/process-definition/statistics`)
     .then(response => response.json())
@@ -76,21 +87,18 @@ const get_task_list = (sort_key, sort_order) => {
     const sort = sort_key ? sort_key : "name";
     const order = sort_order ? sort_order : "asc";
 
-    return fetch(base_url + "/task?sortBy=" + sort + "&sortOrder=" + order, {headers: headers}).then((response) =>
-        response.json()
-    );
+    return fetch(base_url + "/task?sortBy=" + sort + "&sortOrder=" + order, {headers: headers})
+        .then((response) => response.json());
 }
 
 const get_process_definition_list = (ids) => {
-    return fetch(base_url + "/process-definition?processDefinitionIdIn=" + ids, {headers: headers}).then((response) =>
-        response.json()
-    );
+    return fetch(base_url + "/process-definition?processDefinitionIdIn=" + ids, {headers: headers})
+        .then((response) => response.json());
 }
 
 const get_generated_form = (task_id) => {
-    return fetch( `${base_url}/task/${task_id}/rendered-form`, {headers: headers}).then((response) =>
-        response.text()
-    );
+    return fetch( `${base_url}/task/${task_id}/rendered-form`, {headers: headers})
+        .then((response) => response.text());
 }
 
 export {
@@ -108,5 +116,6 @@ export {
   get_job_definitions,
   get_task_list,
   get_process_definition_list,
-  get_generated_form
+  get_generated_form,
+  get_user_profile
 }

@@ -15,6 +15,7 @@ const createAppState = () => {
   const selection_values = signal(null)
   const called_definitions = signal(null)
   const job_definitions = signal(null)
+  const user_profile = signal(null) // should be set after login
 
   return {
     process_definitions,
@@ -29,7 +30,8 @@ const createAppState = () => {
     process_incidents,
     selection_values,
     called_definitions,
-    job_definitions
+    job_definitions,
+    user_profile
   }
 }
 

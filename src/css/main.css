@@ -15,11 +15,21 @@ table {
     display: block;
     max-width: -moz-fit-content;
     max-width: fit-content;
-    overflow-x: auto;
+    overflow-x: scroll;
     white-space: nowrap;
     border-spacing: 0;
     margin-top: 1em;
+
+    /* TODO: Force scrollbar visible on MacOS as an indicator, if table is scrollable */
 }
+
+/*table:hover {*/
+/*    position: absolute;*/
+/*    bottom: 0;*/
+/*    left: 0;*/
+/*    width: 100%;*/
+/*    background: var(--background-1);*/
+/*}*/
 
 th {
     text-align: left;

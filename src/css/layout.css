@@ -103,3 +103,7 @@ header > nav menu a {
 .bg-2 {
     background: var(--background-2);
 }
+
+.relative {
+    position: relative;
+}

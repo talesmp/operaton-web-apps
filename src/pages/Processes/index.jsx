@@ -5,9 +5,7 @@ import * as api from '../../api'
 import * as Icons from '../../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
 import { AppState } from '../../state.js'
-import { Tabs } from '../../components/Tabs.jsx'
 import { Accordion } from '../../components/Accordion.jsx'
-import { get_job_definitions } from '../../api'
 
 const ProcessesPage = () => {
   const state = useContext(AppState)
@@ -228,6 +226,154 @@ const InstanceVariables = () => {
   )
 }
 
+const InstanceIncidents = () => {
+  const state = useContext(AppState)
+  const { params } = useRoute()
+
+  useSignalEffect(() => {
+    void api.get_process_instance_incidents(state, params.selection_id)
+  })
+
+  return (
+    <table>
+      <thead>
+      <tr>
+        <th>Message</th>
+        <th>Process Instance</th>
+        <th>Timestamp</th>
+        <th>Activity</th>
+        <th>Failing Activity</th>
+        <th>Cause Process Instance ID</th>
+        <th>Root Cause Process Instance ID</th>
+        <th>Type</th>
+        <th>Annotation</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {state.process_instance_incidents.value?.map(
+        // eslint-disable-next-line react/jsx-key
+        ({
+          id,
+          incidentMessage,
+          processInstanceId,
+          createTime,
+          activityId,
+          failedActivityId,
+          causeIncidentId,
+          rootCauseIncidentId,
+          incidentType,
+          annotation,
+        }) => (
+          <tr key={id}>
+            <td>{incidentMessage}</td>
+            <td><UUIDLink path={'/procceses'} uuid={processInstanceId} /></td>
+            <td>
+              <time datetime={createTime}>{createTime ? createTime.substring(0, 19) : "-/-"}</time>
+            </td>
+            <td>{activityId}</td>
+            <td>{failedActivityId}</td>
+            <td><UUIDLink path={''} uuid={causeIncidentId} /></td>
+            <td><UUIDLink path={''} uuid={rootCauseIncidentId} /></td>
+            <td>{incidentType}</td>
+            <td>{annotation}</td>
+          </tr>))}
+      </tbody>
+    </table>
+  )
+}
+
+const InstanceUserTasks = () => {
+  const state = useContext(AppState)
+  const { params } = useRoute()
+
+  useSignalEffect(() => {
+    void api.get_process_instance_tasks(state, params.selection_id)
+  })
+
+  return (
+    <table>
+      <thead>
+      <tr>
+        <th>Activity</th>
+        <th>Assignee</th>
+        <th>Owner</th>
+        <th>Created</th>
+        <th>Due</th>
+        <th>Follow Up</th>
+        <th>Priority</th>
+        <th>Delegation State</th>
+        <th>Task ID</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {state.process_instance_tasks.value?.map(
+        // eslint-disable-next-line react/jsx-key
+        ({
+          id,
+          assignee,
+          name,
+          owner,
+          created,
+          due,
+          followUp,
+          priority,
+          delegationState,
+        }) => (
+          <tr key={id}>
+            <td>{name}</td>
+            <td>{assignee}</td>
+            <td>{owner}</td>
+            <td>{created}</td>
+            <td>{due}</td>
+            <td>{followUp}</td>
+            <td>{priority}</td>
+            <td>{priority}</td>
+            <td>{delegationState}</td>
+            <td><UUIDLink path="/" uuid={id} /></td>
+            <td>
+              <button>Groups</button>
+              <button>Users</button>
+            </td>
+          </tr>))}
+      </tbody>
+    </table>
+  )
+}
+
+const CalledProcessInstances = () => {
+  const state = useContext(AppState)
+  const { selection_id } = useRoute()
+
+  useSignalEffect(() =>
+    void api.get_called_process_instances(state, selection_id)
+  )
+
+  return (
+    <table>
+      <thead>
+      <tr>
+        <th>State</th>
+        <th>Called Process Instance</th>
+        <th>Process Definition</th>
+        <th>Activity</th>
+      </tr>
+      </thead>
+      <tbody>
+      {state.called_process_instances.value?.map(instance =>
+        <tr key={instance.id}>
+          <td>{instance.suspended ? 'Suspended' : 'Running'}</td>
+          <td><a href={`/processes/${instance.id}`}>{instance.id}</a></td>
+          <td>{instance.definitionId}</td>
+          <td>{instance.definitionId}</td>
+        </tr>
+      )}
+      </tbody>
+    </table>
+  )
+}
+
 const Incidents = () => {
   const state = useContext(AppState)
   const { definition_id } = useRoute()
@@ -316,7 +462,7 @@ const JobDefinitions = () => {
           {/*<td>{definition.calledFromActivityIds.map(a => `${a}, `)}</td>*/}
           <td>{definition.jobType}</td>
           <td>{definition.jobConfiguration}</td>
-          <td>{definition.overridingJobPriority ?? "-"}</td>
+          <td>{definition.overridingJobPriority ?? '-'}</td>
           <td>
             <button>Suspend</button>
             <button>Change Overriding Job Priority</button>
@@ -362,6 +508,9 @@ const process_definition_tabs = [
     target: <JobDefinitions />
   }]
 
+const UUIDLink = ({ uuid = '?', path }) =>
+  <a href={path}>{uuid.substring(0, 8)}</a>
+
 const process_instance_tabs = [
   {
     name: 'Variables',
@@ -373,30 +522,32 @@ const process_instance_tabs = [
     name: 'Instance Incidents',
     id: 'instance_incidents',
     pos: 1,
-    target: <p>Incidents</p>
+    target: <InstanceIncidents />
   },
   {
     name: 'Called Instances',
     id: 'called_instances',
     pos: 2,
-    target: <p>Called Instances</p>
+    target: <CalledProcessInstances />
   },
   {
     name: 'User Tasks',
     id: 'user_tasks',
     pos: 3,
-    target: <p>User Tasks</p>
+    target: <InstanceUserTasks />
   },
   {
     name: 'Jobs',
     id: 'jobs',
     pos: 4,
+    // TODO: create Jobs example for old Camunda apps
     target: <p>Jobs</p>
   },
   {
     name: 'External Tasks',
     id: 'external_tasks',
     pos: 5,
+    // TODO: create External Apps example for old Camunda apps
     target: <p>External Tasks</p>
   }]
 

@@ -5,26 +5,38 @@ div#app {
         "main";
     grid-template-rows: fit-content(4rem) auto;
     height: 100vh;
+
+    main {
+        grid-area: main;
+        /*padding: var(--spacing-1);*/
+        overflow-y: auto;
+    }
+
+    header {
+        grid-area: header;
+        display: flex;
+        flex-direction: column;
+        border-bottom: var(--border);
+
+        nav#secondary-navigation {
+            background: var(--background-2);
+            font-size: var(--small-font-size);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: var(--border);
+
+            > span {
+                padding: var(--spacing-1)
+            }
+        }
+    }
 }
 
-div#app > main {
-    grid-area: main;
-    padding: var(--spacing-1);
-    overflow-y: auto;
-}
-
-div#app > header {
-    grid-area: header;
-    display: flex;
-    gap: var(--spacing-2);
-    align-items: center;
-    padding: var(--spacing-1) var(--spacing-2);
-    border-bottom: var(--border);
-}
 
 main.split-layout {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    /*gap: var(--spacing-2);*/
 }
 
 /* header */
@@ -70,4 +82,24 @@ header > nav menu a {
 
 .gap {
     gap: var(--spacing-2)
+}
+
+.p-1 {
+    padding: var(--spacing-1);
+}
+
+.p-2 {
+    padding: var(--spacing-2);
+}
+
+.p-3 {
+    padding: var(--spacing-3);
+}
+
+.bg-1 {
+    background: var(--background-1);
+}
+
+.bg-2 {
+    background: var(--background-2);
 }

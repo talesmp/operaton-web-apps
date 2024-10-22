@@ -16,19 +16,19 @@ button {
     color: white;
     font-weight: bold;
 
-    display: flex;
+    display: inline-flex;
     gap: var(--spacing-1);
 
     font-size: var(--small-font-size);
 }
 
 button.secondary {
-    background: var(--background);
+    background: var(--background-1);
     color: var(--color-primary);
 }
 
 button.danger {
-    background: var(--background);
+    background: var(--background-1);
     border-color: var(--color-danger-transparent);
     color: var(--color-danger);
 }
@@ -67,7 +67,7 @@ textarea {
     padding: var(--spacing-1);
     border: var(--border);
     border-radius: var(--border-radius);
-    background: var(--background);
+    background: var(--background-1);
 }
 
 :where(input, select, textarea):disabled {

@@ -12,7 +12,7 @@
         var(--color-danger) 50%,
         transparent
     );
-    --background: #fff;
+    --background-1: #fff;
     --background-2: #f2f2f2;
 
     --border-color: #ddd;
@@ -23,7 +23,7 @@
     --text-inverted: #fff;
 
     /* font */
-    --base-font-size: 18px;
+    --base-font-size: 1rem;
     --small-font-size: 0.85rem;
     --h1-size: 3rem;
     --h2-size: 2rem;

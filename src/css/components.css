@@ -1,5 +1,10 @@
 /* tile & tile-list */
 
+.tile {
+    border: var(--border);
+    border-radius: var(--border-radius);
+}
+
 .tile-list {
     padding: 0;
     list-style: none;
@@ -67,14 +72,9 @@ hr {
 /* logo */
 
 #logo {
-    height: 1.8rem;
-    width: auto;
-}
-
-p#logo {
     letter-spacing: 0.2rem;
-    height: auto;
-    font-weight: 400;
+    font-weight: 500;
+    text-transform: uppercase;
 }
 
 /* icon */
@@ -135,6 +135,11 @@ h1 > span.selected {
 }
 
 
+main#processes #selection {
+    overflow-y: auto;
+    padding: var(--spacing-2);
+}
+
 /* tabs */
 
 .tabs > .tab-selection {
@@ -157,13 +162,13 @@ h1 > span.selected {
 }
 
 .tabs > .tab-selection > a[aria-selected="true"] {
-    background: var(--background);
+    background: var(--background-1);
     border-top-width: var(--border-width-3);
     border-top-color: var(--color-primary);
     color: var(--color-primary);
     font-weight: bold;
     /*margin-bottom: calc(-1 * var(--border-width));*/
-    border-bottom-color: var(--background);
+    border-bottom-color: var(--background-1);
     z-index: 2;
 }
 
@@ -181,15 +186,20 @@ h1 > span.selected {
     flex-direction: column;
     border-radius: var(--border-radius);
     justify-content: space-between;
+
+    &.bg-1 {
+        background: var(--background-1);
+    }
+
+    > svg {
+        height: 1rem;
+        width: 1rem;
+        color: var(--text);
+        stroke-width: .1rem;
+        stroke-linecap: round;
+    }
 }
 
-.tabs-back > svg {
-    height: 1rem;
-    width: 1rem;
-    color: var(--text);
-    stroke-width: .1rem;
-    stroke-linecap: round;
-}
 
 /* bpmn diagram */
 
@@ -226,3 +236,61 @@ h1 > span.selected {
     /*font-weight: bold;*/
     text-shadow: 0 0 4px var(--color-primary);
 }
+
+
+/* accordion */
+
+div.accordion {
+    border: var(--border);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+
+    details {
+        border-bottom: var(--border);
+
+        summary {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            padding: var(--spacing-1);
+        }
+
+        summary::before {
+            content: "";
+            background-image:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='size-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m8.25 4.5 7.5 7.5-7.5 7.5' /%3E%3C/svg%3E%0A");
+            background-size: 1rem 1rem;
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .panel {
+            padding:  0 var(--spacing-2)var(--spacing-2) var(--spacing-2);
+        }
+    }
+
+    details[open] {
+        background: var(--background-2);
+
+        > summary::before {
+            transform: rotate(90deg);
+        }
+
+        details[open] {
+            background: var(--background-1);
+        }
+    }
+
+    details:first-child {
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+    }
+
+    details:last-child {
+        border-bottom: none;
+        border-bottom-left-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+    }
+}
+
+

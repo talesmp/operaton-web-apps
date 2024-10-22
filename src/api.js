@@ -1,9 +1,9 @@
-const base_url = "http://localhost:8888/engine-rest";
+const base_url = 'http://localhost:8888/engine-rest'
 
 const get_process_definitions = (state) =>
   fetch(`${base_url}/process-definition/statistics`)
     .then(response => response.json())
-    .then(json => state.process_definitions.value = json);
+    .then(json => state.process_definitions.value = json)
 
 const get_process_definition = (state, id) =>
   fetch(`${base_url}/process-definition/${id}`)
@@ -13,8 +13,8 @@ const get_process_definition = (state, id) =>
 const url_params = (definition_id) =>
   new URLSearchParams({
     unfinished: true,
-    sortBy: "startTime",
-    sortOrder: "asc",
+    sortBy: 'startTime',
+    sortOrder: 'asc',
     processDefinitionId: definition_id,
   }).toString()
 
@@ -33,12 +33,20 @@ const get_process_instance = (state, instance_id) =>
     .then(response => response.json())
     .then(json => state.process_instance.value = json)
 
-
 const get_process_instance_variables = (state, instance_id) =>
   fetch(`${base_url}/process-instance/${instance_id}/variables`)
     .then(response => response.json())
     .then(json => state.selection_values.value = json)
 
+const get_called_process_definitions = (state, definition_id) =>
+  fetch(`${base_url}/process-definition/${definition_id}/static-called-process-definitions`)
+    .then(response => response.json())
+    .then(json => state.called_definitions.value = json)
+
+const get_job_definitions = (state, definition_id) =>
+  fetch(`${base_url}/job-definition?processDefinitionId=${definition_id}`)
+    .then(response => response.json())
+    .then(json => state.job_definitions.value = json)
 
 const get_diagram = (state, definition_id) =>
   fetch(`${base_url}/process-definition/${definition_id}/xml`)
@@ -52,5 +60,7 @@ export {
   get_process_instance,
   get_process_instances,
   get_process_instance_variables,
-  get_process_incidents
-};
+  get_process_incidents,
+  get_called_process_definitions,
+  get_job_definitions,
+}

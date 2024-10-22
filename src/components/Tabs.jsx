@@ -1,8 +1,8 @@
-import {useLocation, useRoute} from "preact-iso";
+import { useLocation, useRoute } from 'preact-iso'
 
-const Tabs = ({base_url, tabs, param_name = "tab"}) => {
-  const {params} = useRoute();
-  const {route, path} = useLocation();
+const Tabs = ({ base_url, tabs, param_name = 'tab' }) => {
+  const { params } = useRoute()
+  const { route, path } = useLocation()
   const tab = params[param_name]
 
   if (tab === null) {
@@ -14,22 +14,22 @@ const Tabs = ({base_url, tabs, param_name = "tab"}) => {
       const new_tab = tabs[
         tabs.length !== current_tab.pos + 1
           ? current_tab.pos + 1
-          : 0];
+          : 0]
       document.getElementById(`${param_name}-${new_tab.id}`).focus()
-      route(`${base_url}/${new_tab.id}`);
+      route(`${base_url}/${new_tab.id}`)
     } else if (event.key === 'ArrowLeft') {
       const new_tab = tabs[
         0 !== current_tab.pos
           ? current_tab.pos - 1
-          : tabs.length - 1];
+          : tabs.length - 1]
       document.getElementById(`${param_name}-${new_tab.id}`).focus()
-      route(`${base_url}/${new_tab.id}`);
+      route(`${base_url}/${new_tab.id}`)
 
     }
   }
 
   return (
-    <div class="tabs" id="process-details-tabs">
+    <div class="tabs">
       <div class="tab-selection" role="tablist"
            aria-labelledby="tablist-1">
 
@@ -54,10 +54,11 @@ const Tabs = ({base_url, tabs, param_name = "tab"}) => {
            role="tabpanel"
            tabIndex="0"
            aria-labelledby={`${param_name}-${tab}`}>
-        {tabs.find(tab_ => tab === tab_.id)?.target || "Select a tab"}
+        {tabs.find(tab_ => tab === tab_.id)?.target || 'Select a tab'}
       </div>
     </div>
-  );
+  )
 }
 
-export {Tabs};
+
+export { Tabs }

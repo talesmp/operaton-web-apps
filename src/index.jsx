@@ -29,11 +29,11 @@ export function App () {
           <Route path="/processes" component={ProcessesPage} />
           <Route path="/processes/:definition_id"
                  component={ProcessesPage} />
-          <Route path="/processes/:definition_id/:tab"
+          <Route path="/processes/:definition_id/:panel"
                  component={ProcessesPage} />
-          <Route path="/processes/:definition_id/:tab/:selection_id"
+          <Route path="/processes/:definition_id/:panel/:selection_id"
                  component={ProcessesPage} />
-          <Route path="/processes/:definition_id/:tab/:selection_id/:tab2"
+          <Route path="/processes/:definition_id/:panel/:selection_id/:sub_panel"
                  component={ProcessesPage} />
           <Route default component={NotFound} />
         </Router>

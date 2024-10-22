@@ -75,6 +75,7 @@ const ProcessDefinitionSelection = () =>
 
 const ProcessDefinitionDetails = () => {
   const { process_definition } = useContext(AppState)
+  const { params } = useRoute()
 
   return (
     <>
@@ -104,7 +105,8 @@ const ProcessDefinitionDetails = () => {
 
       <Accordion
         accordion_name="process_definition_details"
-        sections={process_definition_tabs} />
+        sections={process_definition_tabs}
+        base_path={`/processes/${params.definition_id}`} />
 
       {/*<Tabs base_url={`/processes/${params.definition_id}`}*/}
       {/*      tabs={process_definition_tabs} />*/}
@@ -152,7 +154,7 @@ const InstanceTableRows = () =>
 
 const InstanceDetails = () => {
   const state = useContext(AppState)
-  const { params: { selection_id, definition_id } } = useRoute()
+  const { params: { selection_id, definition_id, panel } } = useRoute()
 
   void api.get_process_instance(state, selection_id)
 
@@ -168,7 +170,9 @@ const InstanceDetails = () => {
 
       <Accordion
         sections={process_instance_tabs}
-        accordion_name="instance_details_accordion" />
+        accordion_name="instance_details_accordion"
+        param_name="sub_panel"
+        base_path={`/processes/${definition_id}/${panel}/${selection_id}`} />
     </div>
   )
 }
@@ -269,7 +273,8 @@ const InstanceIncidents = () => {
             <td>{incidentMessage}</td>
             <td><UUIDLink path={'/procceses'} uuid={processInstanceId} /></td>
             <td>
-              <time datetime={createTime}>{createTime ? createTime.substring(0, 19) : "-/-"}</time>
+              <time
+                datetime={createTime}>{createTime ? createTime.substring(0, 19) : '-/-'}</time>
             </td>
             <td>{activityId}</td>
             <td>{failedActivityId}</td>
@@ -443,34 +448,36 @@ const JobDefinitions = () => {
   )
 
   return (
-    <table>
-      <thead>
-      <tr>
-        <th>State</th>
-        <th>Activity</th>
-        <th>Type</th>
-        <th>Configuration</th>
-        <th>Overriding Job Priority</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      {state.job_definitions.value?.map(definition =>
-        <tr key={definition.id}>
-          <td>{definition.suspended ? 'Suspended' : 'Active'}</td>
-          <td>?</td>
-          {/*<td>{definition.calledFromActivityIds.map(a => `${a}, `)}</td>*/}
-          <td>{definition.jobType}</td>
-          <td>{definition.jobConfiguration}</td>
-          <td>{definition.overridingJobPriority ?? '-'}</td>
-          <td>
-            <button>Suspend</button>
-            <button>Change Overriding Job Priority</button>
-          </td>
+    <div class="relative">
+      <table>
+        <thead>
+        <tr>
+          <th>State</th>
+          <th>Activity</th>
+          <th>Type</th>
+          <th>Configuration</th>
+          <th>Overriding Job Priority</th>
+          <th>Action</th>
         </tr>
-      )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+        {state.job_definitions.value?.map(definition =>
+          <tr key={definition.id}>
+            <td>{definition.suspended ? 'Suspended' : 'Active'}</td>
+            <td>?</td>
+            {/*<td>{definition.calledFromActivityIds.map(a => `${a}, `)}</td>*/}
+            <td>{definition.jobType}</td>
+            <td>{definition.jobConfiguration}</td>
+            <td>{definition.overridingJobPriority ?? '-'}</td>
+            <td>
+              <button>Suspend</button>
+              <button>Change Overriding Job Priority</button>
+            </td>
+          </tr>
+        )}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

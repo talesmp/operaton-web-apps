@@ -23,13 +23,18 @@ table {
     /* TODO: Force scrollbar visible on MacOS as an indicator, if table is scrollable */
 }
 
-/*table:hover {*/
-/*    position: absolute;*/
-/*    bottom: 0;*/
-/*    left: 0;*/
-/*    width: 100%;*/
-/*    background: var(--background-1);*/
-/*}*/
+table:hover {
+    /*bottom: 0;*/
+    /*left: 0;*/
+    width: 200%;
+    margin-right: -100%;
+    height: auto;
+    background: var(--background-1);
+    border: var(--border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-1);
+    z-index: 100;
+}
 
 th {
     text-align: left;

@@ -16,7 +16,7 @@ export function Task(props) {
     ]);
 
     return (
-        <div id="task-details">
+        <div id="task-details" class="fade-in">
             <div class="task-menu">
                 <menu>
                     {(() => {

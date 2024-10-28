@@ -16,6 +16,12 @@ const ProcessesPage = () => {
   if (params.definition_id) {
     void api.get_process_definition(state, params.definition_id)
     void api.get_diagram(state, params.definition_id)
+  } else {
+    // reset state
+    state.process_definition.value = null
+    state.process_instances.value = null
+    state.process_instance.value = null
+    state.process_definition_diagram.value = null
   }
 
   return (
@@ -39,7 +45,7 @@ const ProcessDiagram = () => {
     params.definition_id !== undefined
 
   return (
-    <div id="preview">
+    <div id="preview" class="fade-in">
       {show_diagram
         ? <ReactBpmn
           diagramXML={process_definition_diagram.value.bpmn20Xml}
@@ -52,11 +58,11 @@ const ProcessDiagram = () => {
 }
 
 const ProcessDefinitionSelection = () =>
-  <>
+  <div class="fade-in">
     <h1>
       Process Definitions
     </h1>
-    <table>
+    <table class="tile p-1">
       <thead>
       <tr>
         <th>Name</th>
@@ -71,14 +77,15 @@ const ProcessDefinitionSelection = () =>
         <ProcessDefinition key={process.id} {...process} />)}
       </tbody>
     </table>
-  </>
+  </div>
 
 const ProcessDefinitionDetails = () => {
+  const state = useContext(AppState)
   const { process_definition } = useContext(AppState)
   const { params } = useRoute()
 
   return (
-    <>
+    <div class="fade-in">
       <div class="row gap">
         <a className="tabs-back"
            href={`/processes`}
@@ -87,7 +94,7 @@ const ProcessDefinitionDetails = () => {
           <Icons.list />
         </a>
         <div>
-          <h1>{process_definition.value?.name}</h1>
+          <h1>{process_definition.value?.name} &nbsp;</h1>
           <dl>
             <dt>Definition ID</dt>
             <dd className="font-mono copy-on-click" onClick={copyToClipboard}>
@@ -110,7 +117,7 @@ const ProcessDefinitionDetails = () => {
 
       {/*<Tabs base_url={`/processes/${params.definition_id}`}*/}
       {/*      tabs={process_definition_tabs} />*/}
-    </>
+    </div>
   )
 }
 
@@ -131,7 +138,7 @@ const Instances = () => {
   void api.get_process_instances(state, params.definition_id)
 
   return !params?.selection_id
-    ? (<table>
+    ? (<table class="fade-in">
       <thead>
       <tr>
         <th>ID</th>
@@ -159,7 +166,7 @@ const InstanceDetails = () => {
   void api.get_process_instance(state, selection_id)
 
   return (
-    <div>
+    <div class="fade-in">
       <div class="row gap">
         <BackToListBtn
           url={`/processes/${definition_id}/instances`}

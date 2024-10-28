@@ -15,6 +15,7 @@ import "./css/vars.css";
 import "./css/layout.css";
 import "./css/components.css";
 import "./css/main.css";
+import "./css/animation.css";
 
 'use strict'
 

@@ -51,7 +51,7 @@ export function Tasks() {
     }, []);
     // TODO do we need the div here?
     return (
-          <main id="tasks">
+          <main id="tasks" class="fade-in">
             <aside aria-label="task list">
               <div className="tile-filter" id="task-filter">
                 <div className="filter-header" onClick={openFilter}>

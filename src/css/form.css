@@ -50,7 +50,7 @@ button:hover {
     border-style: dotted;
 }
 
-*:focus {
+:where(a, button, input, select):active {
     outline: var(--border-width-2) dashed var(--color-primary);
 }
 

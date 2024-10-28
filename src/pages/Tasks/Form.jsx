@@ -23,7 +23,8 @@ export function Form(props) {
 
                     return (
                         <>
-                            <button onClick={() => window.open(`http://localhost:8080/${formLink}`, '_blank')}>
+                            <a href={`http://localhost:8888/${formLink}`} target="_blank">Embedded Form</a>
+                            <button onClick={() => window.open(`http://localhost:8888/${formLink}`, '_blank')}>
                                 Embedded Form
                             </button>
 

@@ -9,11 +9,13 @@
     padding: 0;
     list-style: none;
     margin: 1rem var(--spacing-1) 0 var(--spacing-1);
-}
 
-.tile-list .tile {
-    border-top: var(--border-width) solid var(--border-color);
-    font-size: var(--small-font-size);
+    .tile {
+        border: none;
+        border-radius: 0;
+        border-top: var(--border-width) solid var(--border-color);
+        font-size: var(--small-font-size);
+    }
 }
 
 .tile-list li:first-child.tile:not(.selected),

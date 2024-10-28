@@ -23,11 +23,12 @@ export function Form(props) {
 
                     return (
                         <>
-                        <button onClick={() => window.open(`http://localhost:8080/${formLink}`, '_blank')}>
-                            Embedded Form
-                        </button>
+                            <button onClick={() => window.open(`http://localhost:8080/${formLink}`, '_blank')}>
+                                Embedded Form
+                            </button>
 
-                        <p>May be we should explain this button here</p></>
+                            <p>May be we should explain this button here</p>
+                        </>
                     );
                 } else if (props.selected.camundaFormRef) {
 

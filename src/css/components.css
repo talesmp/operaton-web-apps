@@ -442,6 +442,7 @@ div.accordion {
     padding: var(--spacing-1) 0;
     background-color: var(--background-2);
     border-radius: 0;
+    cursor: pointer;
 }
 
 .task-menu menu li:first-child {

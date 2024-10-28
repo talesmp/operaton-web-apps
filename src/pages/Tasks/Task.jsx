@@ -1,9 +1,12 @@
 import * as Icons from "../../assets/icons.jsx";
-import { useState } from 'preact/hooks';
+import { useState, useContext } from 'preact/hooks';
 import { Form } from "./Form.jsx";
+import { AppState } from "../../state.js";
+import * as api from "../../api";
 
 export function Task(props) {
     const [tab, setTab] = useState("task-tab-form");
+    const state = useContext(AppState);
 
     // tabs on the task main page
     const tabs = new Map([
@@ -16,12 +19,28 @@ export function Task(props) {
         <>
             <div class="task-menu">
                 <menu>
-                    <li>
-                        <div class="border">
-                            <span class="icon"><Icons.user_plus /></span>
-                            <span class="label">Claim</span>
-                        </div>
-                    </li>
+                    {(() => {
+                        // show claim only, if this task has another assignee
+                        if (state.user_profile.value && state.user_profile.value.id !== props.selected.assignee) {
+                            return (
+                            <li onClick={() => assignTask(true, state, props.selected.id, props.setSelected)}>
+                                <div class="border">
+                                    <span class="icon"><Icons.user_plus /></span>
+                                    <span class="label">Claim</span>
+                                </div>
+                            </li>
+                            )
+                        } else if (state.user_profile.value && state.user_profile.value.id === props.selected.assignee) {
+                            return (
+                                <li onClick={() => assignTask(false, state, props.selected.id, props.setSelected)}>
+                                    <div class="border">
+                                        <span class="icon"><Icons.user_minus /></span>
+                                        <span class="label">Unclaim</span>
+                                    </div>
+                                </li>
+                            )
+                        }
+                    })()}
                     <li>
                         <div className="border">
                             <span class="icon"><Icons.users /></span>
@@ -98,3 +117,13 @@ export function Task(props) {
     );
 }
 
+function assignTask(claim, state, taskId, setSelected) {
+    const result = claim ? api.claim_task(taskId, state) : api.unclaim_task(taskId, state);
+
+    result.then(worked => {
+        console.log("result: " + worked);
+        if (worked) {
+           api.get_task(taskId).then((task) => {setSelected(task); console.log("set selected: " + task.id)});
+        }
+    });
+}

@@ -91,6 +91,11 @@ const get_task_list = (sort_key, sort_order) => {
         .then((response) => response.json());
 }
 
+const get_task = (task_id) => {
+    return fetch( `${base_url}/task/${task_id}`, {headers: headers})
+        .then((response) => response.json());
+}
+
 const get_process_definition_list = (ids) => {
     return fetch(base_url + "/process-definition?processDefinitionIdIn=" + ids, {headers: headers})
         .then((response) => response.json());
@@ -101,21 +106,38 @@ const get_generated_form = (task_id) => {
         .then((response) => response.text());
 }
 
-export {
-  get_process_definitions,
-  get_process_definition,
-  get_diagram,
-  get_process_instance,
-  get_process_instances,
-  get_process_instance_variables,
-  get_process_instance_incidents,
-  get_process_instance_tasks,
-  get_called_process_instances,
-  get_process_incidents,
-  get_called_process_definitions,
-  get_job_definitions,
-  get_task_list,
-  get_process_definition_list,
-  get_generated_form,
-  get_user_profile
+const claim_task = (task_id, state) => assign_task(true, task_id, state)
+
+const unclaim_task = (task_id, state) => assign_task(false, task_id, state)
+
+// claim and unclaim tasks
+const assign_task = (claim, task_id, state) => {
+    const custom_header = headers;
+    custom_header.set("Content-Type", "application/json");
+
+    return fetch(`${base_url}/task/${task_id}/${ claim ? "claim" : "unclaim" }`,
+        { headers: headers, method: "POST", body: JSON.stringify({ userId: state.user_profile.value.id }) })
+        .then((response) => {
+            if (!response.ok) {
+                console.log(`status: ${response.status}`);
+                return false;
+            }
+            return true;
+        });
 }
+
+export {
+    get_process_definitions,
+    get_process_definition,
+    get_diagram,
+    get_process_instance_list,
+    get_process_instance,
+    get_process_instance_variables,
+    get_task_list,
+    get_process_definition_list,
+    get_generated_form,
+    get_user_profile,
+  claim_task,
+  get_task,
+  unclaim_task
+};

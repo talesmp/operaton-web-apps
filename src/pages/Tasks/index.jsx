@@ -73,7 +73,7 @@ export function Tasks() {
                 </ul>
             </aside>
             <main>
-                <Task selected={selected} />
+                <Task selected={selected} setSelected={setSelected} />
             </main>
         </div>
     );

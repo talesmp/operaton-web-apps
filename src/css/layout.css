@@ -37,15 +37,40 @@ div#app {
         flex-direction: column;
         border-bottom: var(--border);
 
-        nav#secondary-navigation {
-            background: var(--background-2);
-            font-size: var(--small-font-size);
-            display: flex;
-            justify-content: space-between;
-            border-bottom: var(--border);
+        nav {
+            padding: 0 var(--spacing-1);
 
-            > span {
-                padding: var(--spacing-1)
+            > menu {
+                gap: var(--spacing-2);
+            }
+
+            menu {
+                list-style: none;
+                display: flex;
+                flex-wrap: wrap;
+                padding: 0;
+
+                li a {
+                    color: var(--text);
+                    display: block;
+                    padding: var(--spacing-1);
+
+                    &.active {
+                        color: var(--color-primary);
+                    }
+                }
+            }
+
+            &#secondary-navigation {
+                background: var(--background-2);
+                font-size: var(--small-font-size);
+                display: flex;
+                justify-content: space-between;
+                border-bottom: var(--border);
+
+                > span {
+                    padding: var(--spacing-1)
+                }
             }
         }
     }
@@ -54,19 +79,6 @@ div#app {
 
 /* header */
 
-header {
-    > nav {
-        padding: 0 var(--spacing-1);
-
-        menu {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-1) var(--spacing-2);
-            padding: var(--spacing-1);
-        }
-    }
-}
 
 header > nav > menu {
     padding: 0;

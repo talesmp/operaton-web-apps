@@ -6,9 +6,11 @@
 }
 
 .tile-list {
-    padding: 0;
     list-style: none;
-    margin: 1rem var(--spacing-1) 0 var(--spacing-1);
+    padding: var(--spacing-1);
+    margin: var(--spacing-1) 0;
+    overflow-y: auto;
+    position: relative;
 
     .tile {
         border: none;

@@ -10,6 +10,25 @@ div#app {
         grid-area: main;
         /*padding: var(--spacing-1);*/
         overflow-y: auto;
+
+        &#tasks {
+            display: grid;
+            grid-template-columns: fit-content(20ch) auto;
+
+            aside {
+                /*overflow-y: auto;*/
+                position: relative;
+                display: grid;
+                grid-template-rows: max-content auto;
+                max-height: 100%;
+            }
+        }
+
+        &.split-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            /*gap: var(--spacing-2);*/
+        }
     }
 
     header {
@@ -33,20 +52,20 @@ div#app {
 }
 
 
-main.split-layout {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    /*gap: var(--spacing-2);*/
-}
-
 /* header */
 
-header > nav menu {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1) var(--spacing-2);
-    padding: var(--spacing-1);
+header {
+    > nav {
+        padding: 0 var(--spacing-1);
+
+        menu {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-1) var(--spacing-2);
+            padding: var(--spacing-1);
+        }
+    }
 }
 
 header > nav > menu {

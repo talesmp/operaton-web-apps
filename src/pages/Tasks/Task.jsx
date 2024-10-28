@@ -16,7 +16,7 @@ export function Task(props) {
     ]);
 
     return (
-        <>
+        <div id="task-details">
             <div class="task-menu">
                 <menu>
                     {(() => {
@@ -113,7 +113,7 @@ export function Task(props) {
                     DIAGRAM
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 

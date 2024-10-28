@@ -51,51 +51,52 @@ export function Tasks() {
     }, []);
     // TODO do we need the div here?
     return (
-        <div style="display: flex">
+          <main id="tasks">
             <aside aria-label="task list">
-                <div class="tile-filter" id="task-filter">
-                    <div class="filter-header" onClick={openFilter}>
-                        <span className="label">Filter Tasks & Search</span>
-                        <span className="icon down"><Icons.chevron_down /></span>
-                        <span className="icon up"><Icons.chevron_up /></span>
-                    </div>
-                    <div class="filter-menu">
-                    <menu>
-                            <li>My Tasks</li>
-                            <li>Claimed Tasks</li>
-                        </menu>
-                    </div>
+              <div className="tile-filter" id="task-filter">
+                <div className="filter-header" onClick={openFilter}>
+                  <span className="label">Filter Tasks & Search</span>
+                  <span className="icon down"><Icons.chevron_down /></span>
+                  <span className="icon up"><Icons.chevron_up /></span>
                 </div>
+                <div className="filter-menu">
+                  <menu>
+                    <li>My Tasks</li>
+                    <li>Claimed Tasks</li>
+                  </menu>
+                </div>
+              </div>
 
-                <ul class="tile-list">
-                    {tasks.map(task => (
-                        <TaskTile task={task} selected={task.id === selected.id} setSelected={setSelected} state={state} />))}
-                </ul>
+              <ul className="tile-list">
+                {tasks.map(task => (
+                  <TaskTile task={task} selected={task.id === selected.id}
+                            setSelected={setSelected} state={state} />))}
+              </ul>
             </aside>
-            <main>
-                <Task selected={selected} setSelected={setSelected} />
-            </main>
-        </div>
+            <Task selected={selected} setSelected={setSelected} />
+          </main>
     );
 }
 
-const TaskTile = ({task, selected, setSelected, state}) => (
-    <li class={selected ? "tile selected" : "tile"}>
-        <a href="" data-task-id={task.id} aria-labelledby={task.id} onClick={() => setSelected(task)}>
-            <div className="tile-row">
-                <div>{task.def_name}</div>
-                <div className="tile-right">{formatter.formatRelativeDate(task.created)}</div>
-            </div>
-            <h4 id={task.id}>{task.name}</h4>
-            <div className="tile-row">
-                <div>Assigned to <b>{task.assignee ? // we compare the assignee with the current user ID, if it's equal show "me"
-                    (state.user_profile.value && state.user_profile.value.id === task.assignee ? "me" : task.assignee)
-                    : "no one"}</b></div>
-                <div className="tile-right">Priority {task.priority}</div>
-            </div>
-        </a>
-    </li>
-);
+const TaskTile = ({ task, selected, setSelected, state }) => (
+  <li class={selected ? 'tile selected' : 'tile'}>
+    <a href="" data-task-id={task.id} aria-labelledby={task.id}
+       onClick={() => setSelected(task)}>
+      <div className="tile-row">
+        <div>{task.def_name}</div>
+        <div
+          className="tile-right">{formatter.formatRelativeDate(task.created)}</div>
+      </div>
+      <h4 id={task.id}>{task.name}</h4>
+      <div className="tile-row">
+        <div>Assigned to <b>{task.assignee ? // we compare the assignee with the current user ID, if it's equal show "me"
+          (state.user_profile.value && state.user_profile.value.id === task.assignee ? 'me' : task.assignee)
+          : 'no one'}</b></div>
+        <div className="tile-right">Priority {task.priority}</div>
+      </div>
+    </a>
+  </li>
+)
 
 function openFilter() {
     const menu = document.getElementById("task-filter")

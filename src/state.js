@@ -1,6 +1,21 @@
+/**
+ * state.js
+ *
+ * Global app state using Preact signals.
+ */
+
 import { signal } from '@preact/signals'
 import { createContext } from 'preact'
 
+/**
+ * Create the global app state by invoking the function in the root [index.jsx`]
+ * (./src/index.jsx) by using `<AppState.Provider value={createAppState()}>`.
+ *
+ * To add new entries to the state expand the list of definitions in a flat
+ *
+ *
+ * @returns {Object} exposing all defined signals
+ */
 const createAppState = () => {
   const server = signal(localStorage.getItem("server") || JSON.parse(import.meta.env.VITE_BACKEND)[0])
   const process_definitions = signal(null)

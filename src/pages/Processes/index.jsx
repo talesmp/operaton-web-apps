@@ -80,7 +80,6 @@ const ProcessDefinitionSelection = () =>
   </div>
 
 const ProcessDefinitionDetails = () => {
-  const state = useContext(AppState)
   const { process_definition } = useContext(AppState)
   const { params } = useRoute()
 

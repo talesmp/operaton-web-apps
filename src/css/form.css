@@ -83,3 +83,13 @@ textarea {
     background: var(--background-2);
     color: var(--text-2);
 }
+
+
+option {
+    font-size: var(--base-font-size);
+
+    &[disabled] {
+        color: var(--text-2);
+        font-size: var(--small-font-size);
+    }
+}

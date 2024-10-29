@@ -81,12 +81,37 @@ div#app {
                     padding: var(--spacing-1)
                 }
 
-                select#server_selector {
-                    border: none;
-                    background: transparent;
-                    padding: var(--spacing-1);
-                    letter-spacing: 0.03rem;
+                > menu {
+                    gap: 0;
+
+                    > menu {
+                        border-left: var(--border);
+                        margin-left: var(--spacing-1);
+                        padding-left: var(--spacing-1);
+
+                        &#skip-links {
+                            opacity: 0;
+                            transition: opacity 100ms;
+
+                            &:focus-within {
+                                opacity: 1;
+                                transition: opacity 100ms;
+                            }
+                        }
+                    }
                 }
+                #server_selector {
+
+                    select {
+                        border: none;
+                        background: transparent;
+                        padding: 0 var(--spacing-1) 0 0;
+                        letter-spacing: 0.03rem;
+                        width: 12ch;
+                        text-overflow: ellipsis;
+                    }
+                }
+
             }
         }
     }
@@ -127,6 +152,7 @@ header > nav menu a {
     display: flex;
 }
 
+
 .col {
     display: flex;
     flex-direction: column;
@@ -134,6 +160,10 @@ header > nav menu a {
 
 .space-between {
     justify-content: space-between;
+}
+
+.center {
+    align-items: center;
 }
 
 .gap-1 {

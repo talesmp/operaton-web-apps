@@ -27,7 +27,7 @@ export function Header () {
         <a href="/">Operaton BPM</a>
       </span>
       <menu>
-        <menu>
+        <menu id="skip-links">
           <li><a href="#content">Skip to content</a></li>
           <li><a href="#primary-navigation">Skip to Primary Navigation</a>
           </li>
@@ -41,16 +41,22 @@ export function Header () {
           <li><a href="/about">About</a></li>
           <li><a href="/settings">Settings</a></li>
           <li><a href="/account">Account</a></li>
+
+        </menu>
+        <menu  id="server_selector">
           <li>
-            <select
-              id="server_selector"
-              onChange={(e) => swap_server(e, state)}>
-              {JSON.parse(import.meta.env.VITE_BACKEND).map(server =>
-                <option key={server.url} value={server.url}
-                        selected={localStorage.getItem('server') === server.url}>
-                  {server.name}
-                </option>)}
-            </select>
+            <label className="row center gap-1 p-1" title="Server selection">
+              <Icons.server title="Server selection" />
+              <select
+                onChange={(e) => swap_server(e, state)}>
+                <option disabled>ℹ️ Choose a server to retrieve your processes</option>
+                {JSON.parse(import.meta.env.VITE_BACKEND).map(server =>
+                  <option key={server.url} value={server.url}
+                          selected={localStorage.getItem('server') === server.url}>
+                    {server.name}
+                  </option>)}
+              </select>
+            </label>
           </li>
         </menu>
       </menu>

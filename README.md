@@ -19,6 +19,8 @@ You require the following software to run the app
 
 ## Contributing
 
+Please refer to the [Coding Conventions.md](docs/Coding%20Conventions.md) file for detailed information.
+
 ## License
 
 tdb

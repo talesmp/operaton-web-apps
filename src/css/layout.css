@@ -61,6 +61,15 @@ div#app {
                 }
             }
 
+            &#primary-navigation {
+                display: flex;
+                justify-content: space-between;
+
+                button {
+                    padding: var(--spacing-1);
+                }
+            }
+
             &#secondary-navigation {
                 background: var(--background-2);
                 font-size: var(--small-font-size);
@@ -111,7 +120,20 @@ header > nav menu a {
     display: flex;
 }
 
-.gap {
+.col {
+    display: flex;
+    flex-direction: column;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.gap-1 {
+    gap: var(--spacing-1)
+}
+
+.gap-2 {
     gap: var(--spacing-2)
 }
 

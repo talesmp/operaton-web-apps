@@ -86,7 +86,7 @@ const ProcessDefinitionDetails = () => {
 
   return (
     <div class="fade-in">
-      <div class="row gap">
+      <div class="row gap-2">
         <a className="tabs-back"
            href={`/processes`}
            title="Change Definition">
@@ -167,7 +167,7 @@ const InstanceDetails = () => {
 
   return (
     <div class="fade-in">
-      <div class="row gap">
+      <div class="row gap-2">
         <BackToListBtn
           url={`/processes/${definition_id}/instances`}
           title="Change Instance"

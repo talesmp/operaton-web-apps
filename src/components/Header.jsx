@@ -1,9 +1,12 @@
 // noinspection HtmlUnknownAnchorTarget,JSValidateTypes
 
 import { useLocation } from 'preact-iso'
+import * as Icons from "../assets/icons.jsx";
 
 export function Header () {
   const { url } = useLocation()
+
+  const showSearch = () => document.getElementById('global-search').showModal()
 
   return <header>
     <nav id="secondary-navigation">
@@ -55,6 +58,12 @@ export function Header () {
         <menu>
           <li><a href="/">Admin</a></li>
         </menu>
+      </menu>
+
+      <menu>
+        <li>
+          <button class="neutral" onClick={showSearch}><Icons.search /> Search <small class="font-mono">[ ALT + S ]</small> </button>
+        </li>
       </menu>
     </nav>
   </header>

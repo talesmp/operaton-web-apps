@@ -17,20 +17,27 @@ button {
     font-weight: bold;
 
     display: inline-flex;
+    align-items: center;
     gap: var(--spacing-1);
 
     font-size: var(--small-font-size);
-}
 
-button.secondary {
-    background: var(--background-1);
-    color: var(--color-primary);
-}
-
-button.danger {
-    background: var(--background-1);
-    border-color: var(--color-danger-transparent);
-    color: var(--color-danger);
+    &.secondary {
+        background: var(--background-1);
+        color: var(--color-primary);
+    }
+    &.neutral {
+        background: var(--background-1);
+        color: var(--text);
+        border: none;
+        font-weight: normal;
+        font-size: var(--base-font-size);
+    }
+    &.danger {
+        background: var(--background-1);
+        border-color: var(--color-danger-transparent);
+        color: var(--color-danger);
+    }
 }
 
 /* TODO: better name? */
@@ -47,7 +54,7 @@ button.danger {
 
 button:hover {
     cursor: pointer;
-    border-style: dotted;
+    outline-style: dotted;
 }
 
 :where(a, button, input, select):active {

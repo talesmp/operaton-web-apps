@@ -80,6 +80,13 @@ div#app {
                 > span {
                     padding: var(--spacing-1)
                 }
+
+                select#server_selector {
+                    border: none;
+                    background: transparent;
+                    padding: var(--spacing-1);
+                    letter-spacing: 0.03rem;
+                }
             }
         }
     }

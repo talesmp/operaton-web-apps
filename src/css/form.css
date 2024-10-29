@@ -52,9 +52,10 @@ button {
     margin-top: 0;
 }
 
-button:hover {
+:where(button, select, input):hover {
     cursor: pointer;
     outline-style: dotted;
+    z-index: 999;
 }
 
 :where(a, button, input, select):active {
@@ -75,6 +76,7 @@ textarea {
     border: var(--border);
     border-radius: var(--border-radius);
     background: var(--background-1);
+    font: var(--body-font-family);
 }
 
 :where(input, select, textarea):disabled {

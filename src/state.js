@@ -2,6 +2,7 @@ import { signal } from '@preact/signals'
 import { createContext } from 'preact'
 
 const createAppState = () => {
+  const server = signal(localStorage.getItem("server") || JSON.parse(import.meta.env.VITE_BACKEND)[0])
   const process_definitions = signal(null)
   const process_definition = signal(null)
   const selected_process_definition_id = signal(null)
@@ -18,6 +19,7 @@ const createAppState = () => {
   const user_profile = signal(null) // should be set after login
 
   return {
+    server,
     process_definitions,
     process_definition,
     process_definition_diagram,

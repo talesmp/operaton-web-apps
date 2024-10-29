@@ -23,4 +23,6 @@ Please refer to the [Coding Conventions.md](docs/Coding%20Conventions.md) file f
 
 ## License
 
-tdb
+The source files in this repository are made available under the Apache License Version 2.0.
+
+OPERATON uses and includes third-party dependencies published under various licenses. By downloading and using OPERATON artifacts, you agree to their terms and conditions. Refer to our license-book.txt for an overview of third-party libraries and particularly important third-party licenses we want to make you aware of.

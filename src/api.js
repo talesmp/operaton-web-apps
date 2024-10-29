@@ -3,7 +3,8 @@
  *
  * Provides endpoints to the default Operaton REST API.
  *
- *
+ * Please refer to the `docs/Coding Conventions.md` "JavaScript > api.js" to
+ * learn how we organize the code in this file.
  */
 
 const _url = (state) => `${state.server.value}/engine-rest`

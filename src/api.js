@@ -121,7 +121,7 @@ export const claim_task = (task_id, state) =>
 export const unclaim_task = (task_id, state) =>
   assign_task(false, task_id, state)
 
-// claim and unclaim tasks
+// claim and cede tasks
 export const assign_task = (claim, task_id, state) => {
   headers.set('Content-Type', 'application/json')
 

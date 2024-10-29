@@ -37,7 +37,7 @@ export function Task (props) {
                   onClick={() => assignTask(false, state, props.selected.id, props.setSelected)}>
                   <div class="border">
                     <span class="icon"><Icons.user_minus /></span>
-                    <span class="label">Unclaim</span>
+                    <span class="label">Cede</span>
                   </div>
                 </li>
               )

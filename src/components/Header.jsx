@@ -2,11 +2,16 @@
 
 import { useLocation } from 'preact-iso'
 import * as Icons from "../assets/icons.jsx";
+import { useHotkeys } from 'react-hotkeys-hook'
 
 export function Header () {
-  const { url } = useLocation()
+  const { url, route } = useLocation()
 
   const showSearch = () => document.getElementById('global-search').showModal()
+
+  useHotkeys('alt+0', () => route("/"))
+  useHotkeys('alt+1', () => route("/tasks"))
+  useHotkeys('alt+2', () => route("/processes"))
 
   return <header>
     <nav id="secondary-navigation">

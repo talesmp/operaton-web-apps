@@ -1,3 +1,11 @@
+/**
+ * api.js
+ *
+ * Provides endpoints to the default Operaton REST API.
+ *
+ *
+ */
+
 const _url = (state) => `${state.server.value}/engine-rest`
 
 let headers = new Headers()

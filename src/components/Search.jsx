@@ -4,6 +4,7 @@ import * as api from '../api.js'
 import { createContext } from 'preact'
 import { useContext } from 'preact/hooks'
 import { signal } from '@preact/signals'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 const createSearchState = () => {
   const process_definition = signal(null)
@@ -25,6 +26,7 @@ const Search = () =>
   </dialog>
 
 const close = () => document.getElementById('global-search').close()
+const show = () => document.getElementById('global-search').showModal()
 
 const SearchComponent = () => {
   const state = useContext(SearchState)
@@ -34,6 +36,9 @@ const SearchComponent = () => {
     void api.get_process_definition(state, value)
     void api.get_process_instance(state, value)
   }
+
+  useHotkeys('alt+s', () => setTimeout(show, 100))
+
 
   return <search class="col gap-2">
     <div className="row space-between">
@@ -48,6 +53,7 @@ const SearchComponent = () => {
     <label className="col gap-1">
       <small>Find everything globally</small>
       <input
+        autofocus
         type="search"
         placeholder="Search Operaton..."
         className="font-size-1"

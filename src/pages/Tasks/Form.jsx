@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState, useContext } from 'preact/hooks';
 import * as api from "../../api";
 import DOMPurify from "dompurify";
+import { AppState } from '../../state.js';
 
 export function Form(props) {
     const [generated, setGenerated] = useState("");
+    const state = useContext(AppState);
 
     // no embedded form and no Camunda form, we have to look for generated form
     useEffect(() => {
         if (!props.selected.formKey && !props.selected.camundaFormRef && props.selected.id) {
-            api.get_generated_form(props.selected.id)
+            api.get_generated_form(state, props.selected.id)
                 .then((html) => {
                     setGenerated( parseHtml(html) );
                 });

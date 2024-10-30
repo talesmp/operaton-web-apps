@@ -96,46 +96,46 @@ export const get_task_list = (state, sort_key, sort_order) => {
   const sort = sort_key ? sort_key : 'name'
   const order = sort_order ? sort_order : 'asc'
 
-  return fetch(`${_url(state)}/task?sortBy=${sort}&sortOrder=${order}`, { headers })
+  return fetch(`${_url(state)}/task?sortBy=${sort}&sortOrder=${order}`, { headers: headers })
     .then((response) => response.json())
 }
 
 export const get_task = (state, task_id) =>
-   fetch(`${_url(state)}/task/${task_id}`, { headers })
+   fetch(`${_url(state)}/task/${task_id}`, { headers: headers })
     .then((response) => response.json())
 
 
 export const get_process_definition_list = (state, ids) =>
-   fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers })
+   fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers: headers })
     .then((response) => response.json())
 
 
 export const get_generated_form = (state, task_id) =>
-   fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers })
-    .then((response) => response.text())
+   fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers: headers })
+    .then((response) => response.text());
 
 
-export const claim_task = (task_id, state) =>
-  assign_task(true, task_id, state)
+export const claim_task = (state, task_id) =>
+  assign_task(state, true, task_id);
 
-export const unclaim_task = (task_id, state) =>
-  assign_task(false, task_id, state)
+export const unclaim_task = (state, task_id) =>
+  assign_task(state, false, task_id);
 
 // claim and cede tasks
-export const assign_task = (claim, task_id, state) => {
-  headers.set('Content-Type', 'application/json')
+export const assign_task = (state, claim, task_id) => {
+  headers.set('Content-Type', 'application/json');
 
   return fetch(`${_url(state)}/task/${task_id}/${claim ? 'claim' : 'unclaim'}`,
     {
-      headers,
+      headers: headers ,
       method: 'POST',
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
     .then((response) => {
       if (!response.ok) {
         console.log(`status: ${response.status}`)
-        return false
+        return false;
       }
-      return true
+      return true;
     })
 }

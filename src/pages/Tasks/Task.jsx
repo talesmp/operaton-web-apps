@@ -24,7 +24,7 @@ export function Task (props) {
             if (state.user_profile.value && state.user_profile.value.id !== props.selected.assignee) {
               return (
                 <li
-                  onClick={() => assignTask(true, state, props.selected.id, props.setSelected)}>
+                  onClick={() => assignTask(state, true, props.selected, props.setSelected, props.tasks, props.setTasks)}>
                   <div class="border">
                     <span class="icon"><Icons.user_plus /></span>
                     <span class="label">Claim</span>
@@ -34,10 +34,10 @@ export function Task (props) {
             } else if (state.user_profile.value && state.user_profile.value.id === props.selected.assignee) {
               return (
                 <li
-                  onClick={() => assignTask(false, state, props.selected.id, props.setSelected)}>
+                  onClick={() => assignTask(state, false, props.selected, props.setSelected, props.tasks, props.setTasks)}>
                   <div class="border">
                     <span class="icon"><Icons.user_minus /></span>
-                    <span class="label">Cede</span>
+                    <span class="label">Unclaim</span>
                   </div>
                 </li>
               )
@@ -87,7 +87,7 @@ export function Task (props) {
         {(() => {
           if (props.selected.description) {
             return (<div>
-              <p class="title">Description</p>
+              <p className="title">Description</p>
               {props.selected.description}
             </div>)
           }
@@ -125,16 +125,31 @@ export function Task (props) {
   )
 }
 
-function assignTask (claim, state, taskId, setSelected) {
-  const result = claim ? api.claim_task(taskId, state) : api.unclaim_task(taskId, state)
+function assignTask (state, claim, selectedTask, setSelected, tasks, setTasks) {
+  const result = claim ? api.claim_task(state, selectedTask.id) : api.unclaim_task(state, selectedTask.id);
 
   result.then(worked => {
-    console.log(`result: ${worked}`)
     if (worked) {
-      api.get_task(taskId).then((task) => {
-        setSelected(task)
-        console.log(`set selected: ${task.id}`)
-      })
+      api.get_task(state, selectedTask.id).then((task) => {
+        // restore the definition name and version
+        task.def_name = selectedTask.def_name;
+        task.def_version = selectedTask.def_version;
+
+        setSelected(task);
+        updateTaskList(tasks, setTasks, task);
+      });
     }
   })
+}
+
+// update the task list with a changed task
+function updateTaskList(tasks, setTasks, task) {
+    const newList = tasks.map((item) => {
+        if (item.id === task.id) {
+            return task;
+        }
+
+        return item;
+    });
+    setTasks(newList);
 }

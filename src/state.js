@@ -17,7 +17,7 @@ import { createContext } from 'preact'
  * @returns {Object} exposing all defined signals
  */
 const createAppState = () => {
-  const server = signal(localStorage.getItem("server") || JSON.parse(import.meta.env.VITE_BACKEND)[0])
+  const server = signal(localStorage.getItem("server") || JSON.parse(import.meta.env.VITE_BACKEND)[0].url)
   const process_definitions = signal(null)
   const process_definition = signal(null)
   const selected_process_definition_id = signal(null)

@@ -22,11 +22,11 @@ export function Tasks () {
 
   // get task list when page is initially loaded
   useEffect(() => {
-    api.get_task_list().then((list) => {
+    api.get_task_list(state).then((list) => {
       // we need a second call for getting the process definition names
       const ids = list.map(task => task.processDefinitionId) // list of needed process definitions
 
-      api.get_process_definition_list(ids)
+      api.get_process_definition_list(state, ids)
         .then((defList) => {
           const defMap = new Map() // helper map, mapping ID to process name
           defList.map(def => defMap.set(def.id, def))
@@ -70,7 +70,7 @@ export function Tasks () {
             setSelected={setSelected} state={state} />))}
         </ul>
       </aside>
-      <Task selected={selected} setSelected={setSelected} />
+      <Task selected={selected} setSelected={setSelected} tasks={tasks} setTasks={setTasks} />
     </main>)
 }
 

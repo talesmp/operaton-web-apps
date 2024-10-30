@@ -13,7 +13,8 @@
 		"jsdom": "^25.0.0",
 		"preact": "^10.22.1",
 		"preact-iso": "^2.6.3",
-		"react-bpmn": "^0.2.0"
+		"react-bpmn": "^0.2.0",
+		"react-hotkeys-hook": "^4.5.1"
 	},
 	"devDependencies": {
 		"@preact/preset-vite": "^2.9.0",

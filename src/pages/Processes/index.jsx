@@ -80,13 +80,12 @@ const ProcessDefinitionSelection = () =>
   </div>
 
 const ProcessDefinitionDetails = () => {
-  const state = useContext(AppState)
   const { process_definition } = useContext(AppState)
   const { params } = useRoute()
 
   return (
     <div class="fade-in">
-      <div class="row gap">
+      <div class="row gap-2">
         <a className="tabs-back"
            href={`/processes`}
            title="Change Definition">
@@ -167,7 +166,7 @@ const InstanceDetails = () => {
 
   return (
     <div class="fade-in">
-      <div class="row gap">
+      <div class="row gap-2">
         <BackToListBtn
           url={`/processes/${definition_id}/instances`}
           title="Change Instance"

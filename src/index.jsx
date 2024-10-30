@@ -16,6 +16,7 @@ import "./css/layout.css";
 import "./css/components.css";
 import "./css/main.css";
 import "./css/animation.css";
+import { Search } from './components/Search.jsx'
 
 'use strict'
 
@@ -40,6 +41,7 @@ export function App () {
                  component={ProcessesPage} />
           <Route default component={NotFound} />
         </Router>
+        <Search />
       </LocationProvider>
     </AppState.Provider>
   )

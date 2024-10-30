@@ -27,30 +27,27 @@ export function Tasks () {
       const ids = list.map(task => task.processDefinitionId) // list of needed process definitions
 
       api.get_process_definition_list(ids)
-        .then(
-          (defList) => {
-            const defMap = new Map() // helper map, mapping ID to process name
-            defList.map(def => defMap.set(def.id, def))
+        .then((defList) => {
+          const defMap = new Map() // helper map, mapping ID to process name
+          defList.map(def => defMap.set(def.id, def))
 
-            // set process name to task list
-            list.forEach((task) => {
-              const def = defMap.get(task.processDefinitionId)
-              task.def_name = def ? def.name : ''
-              task.def_version = def ? def.version : ''
-            })
-            setTasks(list) // store task list
+          // set process name to task list
+          list.forEach((task) => {
+            const def = defMap.get(task.processDefinitionId)
+            task.def_name = def ? def.name : ''
+            task.def_version = def ? def.version : ''
+          })
+          setTasks(list) // store task list
 
-            // select the first task in the list to show some data on the right side
-            if (list.length > 0) {
-              setSelected(list[0])
-            }
+          // select the first task in the list to show some data on the right side
+          if (list.length > 0) {
+            setSelected(list[0])
           }
-        )
+        })
     })
   }, [])
   // TODO do we need the div here?
-  return (
-    <main id="tasks" class="fade-in">
+  return (<main id="tasks" class="fade-in">
       <aside aria-label="task list">
         <div className="tile-filter" id="task-filter">
           <div className="filter-header" onClick={openFilter}>
@@ -67,16 +64,14 @@ export function Tasks () {
         </div>
 
         <ul className="tile-list">
-          {tasks.map(task => (
-            <TaskTile
-              key={task.id}
-              task={task} selected={task.id === selected.id}
-              setSelected={setSelected} state={state} />))}
+          {tasks.map(task => (<TaskTile
+            key={task.id}
+            task={task} selected={task.id === selected.id}
+            setSelected={setSelected} state={state} />))}
         </ul>
       </aside>
       <Task selected={selected} setSelected={setSelected} />
-    </main>
-  )
+    </main>)
 }
 
 const TaskTile = ({ task, selected, setSelected, state }) => (
@@ -91,13 +86,12 @@ const TaskTile = ({ task, selected, setSelected, state }) => (
       <div id={task.id} class="tile-title">{task.name}</div>
       <div className="tile-row">
         <div>Assigned to <b>{task.assignee ? // we compare the assignee with the current user ID, if it's equal show "me"
-          (state.user_profile.value && state.user_profile.value.id === task.assignee ? 'me' : task.assignee)
-          : 'no one'}</b></div>
+          (state.user_profile.value && state.user_profile.value.id === task.assignee ? 'me' : task.assignee) : 'no one'}</b>
+        </div>
         <div className="tile-right">Priority {task.priority}</div>
       </div>
     </a>
-  </li>
-)
+  </li>)
 
 function openFilter () {
   const menu = document.getElementById('task-filter')

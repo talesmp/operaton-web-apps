@@ -1,64 +1,102 @@
+// noinspection HtmlUnknownAnchorTarget,JSValidateTypes
+
 import { useLocation } from 'preact-iso'
+import * as Icons from '../assets/icons.jsx'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { useContext } from 'preact/hooks'
+import { AppState } from '../state.js'
+
+const swap_server = (e, state) => {
+  state.server.value = e.target.value
+  localStorage.setItem('server', e.target.value)
+}
 
 export function Header () {
-  const { url } = useLocation()
+  const { url, route } = useLocation()
+  const state = useContext(AppState)
 
-  return (
-    <header>
-      <nav id="secondary-navigation">
-        <span id="logo">Operaton BPM</span>
-        <menu>
-          <menu>
-            <li><a href="#content">Skip to content</a></li>
-            <li><a href="#primary-navigation">Skip to Primary Navigation</a>
-            </li>
-          </menu>
-          <menu>
-            <li><a href="/accessibilty">Accessibility</a></li>
-            <li><a href="/Help">Help</a></li>
-            <li>Shortcuts</li>
-          </menu>
-          <menu>
-            <li><a href="/about">About</a></li>
-            <li><a href="/settings">Settings</a></li>
-            <li><a href="/account">Account</a></li>
-          </menu>
+  const showSearch = () => document.getElementById('global-search').showModal()
+
+  useHotkeys('alt+0', () => route('/'))
+  useHotkeys('alt+1', () => route('/tasks'))
+  useHotkeys('alt+2', () => route('/processes'))
+
+  return <header>
+    <nav id="secondary-navigation">
+      <span id="logo">
+        <a href="/">Operaton BPM</a>
+      </span>
+      <menu>
+        <menu id="skip-links">
+          <li><a href="#content">Skip to content</a></li>
+          <li><a href="#primary-navigation">Skip to Primary Navigation</a>
+          </li>
         </menu>
-      </nav>
-      <nav id="primary-navigation" aria-label="Main">
-
         <menu>
-          <menu>
-            <li>
-              <a href="/tasks" class={url.startsWith("/tasks") && "active"}>
-                Tasks
-              </a>
-            </li>
-          </menu>
-          <menu>
-            <li>
-              <a href="/processes" class={url.startsWith("/processes") && "active"}>
-                Processes
-              </a>
-            </li>
-            <li>Decisions</li>
-          </menu>
-          <menu>
-            <li>Deployments</li>
-            <li>Batches</li>
-            <li>Migrations</li>
-          </menu>
-          <menu>
-            <li>Admin</li>
-          </menu>
+          <li><a href="/accessibilty">Accessibility</a></li>
+          <li><a href="/help">Help</a></li>
+          <li><a href="/">Shortcuts</a></li>
         </menu>
+        <menu>
+          <li><a href="/about">About</a></li>
+          <li><a href="/settings">Settings</a></li>
+          <li><a href="/account">Account</a></li>
 
-        {/*
-          <a href="/404" class={url == "/404" && "active"}>
-            404
-          </a>
-          */}
-      </nav>
-    </header>
-  )
+        </menu>
+        <menu  id="server_selector">
+          <li>
+            <label className="row center gap-1 p-1" title="Server selection">
+              <Icons.server title="Server selection" />
+              <select
+                onChange={(e) => swap_server(e, state)}>
+                <option disabled>ℹ️ Choose a server to retrieve your processes</option>
+                {JSON.parse(import.meta.env.VITE_BACKEND).map(server =>
+                  <option key={server.url} value={server.url}
+                          selected={localStorage.getItem('server') === server.url}>
+                    {server.name}
+                  </option>)}
+              </select>
+            </label>
+          </li>
+        </menu>
+      </menu>
+    </nav>
+    <nav id="primary-navigation" aria-label="Main">
+
+      <menu>
+        <menu>
+          <li>
+            <a href="/tasks" class={url.startsWith('/tasks') && 'active'}>
+              Tasks
+            </a>
+          </li>
+        </menu>
+        <menu>
+          <li>
+            <a href="/processes"
+               class={url.startsWith('/processes') && 'active'}>
+              Processes
+            </a>
+          </li>
+          <li><a href="/">Decisions</a></li>
+        </menu>
+        <menu>
+          <li><a href="/">Deployments</a></li>
+          <li><a href="/">Batches</a></li>
+          <li><a href="/">Migrations</a></li>
+        </menu>
+        <menu>
+          <li><a href="/">Admin</a></li>
+        </menu>
+      </menu>
+
+      <menu>
+        <li>
+          <button class="neutral" onClick={showSearch}>
+            <Icons.search /> Search <small class="font-mono">[ ALT + S ]</small>
+          </button>
+        </li>
+      </menu>
+    </nav>
+  </header>
 }

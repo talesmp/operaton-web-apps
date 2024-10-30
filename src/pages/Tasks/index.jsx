@@ -22,7 +22,7 @@ export function Tasks () {
 
   // get task list when page is initially loaded
   useEffect(() => {
-    api.get_task_list().then((list) => {
+    api.get_task_list(state).then((list) => {
       // we need a second call for getting the process definition names
       const ids = list.map(task => task.processDefinitionId) // list of needed process definitions
 

@@ -1,13 +1,13 @@
-# Operaton BPM Web App
+# Operaton BPM Web Apps
 
-The accompanying web app for the Operaton BPM system.
+The accompanying web apps for the Operaton BPM system.
 
 ## First use
 
 You require the following software to run the app
 
-- An uptodate version of `node.js` 
-- A mock API for the backend
+- An up-to-date version of `node.js` 
+- An API for the backend to consume ([example](https://github.com/javahippie/operaton-spring-boot-example))
 
 ## Running the app
 

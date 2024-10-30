@@ -45,9 +45,10 @@
 }
 
 
-.tile h4 {
+.tile .tile-title {
+    font-size: var(--h4-size);
     font-weight: normal;
-    margin-bottom: var(--spacing-2);
+    margin: var(--spacing-2) 0;
 }
 
 .tile .tile-row {
@@ -489,9 +490,10 @@ div.accordion {
     margin: 1rem 0;
 }
 
-.task-container h5 {
+.task-container .title {
     font-size: var(--h5-size);
     padding-bottom: var(--spacing-1);
+    font-weight: bold;
 }
 
 /* task tabs */

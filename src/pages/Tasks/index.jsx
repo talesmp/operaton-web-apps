@@ -88,7 +88,7 @@ const TaskTile = ({ task, selected, setSelected, state }) => (
         <div
           className="tile-right">{formatter.formatRelativeDate(task.created)}</div>
       </div>
-      <h4 id={task.id}>{task.name}</h4>
+      <div id={task.id} class="tile-title">{task.name}</div>
       <div className="tile-row">
         <div>Assigned to <b>{task.assignee ? // we compare the assignee with the current user ID, if it's equal show "me"
           (state.user_profile.value && state.user_profile.value.id === task.assignee ? 'me' : task.assignee)

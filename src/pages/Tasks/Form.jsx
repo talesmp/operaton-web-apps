@@ -21,14 +21,9 @@ export function Form(props) {
                 if (props.selected.formKey) {
                     const formLink = props.selected.formKey.substring(13);
 
-                    return (
+                    return ( // TODO needs to be clarified what to do here
                         <>
                             <a href={`http://localhost:8888/${formLink}`} target="_blank">Embedded Form</a>
-                            <button onClick={() => window.open(`http://localhost:8888/${formLink}`, '_blank')}>
-                                Embedded Form
-                            </button>
-
-                            <p>May be we should explain this button here</p>
                         </>
                     );
                 } else if (props.selected.camundaFormRef) {

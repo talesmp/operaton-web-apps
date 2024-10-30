@@ -83,7 +83,7 @@ export function Task(props) {
                 {(() => {
                     if (props.selected.description) {
                         return (<div>
-                            <h5>Description</h5>
+                            <p class="title">Description</p>
                             {props.selected.description}
                         </div>);
                     }

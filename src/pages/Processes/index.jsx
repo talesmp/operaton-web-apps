@@ -293,7 +293,7 @@ const InstanceIncidents = () => {
         }) => (
           <tr key={id}>
             <td>{incidentMessage}</td>
-            <td><UUIDLink path={'/procceses'} uuid={processInstanceId} /></td>
+            <td><UUIDLink path={'/processes'} uuid={processInstanceId} /></td>
             <td>
               <time
                 datetime={createTime}>{createTime ? createTime.substring(0, 19) : '-/-'}</time>

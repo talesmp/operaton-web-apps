@@ -1,5 +1,5 @@
-import { useSignalEffect } from '@preact/signals'
-import { useContext } from 'preact/hooks'
+import { signal, useSignalEffect } from '@preact/signals'
+import { useContext, useEffect } from 'preact/hooks'
 import { useRoute } from 'preact-iso'
 import * as api from '../../api'
 import * as Icons from '../../assets/icons.jsx'
@@ -7,9 +7,24 @@ import ReactBpmn from 'react-bpmn'
 import { AppState } from '../../state.js'
 import { Accordion } from '../../components/Accordion.jsx'
 
+const store_details_width = () => {
+  localStorage.setItem(
+    'details_width',
+    window.getComputedStyle(document.getElementById('selection'), null)
+      .getPropertyValue('width')
+  )
+}
+
 const ProcessesPage = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
+  const details_width = signal(localStorage.getItem('details_width'))
+
+  console.log(details_width)
+
+  useEffect(() => {
+    document.getElementById('selection').style.width = details_width.value
+  }, [details_width.value])
 
   void api.get_process_definitions(state)
 
@@ -25,8 +40,9 @@ const ProcessesPage = () => {
   }
 
   return (
-    <main id="processes" class="split-layout">
-      <div id="selection">
+    <main id="processes"
+          class="split-layout">
+      <div id="selection" onMouseUp={store_details_width}>
         {!params?.definition_id
           ? <ProcessDefinitionSelection />
           : <ProcessDefinitionDetails />}

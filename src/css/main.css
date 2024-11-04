@@ -48,6 +48,7 @@ th {
 dl {
     margin-top: var(--spacing-1);
     margin-bottom: 0;
+    overflow: hidden;
 }
 
 dt {
@@ -61,6 +62,8 @@ dt:first-child {
 
 dd {
     margin-left: var(--spacing-2);
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 aside {

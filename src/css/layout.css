@@ -26,7 +26,9 @@ div#app {
 
         &.split-layout {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: max-content minmax(max-content, 1fr);
+            /*grid-template-columns: repeat(2, minmax(30ch, 90%));*/
+            /*grid-template-columns: repeat(2, minmax(0, 1fr));*/
             /*gap: var(--spacing-2);*/
         }
     }

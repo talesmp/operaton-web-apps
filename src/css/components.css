@@ -52,7 +52,8 @@
 }
 
 .tile .tile-row {
-    display: flex; width: 100%;
+    display: flex;
+    width: 100%;
 }
 
 .tile-row div {
@@ -135,7 +136,7 @@
     text-decoration: underline;
 }
 
-    /* action bar */
+/* action bar */
 
 .action-bar {
     background-color: var(--background-2);
@@ -243,9 +244,34 @@ h1 > span.selected {
 }
 
 
-main#processes #selection {
-    overflow-y: auto;
-    padding: var(--spacing-2);
+main#processes {
+
+    #selection {
+        overflow-y: auto;
+        padding: var(--spacing-2);
+        resize: horizontal;
+        min-width: 30ch;
+        max-width: calc(100vw - 30ch - 2 * var(--spacing-2));
+        overflow-x: clip;
+        box-sizing: content-box;
+    }
+
+    #preview {
+        overflow: auto;
+        min-width: 30ch;
+        width: 100%;
+        /*resize: horizontal;*/
+
+        &::before {
+            content: ' ';
+            width: var(--spacing-1);
+            background: linear-gradient(to right, #FFF, #FFF0);
+            height: 100%;
+            display: inline-block;
+            position: fixed;
+            z-index: 999;
+        }
+    }
 }
 
 /* tabs */
@@ -365,7 +391,7 @@ div.accordion {
 
         summary::before {
             content: "";
-            background-image:  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='size-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m8.25 4.5 7.5 7.5-7.5 7.5' /%3E%3C/svg%3E%0A");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='size-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m8.25 4.5 7.5 7.5-7.5 7.5' /%3E%3C/svg%3E%0A");
             background-size: 1rem 1rem;
             display: inline-block;
             width: 1rem;
@@ -373,7 +399,7 @@ div.accordion {
         }
 
         .panel {
-            padding:  0 var(--spacing-2)var(--spacing-2) var(--spacing-2);
+            padding: 0 var(--spacing-2) var(--spacing-2) var(--spacing-2);
         }
     }
 
@@ -400,7 +426,6 @@ div.accordion {
         border-bottom-right-radius: var(--border-radius);
     }
 }
-
 
 
 /* bpmn diagram */
@@ -535,7 +560,7 @@ div.accordion {
 }
 
 .tab-content.hide {
-    display:none;
+    display: none;
 }
 
 .generated-form form {

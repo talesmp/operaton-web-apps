@@ -1,22 +1,24 @@
-import { useEffect, useState, useContext } from 'preact/hooks';
+import { useState, useContext } from 'preact/hooks';
 import * as api from "../../api";
 import DOMPurify from "dompurify";
 import { AppState } from '../../state.js';
+import { useSignalEffect } from '@preact/signals'
 
 export function Form() {
-    const [generated, setGenerated] = useState("");
+    const [generated, setGenerated] = useState("")
     const state = useContext(AppState);
     const task = state.selected_task.value
 
     // no embedded form and no Camunda form, we have to look for generated form
-    useEffect(() => {
+    useSignalEffect(() => {
         if (!task.formKey && !task.camundaFormRef && task.id) {
-            api.get_generated_form(state, task.id)
-                .then((html) => {
-                    setGenerated( parseHtml(html) );
-                });
+            api.get_task_rendered_form(state, task.id)
         }
-    }, [task]);
+    })
+
+    useSignalEffect(() => {
+        setGenerated(parseHtml(state.task_generated_form.value))
+    })
 
     return (
         <>
@@ -26,7 +28,7 @@ export function Form() {
 
                     return ( // TODO needs to be clarified what to do here
                         <>
-                            <a href={`http://localhost:8888/${formLink}`} target="_blank">Embedded Form</a>
+                            <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
                         </>
                     );
                 } else if (task.camundaFormRef) {

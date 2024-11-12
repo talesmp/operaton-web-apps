@@ -4,6 +4,7 @@ import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
 import { useRoute } from 'preact-iso'
+import { useSignalEffect } from '@preact/signals'
 
 const Task = () => {
   const state = useContext(AppState)
@@ -20,9 +21,28 @@ const Task = () => {
     ['task-tab-diagram', 'Diagram']
   ])
 
+  // tab can be called directly
   if (params.tab) {
     setTab(`task-tab-${params.tab}`)
   }
+
+  useSignalEffect(() => {
+    if (state.task_claim_result.value) {
+      api.get_task(state, state.selected_task.peek().id)
+    }
+  })
+
+  useSignalEffect(() => {
+    const task = state.task.value
+
+    if (task) {
+      task.def_name = state.selected_task.peek().def_name
+      task.def_version = state.selected_task.peek().def_version
+
+      state.selected_task.value = task
+      update_task_list(state, task)
+    }
+  })
 
   return (
     <div id="task-details" className="fade-in">
@@ -135,25 +155,12 @@ const Task = () => {
 }
 
 const assign_task = (state, claim, selectedTask) => {
-  const result = claim ? api.claim_task(state, selectedTask.id) : api.unclaim_task(state, selectedTask.id);
-
-  result.then(worked => {
-    if (worked) {
-      api.get_task(state, selectedTask.id).then((task) => {
-        // restore the definition name and version
-        task.def_name = selectedTask.def_name
-        task.def_version = selectedTask.def_version
-
-        state.selected_task.value = task
-        update_task_list(state, task)
-      });
-    }
-  })
+  api.post_task_claim(state, claim, selectedTask.id)
 }
 
 // update the task list with a changed task
 const update_task_list = (state, task) => {
-  state.task_list.value = state.task_list.value.map((item) => {
+  state.tasks.value = state.tasks.value.map((item) => {
     if (item.id === task.id) {
         return task
     }

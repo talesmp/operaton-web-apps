@@ -17,15 +17,15 @@ const Tasks = () => {
     api.get_user_profile(state, null)
   }
 
-  void api.get_task_list(state)
+  void api.get_tasks(state)
 
   // set the selected task here
   useSignalEffect(() => {
     // have a look for a given task ID and set the selected task
-    if (params.task_id && state.task_list.value) {
+    if (params.task_id && state.tasks.value) {
       // prevent infinite loop
       if (!state.selected_task.value || params.task_id !== state.selected_task.value.id) {
-        const task = state.task_list.value.find(elem => elem.id === params.task_id)
+        const task = state.tasks.value.find(elem => elem.id === params.task_id)
 
         if (task) {
           state.selected_task.value = task;
@@ -34,8 +34,8 @@ const Tasks = () => {
     }
 
     // no selected task? use the first one of the list
-    if (!state.selected_task.value && state.task_list.value) {
-      state.selected_task.value = state.task_list.value[0]
+    if (!state.selected_task.value && state.tasks.value) {
+      state.selected_task.value = state.tasks.value[0]
       //location.route(`/tasks/${state.selected_task.value.id}`, true)
     }
   })
@@ -67,7 +67,7 @@ const TaskList = () =>
     </div>
 
     <ul class="tile-list">
-      {useContext(AppState).task_list.value?.map(task =>
+      {useContext(AppState).tasks.value?.map(task =>
         <TaskTile key={task.id} {...task} />)}
     </ul>
   </aside>

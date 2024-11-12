@@ -92,7 +92,7 @@ export const get_diagram = (state, definition_id) =>
     .then(json => state.process_definition_diagram.value = json)
 
 // getting all tasks, when no sorting is provided it will use "name" and ascending
-export const get_task_list = (state, sort_key, sort_order) => {
+export const get_tasks = (state, sort_key, sort_order) => {
   const sort = sort_key ? sort_key : 'name'
   const order = sort_order ? sort_order : 'asc'
 
@@ -102,7 +102,7 @@ export const get_task_list = (state, sort_key, sort_order) => {
       const ids = json.map(task => task.processDefinitionId) // list of needed process definitions
 
       // we need the process definition name for each task
-      get_process_definition_list(state, ids)
+      get_task_process_definitions(state, ids)
         .then( defList => {
           const defMap = new Map() // helper map, mapping ID to process name
           defList.map(def => defMap.set(def.id, def))
@@ -114,43 +114,36 @@ export const get_task_list = (state, sort_key, sort_order) => {
             task.def_version = def ? def.version : ''
           })
 
-          state.task_list.value = json
+          state.tasks.value = json
         })
     })
 }
 
+// API call to enhance the data of the task list, no need for signal here
+const get_task_process_definitions = (state, ids) =>
+  fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers: headers })
+    .then((response) => response.json())
+
 export const get_task = (state, task_id) =>
    fetch(`${_url(state)}/task/${task_id}`, { headers: headers })
-    .then((response) => response.json())
+     .then((response) => response.json())
+     .then(json => state.task.value = json)
 
-
-const get_process_definition_list = (state, ids) =>
-   fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers: headers })
-    .then((response) => response.json())
-
-
-export const get_generated_form = (state, task_id) =>
+export const get_task_rendered_form = (state, task_id) =>
    fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers: headers })
-    .then((response) => response.text());
-
-
-export const claim_task = (state, task_id) =>
-  assign_task(state, true, task_id);
-
-export const unclaim_task = (state, task_id) =>
-  assign_task(state, false, task_id);
+    .then((response) => response.text())
+     .then(text => state.task_generated_form.value = text)
 
 // claim and unclaim tasks
-export const assign_task = (state, claim, task_id) => {
+export const post_task_claim = (state, do_claim, task_id) => {
   headers.set('Content-Type', 'application/json');
 
-  return fetch(`${_url(state)}/task/${task_id}/${claim ? 'claim' : 'unclaim'}`,
+  return fetch(`${_url(state)}/task/${task_id}/${do_claim ? 'claim' : 'unclaim'}`,
     {
       headers: headers ,
       method: 'POST',
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
-    .then((response) => {
-      return response.ok
-    })
+    .then((response) => response.ok)
+    .then(result => state.task_claim_result.value = result)
 }

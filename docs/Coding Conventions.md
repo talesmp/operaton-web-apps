@@ -52,7 +52,7 @@ const createAppState = () => {
 ```
 
 - The JS name of the endpoint is always `{method}_{endpoint_name}`
-- Prepend the URL string by using the `${_url(state)}` pattern. We need to fetch the selected server URL from the environment variabel (config)
+- Prepend the URL string by using the `${_url(state)}` pattern. We need to fetch the selected server URL from the environment variable (config)
 - Always assign the result to a state value
 - Use the `export` keyword with the definition of your function, instead of exporting a map at the end. This is to prevent merge conflicts.
 

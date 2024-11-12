@@ -1,64 +1,52 @@
 import * as Icons from '../../assets/icons.jsx'
-import { useState, useContext, useEffect } from 'preact/hooks'
+import { useState, useContext } from 'preact/hooks'
 import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
-import { useRoute, useLocation } from 'preact-iso'
-import { useSignalEffect } from '@preact/signals'
+import { useRoute } from 'preact-iso'
 
 const Task = () => {
   const state = useContext(AppState)
+  const task = state.selected_task.value
+  const user = state.user_profile.value
 
-  return (
-    <div id="task-details" class="fade-in">
-      <div className="task-container">
-        <div style="display: flex;">
-          <div>{state.selected_task.value.def_name}</div>
-          <div>[Process version: v{state.selected_task.value.def_version} | <a href="">Show
-            process</a>]
-          </div>
-        </div>
-
-        <h1>{state.selected_task.value.name}</h1>
-      </div>
-    </div>
-  )
-}
-
-function grml (props) {
   const [tab, setTab] = useState('task-tab-form')
-  const state = useContext(AppState)
+  const { params } = useRoute()
 
   // tabs on the task main page
   const tabs = new Map([
     ['task-tab-form', 'Form'],
     ['task-tab-history', 'History'],
-    ['task-tab-diagram', 'Diagram'],
+    ['task-tab-diagram', 'Diagram']
   ])
 
+  if (params.tab) {
+    setTab(`task-tab-${params.tab}`)
+  }
+
   return (
-    <div id="task-details" class="fade-in">
-      <div class="task-menu">
+    <div id="task-details" className="fade-in">
+      <div className="task-menu">
         <menu>
           {(() => {
             // show claim only, if this task has another assignee
-            if (state.user_profile.value && state.user_profile.value.id !== props.selected.assignee) {
+            if (user && user.id !== task.assignee) {
               return (
                 <li
-                  onClick={() => assignTask(state, true, props.selected, props.setSelected, props.tasks, props.setTasks)}>
-                  <div class="border">
-                    <span class="icon"><Icons.user_plus /></span>
-                    <span class="label">Claim</span>
+                  onClick={() => assign_task(state, true, task)}>
+                  <div className="border">
+                    <span className="icon"><Icons.user_plus /></span>
+                    <span className="label">Claim</span>
                   </div>
                 </li>
               )
-            } else if (state.user_profile.value && state.user_profile.value.id === props.selected.assignee) {
+            } else if (user && user.id === task.assignee) {
               return (
                 <li
-                  onClick={() => assignTask(state, false, props.selected, props.setSelected, props.tasks, props.setTasks)}>
-                  <div class="border">
-                    <span class="icon"><Icons.user_minus /></span>
-                    <span class="label">Unclaim</span>
+                  onClick={() => assign_task(state, false, task)}>
+                  <div className="border">
+                    <span className="icon"><Icons.user_minus /></span>
+                    <span className="label">Unclaim</span>
                   </div>
                 </li>
               )
@@ -66,50 +54,50 @@ function grml (props) {
           })()}
           <li>
             <div className="border">
-              <span class="icon"><Icons.users /></span>
-              <span class="label">Set Group</span>
+              <span className="icon"><Icons.users /></span>
+              <span className="label">Set Group</span>
             </div>
           </li>
           <li>
             <div className="border">
-              <span class="icon"><Icons.calendar /></span>
-              <span class="label">Set Follow Up Date</span>
+              <span className="icon"><Icons.calendar /></span>
+              <span className="label">Set Follow Up Date</span>
             </div>
           </li>
           <li>
             <div className="border">
-              <span class="icon"><Icons.bell /></span>
-              <span class="label">Set Due Date</span>
+              <span className="icon"><Icons.bell /></span>
+              <span className="label">Set Due Date</span>
             </div>
           </li>
           <li>
-            <span class="icon"><Icons.chat_bubble_left /></span>
-            <span class="label">Comment</span>
+            <span className="icon"><Icons.chat_bubble_left /></span>
+            <span className="label">Comment</span>
           </li>
         </menu>
         <menu>
           <li>
-            <span class="icon"><Icons.play /></span>
-            <span class="label">Start Process</span>
+            <span className="icon"><Icons.play /></span>
+            <span className="label">Start Process</span>
           </li>
         </menu>
       </div>
 
       <div className="task-container">
         <div style="display: flex;">
-          <div>{props.selected.def_name}</div>
-          <div>[Process version: v{props.selected.def_version} | <a href="">Show
+          <div>{task.def_name}</div>
+          <div>[Process version: v{task.def_version} | <a href="">Show
             process</a>]
           </div>
         </div>
 
-        <h1>{props.selected.name}</h1>
+        <h1>{task.name}</h1>
 
         {(() => {
-          if (props.selected.description) {
+          if (task.description) {
             return (<div>
               <p className="title">Description</p>
-              {props.selected.description}
+              {task.description}
             </div>)
           }
 
@@ -119,9 +107,9 @@ function grml (props) {
           {(() => {  // instead of duplicate code we have more code here, yeah (but you can add easily a tab)
             const helper = []
             tabs.forEach((value, key) => {
-              helper.push(<div className={tab === key ? 'selected' : ''}
-                               id={key}
-                               onClick={() => setTab(key)}>{value}</div>)
+              helper.push(<a className={tab === key ? 'selected' : ''}
+                             id={key}
+                             href={`/tasks/${state.selected_task.value.id}/${key.substring(key.lastIndexOf('-') + 1)}`}>{value}</a>)
             })
             return helper
           })()}
@@ -129,7 +117,7 @@ function grml (props) {
 
         <div
           className={tab !== 'task-tab-form' ? 'tab-content hide' : 'tab-content'}>
-          <Form selected={props.selected} />
+          <Form />
         </div>
 
         <div
@@ -146,33 +134,32 @@ function grml (props) {
   )
 }
 
-function assignTask (state, claim, selectedTask, setSelected, tasks, setTasks) {
+const assign_task = (state, claim, selectedTask) => {
   const result = claim ? api.claim_task(state, selectedTask.id) : api.unclaim_task(state, selectedTask.id);
 
   result.then(worked => {
     if (worked) {
       api.get_task(state, selectedTask.id).then((task) => {
         // restore the definition name and version
-        task.def_name = selectedTask.def_name;
-        task.def_version = selectedTask.def_version;
+        task.def_name = selectedTask.def_name
+        task.def_version = selectedTask.def_version
 
-        setSelected(task);
-        updateTaskList(tasks, setTasks, task);
+        state.selected_task.value = task
+        update_task_list(state, task)
       });
     }
   })
 }
 
 // update the task list with a changed task
-function updateTaskList(tasks, setTasks, task) {
-    const newList = tasks.map((item) => {
-        if (item.id === task.id) {
-            return task;
-        }
+const update_task_list = (state, task) => {
+  state.task_list.value = state.task_list.value.map((item) => {
+    if (item.id === task.id) {
+        return task
+    }
 
-        return item;
-    });
-    setTasks(newList);
+    return item
+  });
 }
 
 export { Task }

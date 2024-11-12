@@ -514,17 +514,23 @@ div.accordion {
     cursor: pointer;
 }
 
-.task-tabs > div {
-    /*padding: 0 var(--spacing-2); */
+.task-tabs > a {
+    display: block;
     padding: var(--spacing-1) var(--spacing-2);
     border-right: 1px solid var(--border-color);
+    color: var(--text);
+    text-decoration: none;
 }
 
-.task-tabs > div:last-child {
+.task-tabs > a:visited {
+    color: var(--text);
+}
+
+.task-tabs > a:last-child {
     border-right: none;
 }
 
-.task-tabs > div.selected {
+.task-tabs > a.selected {
     border-radius: var(--border-radius);
     border: 2px solid var(--border-color-2);
     background-color: var(--background-2);

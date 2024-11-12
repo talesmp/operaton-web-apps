@@ -1,11 +1,11 @@
-import { useContext, useState } from 'preact/hooks'
+import { useContext } from 'preact/hooks'
 import * as api from '../../api'
 import * as formatter from '../../helper/formatter'
 import { Task } from './Task.jsx'
 import * as Icons from '../../assets/icons.jsx'
 import { AppState } from '../../state.js'
-import { useComputed, useSignalEffect, effect } from '@preact/signals'
-import { useRoute, useLocation } from 'preact-iso'
+import { useComputed, useSignalEffect } from '@preact/signals'
+import { useRoute } from 'preact-iso'
 
 const Tasks = () => {
   const state = useContext(AppState)

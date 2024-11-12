@@ -3,32 +3,33 @@ import * as api from "../../api";
 import DOMPurify from "dompurify";
 import { AppState } from '../../state.js';
 
-export function Form(props) {
+export function Form() {
     const [generated, setGenerated] = useState("");
     const state = useContext(AppState);
+    const task = state.selected_task.value
 
     // no embedded form and no Camunda form, we have to look for generated form
     useEffect(() => {
-        if (!props.selected.formKey && !props.selected.camundaFormRef && props.selected.id) {
-            api.get_generated_form(state, props.selected.id)
+        if (!task.formKey && !task.camundaFormRef && task.id) {
+            api.get_generated_form(state, task.id)
                 .then((html) => {
                     setGenerated( parseHtml(html) );
                 });
         }
-    }, [props.selected]);
+    }, [task]);
 
     return (
         <>
             {(() => {
-                if (props.selected.formKey) {
-                    const formLink = props.selected.formKey.substring(13);
+                if (task.formKey) {
+                    const formLink = task.formKey.substring(13);
 
                     return ( // TODO needs to be clarified what to do here
                         <>
                             <a href={`http://localhost:8888/${formLink}`} target="_blank">Embedded Form</a>
                         </>
                     );
-                } else if (props.selected.camundaFormRef) {
+                } else if (task.camundaFormRef) {
 
                 } else {
                     return <div class="generated-form" dangerouslySetInnerHTML={{ __html: generated }} />;

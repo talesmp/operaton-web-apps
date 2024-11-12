@@ -140,7 +140,7 @@ export const claim_task = (state, task_id) =>
 export const unclaim_task = (state, task_id) =>
   assign_task(state, false, task_id);
 
-// claim and cede tasks
+// claim and unclaim tasks
 export const assign_task = (state, claim, task_id) => {
   headers.set('Content-Type', 'application/json');
 
@@ -151,10 +151,6 @@ export const assign_task = (state, claim, task_id) => {
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
     .then((response) => {
-      if (!response.ok) {
-        console.log(`status: ${response.status}`)
-        return false;
-      }
-      return true;
+      return response.ok
     })
 }

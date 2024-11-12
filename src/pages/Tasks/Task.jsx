@@ -1,10 +1,31 @@
 import * as Icons from '../../assets/icons.jsx'
-import { useState, useContext } from 'preact/hooks'
+import { useState, useContext, useEffect } from 'preact/hooks'
 import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
+import { useRoute, useLocation } from 'preact-iso'
+import { useSignalEffect } from '@preact/signals'
 
-export function Task (props) {
+const Task = () => {
+  const state = useContext(AppState)
+
+  return (
+    <div id="task-details" class="fade-in">
+      <div className="task-container">
+        <div style="display: flex;">
+          <div>{state.selected_task.value.def_name}</div>
+          <div>[Process version: v{state.selected_task.value.def_version} | <a href="">Show
+            process</a>]
+          </div>
+        </div>
+
+        <h1>{state.selected_task.value.name}</h1>
+      </div>
+    </div>
+  )
+}
+
+function grml (props) {
   const [tab, setTab] = useState('task-tab-form')
   const state = useContext(AppState)
 
@@ -153,3 +174,5 @@ function updateTaskList(tasks, setTasks, task) {
     });
     setTasks(newList);
 }
+
+export { Task }

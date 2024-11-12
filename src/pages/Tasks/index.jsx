@@ -1,103 +1,105 @@
-import { useEffect, useState, useContext } from 'preact/hooks'
+import { useContext, useState } from 'preact/hooks'
 import * as api from '../../api'
 import * as formatter from '../../helper/formatter'
 import { Task } from './Task.jsx'
 import * as Icons from '../../assets/icons.jsx'
 import { AppState } from '../../state.js'
+import { useComputed, useSignalEffect, effect } from '@preact/signals'
+import { useRoute, useLocation } from 'preact-iso'
 
-export function Tasks () {
-  const [tasks, setTasks] = useState([]) // task list on left bar
-  const [selected, setSelected] = useState({}) // the selected task
+const Tasks = () => {
   const state = useContext(AppState)
+  const { params } = useRoute()
+
 
   // TODO remove it when we have a login
   if (!state.user_profile.value) {
-    console.log('setting profile')
     api.get_user_profile(state, null)
   }
 
-  if (state.user_profile.value) {
-    console.log('user ID: ' + state.user_profile.value.id)
-  }
+  void api.get_task_list(state)
 
-  // get task list when page is initially loaded
-  useEffect(() => {
-    api.get_task_list(state).then((list) => {
-      // we need a second call for getting the process definition names
-      const ids = list.map(task => task.processDefinitionId) // list of needed process definitions
+  // set the selected task here
+  useSignalEffect(() => {
+    // have a look for a given task ID and set the selected task
+    if (params.task_id && state.task_list.value) {
+      // prevent infinite loop
+      if (!state.selected_task.value || params.task_id !== state.selected_task.value.id) {
+        const task = state.task_list.value.find(elem => elem.id === params.task_id)
 
-      api.get_process_definition_list(state, ids)
-        .then((defList) => {
-          const defMap = new Map() // helper map, mapping ID to process name
-          defList.map(def => defMap.set(def.id, def))
+        if (task) {
+          state.selected_task.value = task;
+        }
+      }
+    }
 
-          // set process name to task list
-          list.forEach((task) => {
-            const def = defMap.get(task.processDefinitionId)
-            task.def_name = def ? def.name : ''
-            task.def_version = def ? def.version : ''
-          })
-          setTasks(list) // store task list
+    // no selected task? use the first one of the list
+    if (!state.selected_task.value && state.task_list.value) {
+      state.selected_task.value = state.task_list.value[0]
+      //location.route(`/tasks/${state.selected_task.value.id}`, true)
+    }
+  })
 
-          // select the first task in the list to show some data on the right side
-          if (list.length > 0) {
-            setSelected(list[0])
-          }
-        })
-    })
-  }, [])
-  // TODO do we need the div here?
-  return (<main id="tasks" class="fade-in">
-      <aside aria-label="task list">
-        <div className="tile-filter" id="task-filter">
-          <div className="filter-header" onClick={openFilter}>
-            <span className="label">Filter Tasks & Search</span>
-            <span className="icon down"><Icons.chevron_down /></span>
-            <span className="icon up"><Icons.chevron_up /></span>
-          </div>
-          <div className="filter-menu">
-            <menu>
-              <li>My Tasks</li>
-              <li>Claimed Tasks</li>
-            </menu>
-          </div>
-        </div>
 
-        <ul className="tile-list">
-          {tasks.map(task => (<TaskTile
-            key={task.id}
-            task={task} selected={task.id === selected.id}
-            setSelected={setSelected} state={state} />))}
-        </ul>
-      </aside>
-      <Task selected={selected} setSelected={setSelected} tasks={tasks} setTasks={setTasks} />
-    </main>)
+
+  return (
+    <main id="tasks" class="fade-in">
+      <TaskList />
+      { state.selected_task.value ? <Task key={state.selected_task.value.id} /> : '' }
+    </main>
+  )
 }
 
-const TaskTile = ({ task, selected, setSelected, state }) => (
-  <li class={selected ? 'tile selected' : 'tile'}>
-    <a href="" data-task-id={task.id} aria-labelledby={task.id}
-       onClick={() => setSelected(task)}>
-      <div className="tile-row">
-        <div>{task.def_name}</div>
-        <div
-          className="tile-right">{formatter.formatRelativeDate(task.created)}</div>
+const TaskList = () =>
+  <aside aria-label="task list">
+    <div class="tile-filter" id="task-filter">
+      <div class="filter-header" onClick={open_filter}>
+        <span class="label">Filter Tasks & Search</span>
+        <span class="icon down"><Icons.chevron_down /></span>
+        <span class="icon up"><Icons.chevron_up /></span>
       </div>
-      <div id={task.id} class="tile-title">{task.name}</div>
-      <div className="tile-row">
-        <div>Assigned to <b>{task.assignee ? // we compare the assignee with the current user ID, if it's equal show "me"
-          (state.user_profile.value && state.user_profile.value.id === task.assignee ? 'me' : task.assignee) : 'no one'}</b>
-        </div>
-        <div className="tile-right">Priority {task.priority}</div>
+      <div class="filter-menu">
+        <menu>
+          <li>My Tasks</li>
+          <li>Claimed Tasks</li>
+        </menu>
       </div>
-    </a>
-  </li>)
+    </div>
 
-function openFilter () {
+    <ul class="tile-list">
+      {useContext(AppState).task_list.value?.map(task =>
+        <TaskTile key={task.id} {...task} />)}
+    </ul>
+  </aside>
+
+const open_filter = () => {
   const menu = document.getElementById('task-filter')
   menu.classList.toggle('open')
 }
 
+const TaskTile = ({ id, name, created, assignee, priority, def_name }) => {
+  const state = useContext(AppState);
+  const selected = useComputed(() => state.selected_task.value && state.selected_task.value.id === id)
+
+  return (
+    <li key={id} class={ selected.value ? 'tile selected' : 'tile'}>
+      <a href={`/tasks/${id}`} data-task-id={id} aria-labelledby={id}>
+        <div class="tile-row">
+          <div>{def_name}</div>
+          <div
+            class="tile-right">{formatter.formatRelativeDate(created)}</div>
+        </div>
+        <div id={id} class="tile-title">{name}</div>
+        <div class="tile-row">
+          <div>Assigned to <b>{assignee ? (state.user_profile.value && state.user_profile.value.id === assignee ? 'me' :assignee) : 'no one'}</b>
+          </div>
+          <div class="tile-right">Priority {priority}</div>
+        </div>
+      </a>
+    </li>
+  )}
+
+export { Tasks }
 
 
 

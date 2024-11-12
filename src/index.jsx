@@ -28,8 +28,8 @@ export function App () {
         <Router>
           <Route path="/" component={Home} />
           <Route path="/tasks" component={Tasks} />
-          <Route path="/tasks/:task_id" component={Tasks} />
-          <Route path="/tasks/:task_id/:tab" component={Tasks} />
+          <Route path="/tasks/:task_id" component={Tasks} key="selected _task" />
+          <Route path="/tasks/:task_id/:tab" component={Tasks} key="selected_tab" />
           <Route path="/processes" component={ProcessesPage} />
           <Route path="/processes/:definition_id"
                  component={ProcessesPage} />

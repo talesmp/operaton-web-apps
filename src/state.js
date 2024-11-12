@@ -32,6 +32,10 @@ const createAppState = () => {
   const called_definitions = signal(null)
   const job_definitions = signal(null)
   const user_profile = signal(null) // should be set after login
+  const task_list = signal(null)
+  const selected_task = signal(null)
+  const get_task = signal(null)
+  const get_generated_form = signal(null)
 
   return {
     server,
@@ -48,7 +52,11 @@ const createAppState = () => {
     selection_values,
     called_definitions,
     job_definitions,
-    user_profile
+    user_profile,
+    task_list,
+    selected_task,
+    get_task,
+    get_generated_form
   }
 }
 

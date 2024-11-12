@@ -96,8 +96,27 @@ export const get_task_list = (state, sort_key, sort_order) => {
   const sort = sort_key ? sort_key : 'name'
   const order = sort_order ? sort_order : 'asc'
 
-  return fetch(`${_url(state)}/task?sortBy=${sort}&sortOrder=${order}`, { headers: headers })
+  fetch(`${_url(state)}/task?sortBy=${sort}&sortOrder=${order}`, { headers: headers })
     .then((response) => response.json())
+    .then(json => {
+      const ids = json.map(task => task.processDefinitionId) // list of needed process definitions
+
+      // we need the process definition name for each task
+      get_process_definition_list(state, ids)
+        .then( defList => {
+          const defMap = new Map() // helper map, mapping ID to process name
+          defList.map(def => defMap.set(def.id, def))
+
+          // set process name to task list
+          json.forEach((task) => {
+            const def = defMap.get(task.processDefinitionId)
+            task.def_name = def ? def.name : ''
+            task.def_version = def ? def.version : ''
+          })
+
+          state.task_list.value = json
+        })
+    })
 }
 
 export const get_task = (state, task_id) =>
@@ -105,7 +124,7 @@ export const get_task = (state, task_id) =>
     .then((response) => response.json())
 
 
-export const get_process_definition_list = (state, ids) =>
+const get_process_definition_list = (state, ids) =>
    fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers: headers })
     .then((response) => response.json())
 

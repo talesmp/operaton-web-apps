@@ -137,6 +137,164 @@
             }
         }
     }
+
+    #task-details {
+        /* menu bar at task detail page */
+        .task-menu {
+            display: flex;
+            margin: var(--spacing-2);
+
+            menu {
+                padding-inline-start: var(--spacing-2);
+
+                li {
+                    list-style-type: none;
+                    float: left;
+                    padding: var(--spacing-1) 0;
+                    background-color: var(--background-2);
+                    border-radius: 0;
+                    cursor: pointer;
+
+                    &:first-child {
+                        border-top-left-radius: var(--border-radius);
+                        border-bottom-left-radius: var(--border-radius);
+                    }
+
+                    &:last-child {
+                        border-top-right-radius: var(--border-radius);
+                        border-bottom-right-radius: var(--border-radius);
+                    }
+
+                    .icon {
+                        vertical-align: middle;
+                        display: inline-block;
+                        margin: 0 5px 0 var(--spacing-2);
+                    }
+
+                    .label {
+                        vertical-align: middle;
+                        display: inline-block;
+                        margin-right: var(--spacing-2);
+                    }
+                }
+
+                .border {
+                    border-right: 1px solid var(--border-color-2);
+                }
+            }
+        }
+
+        /* content at task detail page */
+        .task-container {
+            margin: var(--spacing-3);
+
+            h1 {
+                font-size: var(--h2-size);
+                font-weight: normal;
+                margin: 1rem 0;
+            }
+
+            .title {
+                font-size: var(--h5-size);
+                padding-bottom: var(--spacing-1);
+                font-weight: bold;
+            }
+
+            /* tab menu */
+            .task-tabs {
+                display: flex;
+                width: max-content;
+                margin-top: var(--spacing-3);
+                /* padding: var(--spacing-1) 0; */
+                font-size: var(--small-font-size);
+                font-weight: bold;
+                border-radius: var(--border-radius);
+                border: 1px solid var(--border-color);
+                cursor: pointer;
+
+                a {
+                    display: block;
+                    padding: var(--spacing-1) var(--spacing-2);
+                    border-right: 1px solid var(--border-color);
+                    color: var(--text);
+                    text-decoration: none;
+
+                    &:visited {
+                        color: var(--text);
+                    }
+
+                    &:last-child {
+                        border-right: none;
+                    }
+
+                    &.selected {
+                        border-radius: var(--border-radius);
+                        border: 2px solid var(--border-color-2);
+                        background-color: var(--background-2);
+                    }
+                }
+            }
+
+            .tab-content {
+                margin-top: var(--spacing-3);
+
+                &.hide {
+                    display:none;
+                }
+            }
+
+            /* engine generated form, CSS classes given by the engine */
+            .generated-form {
+                form {
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+
+                .form-group {
+                    width: 40%;
+                    margin-right: var(--spacing-3);
+                    margin-top: var(--spacing-2);
+
+                    label {
+                        display: block;
+                        font-size: var(--small-font-size);
+                        font-weight: bold;
+                        margin-bottom: var(--spacing-1);
+                    }
+
+                    input {
+                        &:not([type='checkbox']) {
+                            width: 80%;
+                        }
+
+                        &[type="checkbox"] {
+                            margin-left: 0;
+                        }
+                    }
+
+                    .input-group-btn {
+                        display: none;
+                    }
+
+                    /* error text for fields */
+                    .help-block {
+                        display: none;
+                    }
+                }
+
+                /* buttons are added by us */
+                .form-buttons {
+                    width: 100%;
+                    margin-top: var(--spacing-3);
+
+                    button {
+                        display: inline-block;
+                        margin-right: var(--spacing-1);
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* action bar */
@@ -441,158 +599,6 @@ div.accordion {
 .copy-on-click:active {
     /*font-weight: bold;*/
     text-shadow: 0 0 4px var(--color-primary);
-}
-
-/* task menu */
-.task-menu {
-    display: flex;
-    margin: var(--spacing-2);
-}
-
-.task-menu menu {
-    padding-inline-start: var(--spacing-2);
-}
-
-.task-menu menu li {
-    list-style-type: none;
-    float: left;
-    padding: var(--spacing-1) 0;
-    background-color: var(--background-2);
-    border-radius: 0;
-    cursor: pointer;
-}
-
-.task-menu menu li:first-child {
-    border-top-left-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-}
-
-.task-menu menu li:last-child {
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-}
-
-.task-menu menu .border {
-    border-right: 1px solid var(--border-color-2);
-}
-
-.task-menu menu li .icon {
-    vertical-align: middle;
-    display: inline-block;
-    margin: 0 5px 0 var(--spacing-2);
-}
-
-.task-menu menu li .label {
-    vertical-align: middle;
-    display: inline-block;
-    margin-right: var(--spacing-2);
-}
-
-/* task container */
-.task-container {
-    margin: var(--spacing-3);
-}
-
-.task-container h1 {
-    font-size: var(--h2-size);
-    font-weight: normal;
-    margin: 1rem 0;
-}
-
-.task-container .title {
-    font-size: var(--h5-size);
-    padding-bottom: var(--spacing-1);
-    font-weight: bold;
-}
-
-/* task tabs */
-.task-tabs {
-    display: flex;
-    width: max-content;
-    margin-top: var(--spacing-3);
-    /* padding: var(--spacing-1) 0; */
-    font-size: var(--small-font-size);
-    font-weight: bold;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-}
-
-.task-tabs > a {
-    display: block;
-    padding: var(--spacing-1) var(--spacing-2);
-    border-right: 1px solid var(--border-color);
-    color: var(--text);
-    text-decoration: none;
-}
-
-.task-tabs > a:visited {
-    color: var(--text);
-}
-
-.task-tabs > a:last-child {
-    border-right: none;
-}
-
-.task-tabs > a.selected {
-    border-radius: var(--border-radius);
-    border: 2px solid var(--border-color-2);
-    background-color: var(--background-2);
-}
-
-.tab-content {
-    margin-top: var(--spacing-3);
-}
-
-.tab-content.hide {
-    display:none;
-}
-
-.generated-form form {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.generated-form .form-group {
-    /*max-width: 24rem;*/
-    width: 40%;
-    margin-right: var(--spacing-3);
-    margin-top: var(--spacing-2);
-}
-
-.generated-form .form-group label {
-    display: block;
-    font-size: var(--small-font-size);
-    font-weight: bold;
-    margin-bottom: var(--spacing-1);
-}
-
-.generated-form .form-group input:not([type='checkbox']) {
-    width: 80%;
-}
-
-.generated-form .form-group input[type="checkbox"] {
-    margin-left: 0;
-}
-
-/* button for date field that we don't need */
-.generated-form .form-group .input-group-btn {
-    display: none;
-}
-
-/* error text for fields */
-.generated-form .form-group .help-block {
-    display: none;
-}
-
-.generated-form .form-buttons {
-    width: 100%;
-    margin-top: var(--spacing-3);
-}
-
-.generated-form .form-buttons button {
-    display: inline-block;
-    margin-right: var(--spacing-1);
 }
 
 /* global search */

@@ -35,7 +35,7 @@ const createAppState = () => {
   const tasks = signal(null)
   const selected_task = signal(null)
   const task = signal(null)
-  const task_claim_result = signal(null)
+  const task_assign_result = signal(null) // used for claim, un-claim, assign, reset assignee
   const task_generated_form = signal(null)
 
   return {
@@ -57,7 +57,7 @@ const createAppState = () => {
     tasks,
     selected_task,
     task,
-    task_claim_result,
+    task_assign_result,
     task_generated_form
   }
 }

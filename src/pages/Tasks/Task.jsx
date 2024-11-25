@@ -27,7 +27,7 @@ const Task = () => {
   }
 
   useSignalEffect(() => {
-    if (state.task_claim_result.value) {
+    if (state.task_assign_result.value) {
       api.get_task(state, state.selected_task.peek().id)
     }
   })
@@ -49,28 +49,38 @@ const Task = () => {
       <div className="task-menu">
         <menu>
           {(() => {
-            // show claim only, if this task has another assignee
-            if (user && user.id !== task.assignee) {
+            // show claim only, if this task has no assignee
+            if (!task.assignee && user && user.id !== task.assignee) {
               return (
-                <li
-                  onClick={() => assign_task(state, true, task)}>
+                <li aria-label="Claim Task"
+                  onClick={() => claim_task(state, true, task)}>
                   <div className="border">
                     <span className="icon"><Icons.user_plus /></span>
                     <span className="label">Claim</span>
                   </div>
                 </li>
               )
+              // show unclaim, when the current user is the assignee
             } else if (user && user.id === task.assignee) {
               return (
-                <li
-                  onClick={() => assign_task(state, false, task)}>
+                <li aria-label="Unclaim Task"
+                  onClick={() => claim_task(state, false, task)}>
                   <div className="border">
                     <span className="icon"><Icons.user_minus /></span>
                     <span className="label">Unclaim</span>
                   </div>
                 </li>
               )
-            }
+            } // show reset
+            return (
+              <li aria-label="Reset"
+                onClick={() => assign_task(state, null, task)}>
+                <div className="border">
+                  <span className="icon"><Icons.user_minus /></span>
+                  <span className="label">Reset Assignee</span>
+                </div>
+              </li>
+            )
           })()}
           <li>
             <div className="border">
@@ -154,8 +164,12 @@ const Task = () => {
   )
 }
 
-const assign_task = (state, claim, selectedTask) => {
+const claim_task = (state, claim, selectedTask) => {
   api.post_task_claim(state, claim, selectedTask.id)
+}
+
+const assign_task = (state, assignee, selectedTask) => {
+  api.post_task_assign(state, assignee, selectedTask.id)
 }
 
 // update the task list with a changed task

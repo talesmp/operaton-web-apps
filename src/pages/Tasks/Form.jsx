@@ -4,7 +4,7 @@ import DOMPurify from "dompurify";
 import { AppState } from '../../state.js';
 import { useSignalEffect } from '@preact/signals'
 
-export function Form() {
+const Form = () => {
     const [generated, setGenerated] = useState("")
     const state = useContext(AppState);
     const task = state.selected_task.value
@@ -17,7 +17,7 @@ export function Form() {
     })
 
     useSignalEffect(() => {
-        setGenerated(parseHtml(state.task_generated_form.value))
+        setGenerated(parse_html(state, state.task_generated_form.value))
     })
 
     return (
@@ -34,7 +34,15 @@ export function Form() {
                 } else if (task.camundaFormRef) {
 
                 } else {
-                    return <div class="generated-form" dangerouslySetInnerHTML={{ __html: generated }} />;
+                    return (
+                        <>
+                            <div id="generated-form" class="generated-form" dangerouslySetInnerHTML={{ __html: generated }} />
+                            <div class="form-buttons">
+                                <button onClick={() => post_form()}>Complete Task</button>
+                                <button class="secondary">Save Form</button>
+                            </div>
+                        </>
+                    )
                 }
 
             })()}
@@ -43,38 +51,53 @@ export function Form() {
 }
 
 /* remove unnecessary JS code, set date type for date inputs and add form buttons */
-function parseHtml(html) {
+const parse_html = (state, html) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    const fields = doc.getElementsByTagName("input");
+    const disable = state.user_profile.value.id !== state.selected_task.value.assignee
+    const inputs = doc.getElementsByTagName("input");
+    const selects = doc.getElementsByTagName("select");
 
     // if we have a date, we change the input type to date, so the standard datepicker can be used
-    for (const field of fields) {
+    for (const field of inputs) {
         if (field.hasAttribute("uib-datepicker-popup")) {
             field.type = "date";
         }
+
+        if (disable) {
+            field.setAttribute("disabled", "disabled");
+        }
     }
 
-    // add 2 buttons to the form
-    const formField = doc.getElementsByTagName("form");
-    if (formField.length > 0) {
-        const buttonNode = document.createElement("button");
-        const textnode = document.createTextNode("Complete Task");
-        buttonNode.appendChild(textnode);
-
-        const buttonNode2 = document.createElement("button");
-        const textnode2 = document.createTextNode("Save Form");
-        buttonNode2.appendChild(textnode2);
-        buttonNode2.setAttribute("class", "secondary")
-
-        const node = document.createElement("div");
-        node.appendChild(buttonNode);
-        node.appendChild(buttonNode2);
-        node.setAttribute("class", "form-buttons")
-        formField[0].appendChild(node);
+    for (const field of selects) {
+        console.log("select: " + field.name);
+        if (disable) {
+            field.setAttribute("disabled", "disabled");
+        }
     }
 
-    // we clean up the HTML, will remove unnecessary JS
-    return DOMPurify.sanitize(doc.documentElement.outerHTML);
+    // we clean up the HTML, will remove unnecessary JS and attributes
+    return DOMPurify.sanitize(doc.documentElement.outerHTML, {ADD_ATTR: ['cam-variable-type']});
 }
+
+const post_form = () => {
+    const form = document.getElementById("generated-form");
+
+    const inputs = form.getElementsByTagName("input");
+    const selects = form.getElementsByTagName("select");
+
+    for (let input of inputs) {
+        console.log("name: " + input.getAttribute("name") + " value: " + input.value)
+
+        if (input.getAttribute("type") === "checkbox") {
+            console.log("check value: " + input.checked);
+        }
+    }
+
+    for (let select of selects) {
+        console.log("name: " + select.getAttribute("name") + " value: " + select.value)
+    }
+}
+
+export { Form }

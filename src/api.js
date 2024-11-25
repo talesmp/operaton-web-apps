@@ -131,7 +131,7 @@ export const get_task = (state, task_id) =>
 
 export const get_task_rendered_form = (state, task_id) =>
    fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers: headers })
-    .then((response) => response.text())
+     .then((response) => response.text())
      .then(text => state.task_generated_form.value = text)
 
 // claim and unclaim tasks
@@ -145,5 +145,18 @@ export const post_task_claim = (state, do_claim, task_id) => {
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
     .then((response) => response.ok)
-    .then(result => state.task_claim_result.value = result)
+    .then(result => state.task_assign_result.value = result)
+}
+
+export const post_task_assign = (state, assignee, task_id) => {
+  headers.set('Content-Type', 'application/json');
+
+  return fetch(`${_url(state)}/task/${task_id}/assignee`,
+    {
+      headers: headers ,
+      method: 'POST',
+      body: JSON.stringify({ userId: assignee })
+    })
+    .then((response) => response.ok)
+    .then(result => state.task_assign_result.value = result)
 }

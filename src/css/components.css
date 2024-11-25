@@ -241,6 +241,17 @@
                 &.hide {
                     display:none;
                 }
+
+                /* buttons for the generated form */
+                .form-buttons {
+                    width: 100%;
+                    margin-top: var(--spacing-3);
+
+                    button {
+                        display: inline-block;
+                        margin-right: var(--spacing-1);
+                    }
+                }
             }
 
             /* engine generated form, CSS classes given by the engine */
@@ -279,17 +290,6 @@
                     /* error text for fields */
                     .help-block {
                         display: none;
-                    }
-                }
-
-                /* buttons are added by us */
-                .form-buttons {
-                    width: 100%;
-                    margin-top: var(--spacing-3);
-
-                    button {
-                        display: inline-block;
-                        margin-right: var(--spacing-1);
                     }
                 }
             }

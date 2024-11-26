@@ -11,10 +11,10 @@ import { NotFound } from "./pages/_404.jsx";
 
 import "./css/fonts.css";
 import "./css/form.css";
-import "./css/vars.css";
+import "./css/variables.css";
 import "./css/layout.css";
 import "./css/components.css";
-import "./css/main.css";
+import "./css/normalize.css";
 import "./css/animation.css";
 import { Search } from './components/Search.jsx'
 

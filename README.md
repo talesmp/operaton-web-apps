@@ -19,7 +19,8 @@ You require the following software to run the app
 
 ## Contributing
 
-Please refer to the [Coding Conventions.md](docs/Coding%20Conventions.md) file for detailed information.
+Please refer to the [Contributing.md](docs/Contributing.md) file for detailed information.
+As well have a look at [Coding Conventions.md](docs/Coding%20Conventions.md).
 
 ## License
 

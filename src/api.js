@@ -160,3 +160,25 @@ export const post_task_assign = (state, assignee, task_id) => {
     .then((response) => response.ok)
     .then(result => state.task_assign_result.value = result)
 }
+
+export const post_task_form = (state, task_id, data) => {
+  headers.set('Content-Type', 'application/json');
+
+  return fetch(`${_url(state)}/task/${task_id}/submit-form`,
+    {
+      headers: headers ,
+      method: 'POST',
+      body: JSON.stringify({ variables: data })
+    })
+    .then((response) => response.json())
+    .then(json => {
+      if (!json.type) {
+        state.tasklist_change_result.value = true
+        state.selected_task = null // the task is completed, so let it go
+      } else {
+        if (json.type === "RestException") {
+          console.log("error: " + json.message)
+        }
+      }
+    })
+}

@@ -27,20 +27,22 @@ const Task = () => {
   }
 
   useSignalEffect(() => {
-    if (state.task_assign_result.value) {
+    if (state.task_change_result.value) {
+      state.task_change_result.value = null // we have to reset the value here to be aware for the next task changes
       api.get_task(state, state.selected_task.peek().id)
     }
   })
 
   useSignalEffect(() => {
-    const task = state.task.value
+    const changedTask = state.task.value
 
-    if (task) {
-      task.def_name = state.selected_task.peek().def_name
-      task.def_version = state.selected_task.peek().def_version
+    if (changedTask) {
+      changedTask.def_name = state.selected_task.peek().def_name
+      changedTask.def_version = state.selected_task.peek().def_version
 
-      state.selected_task.value = task
-      update_task_list(state, task)
+      state.selected_task.value = changedTask
+      state.task.value = null // reset the value because with setting the selected task the effect is triggered again
+      update_task_list(state, changedTask)
     }
   })
 

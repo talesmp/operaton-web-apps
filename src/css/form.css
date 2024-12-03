@@ -52,6 +52,24 @@ button {
     margin-top: 0;
 }
 
+/* TODO: may be style needs to be adjusted, error form validation */
+:where(input, select):user-invalid {
+    outline: var(--border-width-2) solid var(--color-danger);
+}
+
+/* error text within a form */
+form .error {
+    display:none;
+    color: var(--color-danger);
+    margin-top: var(--spacing-1);
+    font-size: var(--small-font-size);
+}
+
+:where(input, select):user-invalid ~ .error {
+    display: block !important;
+    color: var(--color-danger);
+}
+
 :where(button, select, input):hover {
     cursor: pointer;
     outline-style: dotted;

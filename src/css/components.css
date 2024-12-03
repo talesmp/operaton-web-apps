@@ -286,11 +286,6 @@
                     .input-group-btn {
                         display: none;
                     }
-
-                    /* error text for fields */
-                    .help-block {
-                        display: none;
-                    }
                 }
             }
         }

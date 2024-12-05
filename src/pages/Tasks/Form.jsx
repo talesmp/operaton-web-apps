@@ -3,49 +3,61 @@ import * as api from "../../api";
 import DOMPurify from "dompurify";
 import { AppState } from '../../state.js';
 import { useSignalEffect } from '@preact/signals'
+import * as Icons from '../../assets/icons.jsx'
 
 const Form = () => {
     const [generated, setGenerated] = useState("")
+    const [error, setError] = useState(null)
     const state = useContext(AppState);
-    const task = state.selected_task.value
 
     // no embedded form and no Camunda form, we have to look for generated form
     useSignalEffect(() => {
-        if (!task.formKey && !task.camundaFormRef && task.id) {
-            api.get_task_rendered_form(state, task.id)
+        if (state.selected_task.value && !state.selected_task.value.formKey
+          && !state.selected_task.value.camundaFormRef && state.selected_task.value.id) {
+            api.get_task_rendered_form(state, state.selected_task.value.id)
         }
     })
 
     useSignalEffect(() => {
-        setGenerated(parse_html(state, state.task_generated_form.value))
+        if (state.task_generated_form.value) {
+            setGenerated(parse_html(state, state.task_generated_form.value))
+        }
     })
 
     return (
         <>
             {(() => {
-                if (task.formKey) {
-                    const formLink = task.formKey.substring(13);
+                if (state.selected_task.value.formKey) {
+                    const formLink = state.selected_task.value.formKey.substring(13);
 
                     return ( // TODO needs to be clarified what to do here
                         <>
                             <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
                         </>
                     );
-                } else if (task.camundaFormRef) {
+                } else if (state.selected_task.value.camundaFormRef) {
 
                 } else {
                     return (
                         <>
                             <div>(*) required field</div>
-                            <div id="generated-form" class="generated-form" dangerouslySetInnerHTML={{ __html: generated }} />
-                            <div class="form-buttons">
-                                <button onSubmit={() => post_form(state)}>Complete Task</button>
-                                <button class="secondary">Save Form</button>
+                            <div id="generated-form" class="generated-form">
+                                <form onSubmit={(e) => post_form(e, state, setError)}>
+                                    <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
+
+                                    <div class={`error ${error ? 'show' : 'hidden'}`}>
+                                        <span class="icon"><Icons.exclamation_triangle /></span>
+                                        <span class="error-text">{error}</span>
+                                    </div>
+                                    <div className="form-buttons">
+                                        <button type="submit">Complete Task</button>
+                                        <button className="secondary">Save Form</button>
+                                    </div>
+                                </form>
                             </div>
                         </>
                     )
                 }
-
             })()}
         </>
     );
@@ -55,10 +67,11 @@ const Form = () => {
 const parse_html = (state, html) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
+    const form = doc.getElementsByTagName("form")[0];
 
     const disable = state.user_profile.value.id !== state.selected_task.value.assignee
-    const inputs = doc.getElementsByTagName("input");
-    const selects = doc.getElementsByTagName("select");
+    const inputs = form.getElementsByTagName("input");
+    const selects = form.getElementsByTagName("select");
 
     for (const field of inputs) {
         // if we have a date, we change the input type to date, so the standard datepicker can be used
@@ -86,54 +99,62 @@ const parse_html = (state, html) => {
         }
     }
 
-    const errors = doc.querySelectorAll(".has-error");
-    // change the class name of the error display and remove all stuff in it
-    for (const error of errors) {
-        error.className = 'error'
-        //error.replaceChildren()
-    }
-
     // we clean up the HTML, will remove unnecessary JS and attributes
-    return DOMPurify.sanitize(doc.documentElement.outerHTML, {ADD_ATTR: ['cam-variable-type']});
+    return DOMPurify.sanitize(form.innerHTML, {ADD_ATTR: ['cam-variable-type']});
 }
 
-const post_form = (state) => {
-    const form = document.getElementById("generated-form");
+const post_form = (e, state, setError) => {
+    setError(null) // reset former error message from server
+    const data = build_form_data()
 
-    const inputs = form.getElementsByClassName("form-control");
+    const message = api.post_task_form(state, state.selected_task.value.id, data)
+
+    // error message from server
+    if (message) {
+        setError(message)
+    }
+
+    e.preventDefault()
+}
+
+// building Json format for posting the data
+const build_form_data = () => {
+    const inputs = document.getElementById("generated-form")
+      .getElementsByClassName("form-control");
     const data = {}
 
     // building Json format for posting the data
     for (let input of inputs) {
-        if (!validateInput(input)) {
-
-        }
-
         // sanitize will remove the attribute name when its value is also "name"
         let variable = input.getAttribute("name")
         if (!variable) {
            variable = "name"
         }
 
-        if (input.getAttribute("type") === "checkbox") {
-            data[variable] = { value: input.checked }
-        } else {
-            data[variable] = { value: input.value }
+        switch (input.getAttribute("type")) {
+            case "checkbox":
+                data[variable] = { value: input.checked }
+                break
+            case "date": {
+                if (input.value) {
+                    const date = input.value.split("-")
+                    data[variable] = { value: date[2] + "/" + date[1] + "/" + date[0] }
+                }
+                break
+            }
+            case "number":
+                if (input.value) {
+                    data[variable] = { value: parseInt(input.value, 10) }
+                }
+                break
+            default:
+                if (input.value) {
+                    data[variable] = { value: input.value }
+                }
         }
     }
 
-    //api.post_task_form(state, state.selected_task.value.id, data)
-}
-
-const validateInput = (input) => {
-    let error = false
-
-    if (input.hasAttribute("required") && (!input.value || /^\s*$/.test(input.value))) {
-        input.nextSibling.textContent = "This field is required"
-        error = true
-    }
-
-    return error
+    return data
 }
 
 export { Form }

@@ -57,8 +57,8 @@ const Task = () => {
                 <li aria-label="Claim Task"
                   onClick={() => claim_task(state, true, task)}>
                   <div className="border">
-                    <span className="icon"><Icons.user_plus /></span>
-                    <span className="label">Claim</span>
+                    <span class="icon"><Icons.user_plus /></span>
+                    <span class="label">Claim</span>
                   </div>
                 </li>
               )
@@ -67,9 +67,9 @@ const Task = () => {
               return (
                 <li aria-label="Unclaim Task"
                   onClick={() => claim_task(state, false, task)}>
-                  <div className="border">
-                    <span className="icon"><Icons.user_minus /></span>
-                    <span className="label">Unclaim</span>
+                  <div class="border">
+                    <span class="icon"><Icons.user_minus /></span>
+                    <span class="label">Unclaim</span>
                   </div>
                 </li>
               )
@@ -77,45 +77,45 @@ const Task = () => {
             return (
               <li aria-label="Reset"
                 onClick={() => assign_task(state, null, task)}>
-                <div className="border">
-                  <span className="icon"><Icons.user_minus /></span>
-                  <span className="label">Reset Assignee</span>
+                <div class="border">
+                  <span class="icon"><Icons.user_minus /></span>
+                  <span class="label">Reset Assignee</span>
                 </div>
               </li>
             )
           })()}
           <li>
-            <div className="border">
-              <span className="icon"><Icons.users /></span>
-              <span className="label">Set Group</span>
+            <div class="border">
+              <span class="icon"><Icons.users /></span>
+              <span class="label">Set Group</span>
             </div>
           </li>
           <li>
-            <div className="border">
-              <span className="icon"><Icons.calendar /></span>
-              <span className="label">Set Follow Up Date</span>
+            <div class="border">
+              <span class="icon"><Icons.calendar /></span>
+              <span class="label">Set Follow Up Date</span>
             </div>
           </li>
           <li>
-            <div className="border">
-              <span className="icon"><Icons.bell /></span>
-              <span className="label">Set Due Date</span>
+            <div class="border">
+              <span class="icon"><Icons.bell /></span>
+              <span class="label">Set Due Date</span>
             </div>
           </li>
           <li>
-            <span className="icon"><Icons.chat_bubble_left /></span>
-            <span className="label">Comment</span>
+            <span class="icon"><Icons.chat_bubble_left /></span>
+            <span class="label">Comment</span>
           </li>
         </menu>
         <menu>
           <li>
-            <span className="icon"><Icons.play /></span>
-            <span className="label">Start Process</span>
+            <span class="icon"><Icons.play /></span>
+            <span class="label">Start Process</span>
           </li>
         </menu>
       </div>
 
-      <div className="task-container">
+      <div class="task-container">
         <div style="display: flex;">
           <div>{task.def_name}</div>
           <div>[Process version: v{task.def_version} | <a href="">Show
@@ -128,18 +128,18 @@ const Task = () => {
         {(() => {
           if (task.description) {
             return (<div>
-              <p className="title">Description</p>
+              <p class="title">Description</p>
               {task.description}
             </div>)
           }
 
         })()}
 
-        <div className="task-tabs">
+        <div class="task-tabs">
           {(() => {  // instead of duplicate code we have more code here, yeah (but you can add easily a tab)
             const helper = []
             tabs.forEach((value, key) => {
-              helper.push(<a className={tab === key ? 'selected' : ''}
+              helper.push(<a class={tab === key ? 'selected' : ''}
                              id={key}
                              href={`/tasks/${state.selected_task.value.id}/${key.substring(key.lastIndexOf('-') + 1)}`}>{value}</a>)
             })
@@ -148,17 +148,17 @@ const Task = () => {
         </div>
 
         <div
-          className={tab !== 'task-tab-form' ? 'tab-content hide' : 'tab-content'}>
+          class={tab !== 'task-tab-form' ? 'tab-content hide' : 'tab-content'}>
           <Form />
         </div>
 
         <div
-          className={tab !== 'task-tab-history' ? 'tab-content hide' : 'tab-content'}>
+          class={tab !== 'task-tab-history' ? 'tab-content hide' : 'tab-content'}>
           HISTORY
         </div>
 
         <div
-          className={tab !== 'task-tab-diagram' ? 'tab-content hide' : 'tab-content'}>
+          class={tab !== 'task-tab-diagram' ? 'tab-content hide' : 'tab-content'}>
           DIAGRAM
         </div>
       </div>

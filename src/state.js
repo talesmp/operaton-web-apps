@@ -36,8 +36,8 @@ const createAppState = () => {
   const selected_task = signal(null)
   const task = signal(null)
   const task_change_result = signal(null) // used for reloading the task
-  const tasklist_change_result = signal(null) // used for reloading the task list
   const task_generated_form = signal(null)
+  const task_form_data = signal({}) // storing the uncompleted task form data for session time
 
   return {
     server,
@@ -60,7 +60,7 @@ const createAppState = () => {
     task,
     task_change_result,
     task_generated_form,
-    tasklist_change_result
+    task_form_data
   }
 }
 

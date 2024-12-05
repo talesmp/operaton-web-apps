@@ -257,37 +257,83 @@
             /* engine generated form, CSS classes given by the engine */
             .generated-form {
                 form {
-                    display: flex;
-                    flex-wrap: wrap;
-                }
+                    column-width: auto;
 
-                .form-group {
-                    width: 40%;
-                    margin-right: var(--spacing-3);
-                    margin-top: var(--spacing-2);
+                    .form-fields {
+                        display: flex;
+                        flex-wrap: wrap;
 
-                    label {
-                        display: block;
-                        font-size: var(--small-font-size);
-                        font-weight: bold;
-                        margin-bottom: var(--spacing-1);
+                        .form-group {
+                            width: 40%;
+                            margin-right: var(--spacing-3);
+                            margin-top: var(--spacing-2);
+
+                            label {
+                                display: block;
+                                font-size: var(--small-font-size);
+                                font-weight: bold;
+                                margin-bottom: var(--spacing-1);
+                            }
+
+                            input {
+                                &:not([type='checkbox']) {
+                                    width: 80%;
+                                }
+
+                                &[type="checkbox"] {
+                                    margin-left: 0;
+                                }
+                            }
+
+                            .input-group-btn {
+                                display: none;
+                            }
+
+                            .has-error {
+                                display: none;
+                            }
+                        }
                     }
 
-                    input {
-                        &:not([type='checkbox']) {
-                            width: 80%;
+                    .error {
+                        color: var(--color-danger);
+                        margin-top: var(--spacing-2);
+
+                        &.hidden {
+                            display: none;
                         }
 
-                        &[type="checkbox"] {
-                            margin-left: 0;
+                        &.show {
+                            display: block;
+                        }
+
+                        .icon {
+                            vertical-align: middle;
+                            display: inline-block;
+                            margin-right: var(--spacing-1);
+                            height: 1.5rem;
+
+                            svg {
+                                width: 1.5rem;
+                                height: 1.5rem;
+                            }
+                        }
+
+                        .error-text {
+                            vertical-align: middle;
+                            display: inline-block;
                         }
                     }
 
-                    .input-group-btn {
-                        display: none;
+                    .form-buttons {
+
                     }
                 }
             }
+        }
+
+        .task-empty {
+            margin: var(--spacing-4) var(--spacing-3);
         }
     }
 }
@@ -636,4 +682,11 @@ dialog#global-search {
 ::backdrop {
     background: #FFF4;
     backdrop-filter: blur(6px);
+}
+
+/* TODO: needs to be designed */
+/* info box */
+.info-box {
+    padding: var(--spacing-2);
+    border: 2px solid var(--color-primary);
 }

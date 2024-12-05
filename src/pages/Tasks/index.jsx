@@ -32,12 +32,6 @@ const Tasks = () => {
         }
       }
     }
-
-    // no selected task? use the first one of the list
-    if (!state.selected_task.value && state.tasks.value) {
-      state.selected_task.value = state.tasks.value[0]
-      //location.route(`/tasks/${state.selected_task.value.id}`, true)
-    }
   })
 
 
@@ -45,8 +39,20 @@ const Tasks = () => {
   return (
     <main id="tasks" class="fade-in">
       <TaskList />
-      { state.selected_task.value ? <Task key={state.selected_task.value.id} /> : '' }
+      { state.selected_task.value ? <Task key={state.selected_task.value.id} /> : <NoSelectedTasks /> }
     </main>
+  )
+}
+
+const NoSelectedTasks = () => {
+  return (
+    <div id="task-details" className="fade-in">
+      <div class="task-empty">
+        <div class="info-box">
+          Please select a task from the task list on the left side.
+        </div>
+      </div>
+    </div>
   )
 }
 

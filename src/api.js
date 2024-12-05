@@ -138,47 +138,51 @@ export const get_task_rendered_form = (state, task_id) =>
 export const post_task_claim = (state, do_claim, task_id) => {
   headers.set('Content-Type', 'application/json');
 
-  return fetch(`${_url(state)}/task/${task_id}/${do_claim ? 'claim' : 'unclaim'}`,
+  fetch(`${_url(state)}/task/${task_id}/${do_claim ? 'claim' : 'unclaim'}`,
     {
       headers: headers ,
       method: 'POST',
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
     .then((response) => response.ok)
-    .then(result => state.task_assign_result.value = result)
+    .then(result => state.task_change_result.value = result)
 }
 
 export const post_task_assign = (state, assignee, task_id) => {
   headers.set('Content-Type', 'application/json');
 
-  return fetch(`${_url(state)}/task/${task_id}/assignee`,
+  fetch(`${_url(state)}/task/${task_id}/assignee`,
     {
       headers: headers ,
       method: 'POST',
       body: JSON.stringify({ userId: assignee })
     })
     .then((response) => response.ok)
-    .then(result => state.task_assign_result.value = result)
+    .then(result => state.task_change_result.value = result)
 }
 
+/* return null or error message from server, in fact all validation should be done by HTML5 validation, but who knows ... */
 export const post_task_form = (state, task_id, data) => {
   headers.set('Content-Type', 'application/json');
 
-  return fetch(`${_url(state)}/task/${task_id}/submit-form`,
+  fetch(`${_url(state)}/task/${task_id}/submit-form`,
     {
       headers: headers ,
       method: 'POST',
-      body: JSON.stringify({ variables: data })
+      body: JSON.stringify({ variables: data, withVariablesInReturn: true })
     })
     .then((response) => response.json())
     .then(json => {
+      // if there is a json type, we get an error message back
       if (!json.type) {
-        state.tasklist_change_result.value = true
-        state.selected_task = null // the task is completed, so let it go
+        state.tasks.value = null
+        // it's important that the form data is cleared before the task data, because the signal effect will be called immediately
+        state.task_generated_form.value = null
+        state.selected_task.value = null // the task is completed, so let it go
       } else {
-        if (json.type === "RestException") {
-          console.log("error: " + json.message)
-        }
+        return json.message
       }
     })
+
+  return null
 }

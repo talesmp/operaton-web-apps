@@ -49,9 +49,9 @@ const Form = () => {
                                         <span class="icon"><Icons.exclamation_triangle /></span>
                                         <span class="error-text">{error}</span>
                                     </div>
-                                    <div className="form-buttons">
+                                    <div class="form-buttons">
                                         <button type="submit">Complete Task</button>
-                                        <button className="secondary">Save Form</button>
+                                        <button type="button" class="secondary" onClick={() => store_data(state)}>Save Form</button>
                                     </div>
                                 </form>
                             </div>
@@ -72,8 +72,18 @@ const parse_html = (state, html) => {
     const disable = state.user_profile.value.id !== state.selected_task.value.assignee
     const inputs = form.getElementsByTagName("input");
     const selects = form.getElementsByTagName("select");
+    let storedData = localStorage.getItem(`task_form_${  state.selected_task.value.id}`)
+
+    if (storedData) {
+        storedData = JSON.parse(storedData);
+    }
 
     for (const field of inputs) {
+        // sanitize will remove the attribute name when its value is also "name"
+        if (!field.getAttribute("name")) {
+            field.name = "name"
+        }
+
         // if we have a date, we change the input type to date, so the standard datepicker can be used
         if (field.hasAttribute("uib-datepicker-popup")) {
             field.type = "date";
@@ -91,11 +101,30 @@ const parse_html = (state, html) => {
         if (field.hasAttribute("required")) {
             field.previousElementSibling.textContent += "*"
         }
+
+        // set previously stored data
+        if (storedData) {
+            if (field.getAttribute("type") === "checkbox") {
+                if (storedData[field.name] && storedData[field.name]["value"]) {
+                    field.setAttribute("checked", "checked");
+                }
+            } else if (storedData[field.name]) {
+                field.setAttribute("value", storedData[field.name]["value"])
+            }
+        }
     }
 
     for (const field of selects) {
         if (disable) {
             field.setAttribute("disabled", "disabled");
+        }
+
+        if (storedData && storedData[field.name]) {
+            for (const option of field.children) {
+                if (option.getAttribute("value") === storedData[field.name]["value"]) {
+                    option.setAttribute("selected", "selected");
+                }
+            }
         }
     }
 
@@ -105,6 +134,7 @@ const parse_html = (state, html) => {
 
 const post_form = (e, state, setError) => {
     setError(null) // reset former error message from server
+    const task_id = state.selected_task.value.id
     const data = build_form_data()
 
     const message = api.post_task_form(state, state.selected_task.value.id, data)
@@ -112,13 +142,22 @@ const post_form = (e, state, setError) => {
     // error message from server
     if (message) {
         setError(message)
+    } else {
+        // we don't care if it exists, we remove it as a precaution
+        localStorage.removeItem(`task_form_${task_id}`)
     }
 
     e.preventDefault()
 }
 
-// building Json format for posting the data
-const build_form_data = () => {
+/* with "Save Form" we store the form data in the local storage, so the task can be completed in the future,
+   no matter when, we reuse the JSON structure from the REST API POST call */
+const store_data = (state) => {
+    localStorage.setItem(`task_form_${  state.selected_task.value.id}`, JSON.stringify(build_form_data(true)))
+}
+
+// building Json format for posting the data, if we store it temporarily we don't change the format
+const build_form_data = (temporary) => {
     const inputs = document.getElementById("generated-form")
       .getElementsByClassName("form-control");
     const data = {}
@@ -127,9 +166,6 @@ const build_form_data = () => {
     for (let input of inputs) {
         // sanitize will remove the attribute name when its value is also "name"
         let variable = input.getAttribute("name")
-        if (!variable) {
-           variable = "name"
-        }
 
         switch (input.getAttribute("type")) {
             case "checkbox":
@@ -137,8 +173,12 @@ const build_form_data = () => {
                 break
             case "date": {
                 if (input.value) {
-                    const date = input.value.split("-")
-                    data[variable] = { value: date[2] + "/" + date[1] + "/" + date[0] }
+                    if (temporary) {
+                        data[variable] = { value: input.value }
+                    } else {
+                        const date = input.value.split("-")
+                        data[variable] = { value: date[2] + "/" + date[1] + "/" + date[0] }
+                    }
                 }
                 break
             }

@@ -177,7 +177,7 @@ const build_form_data = (temporary) => {
                         data[variable] = { value: input.value }
                     } else {
                         const date = input.value.split("-")
-                        data[variable] = { value: date[2] + "/" + date[1] + "/" + date[0] }
+                        data[variable] = { value: `${ date[2] }/${ date[1] }/${ date[0] }`}
                     }
                 }
                 break

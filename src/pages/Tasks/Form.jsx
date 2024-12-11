@@ -7,6 +7,7 @@ import * as Icons from '../../assets/icons.jsx'
 
 const Form = () => {
     const [generated, setGenerated] = useState("")
+    const [deployed, setDeployed] = useState([])
     const [error, setError] = useState(null)
     const state = useContext(AppState);
 
@@ -16,11 +17,24 @@ const Form = () => {
           && !state.selected_task.value.camundaFormRef && state.selected_task.value.id) {
             api.get_task_rendered_form(state, state.selected_task.value.id)
         }
+
+        if (state.selected_task.value && !state.selected_task.value.formKey && state.selected_task.value.camundaFormRef
+          && state.selected_task.value.id) {
+            api.get_task_deployed_form(state, state.selected_task.value.id)
+        }
     })
 
     useSignalEffect(() => {
         if (state.task_generated_form.value) {
             setGenerated(parse_html(state, state.task_generated_form.value))
+        }
+    })
+
+    useSignalEffect(() => {
+        console.log("deployed form has changed")
+        if (state.task_deployed_form.value) {
+            console.log("set deployed")
+            setDeployed(prepare_form_data(state.task_deployed_form.value))
         }
     })
 
@@ -31,33 +45,37 @@ const Form = () => {
                     const formLink = state.selected_task.value.formKey.substring(13);
 
                     return ( // TODO needs to be clarified what to do here
-                        <>
-                            <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
-                        </>
+                        <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
                     );
                 } else if (state.selected_task.value.camundaFormRef) {
-
-                } else {
                     return (
-                        <>
-                            <div>(*) required field</div>
-                            <div id="generated-form" class="generated-form">
-                                <form onSubmit={(e) => post_form(e, state, setError)}>
-                                    <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
-
-                                    <div class={`error ${error ? 'show' : 'hidden'}`}>
-                                        <span class="icon"><Icons.exclamation_triangle /></span>
-                                        <span class="error-text">{error}</span>
-                                    </div>
-                                    <div class="form-buttons">
-                                        <button type="submit">Complete Task</button>
-                                        <button type="button" class="secondary" onClick={() => store_data(state)}>Save Form</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </>
-                    )
+                      <div id="deployed-form" class="deployed-form">
+                          <form>
+                              {deployed?.map(({ key, value }) =>
+                                <DeployedFormRow key={key} components={value} />)}
+                          </form>
+                      </div>
+                )
                 }
+                return (
+                    <>
+                        <div>(*) required field</div>
+                        <div id="generated-form" class="generated-form">
+                            <form onSubmit={(e) => post_form(e, state, setError)}>
+                                <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
+
+                                <div class={`error ${error ? 'show' : 'hidden'}`}>
+                                    <span class="icon"><Icons.exclamation_triangle /></span>
+                                    <span class="error-text">{error}</span>
+                                </div>
+                                <div class="form-buttons">
+                                    <button type="submit">Complete Task</button>
+                                    <button type="button" class="secondary" onClick={() => store_data(state)}>Save Form</button>
+                                </div>
+                            </form>
+                        </div>
+                    </>
+                )
             })()}
         </>
     );
@@ -195,6 +213,122 @@ const build_form_data = (temporary) => {
     }
 
     return data
+}
+
+const prepare_form_data = (form) => {
+    const components = []
+    let rowName = ""
+    let row = []
+
+    form.components.forEach((component, index) => {
+        if (rowName !== component.layout.row) {
+            if (rowName !== "") {
+                components.push({ key: rowName, value: row })
+                row = []
+            }
+
+            rowName = component.layout.row
+        }
+
+        row.push(component)
+
+        if (index === form.components.length - 1) {
+            components.push({ key: rowName, value: row })
+        }
+    })
+
+    return components
+}
+
+const DeployedFormRow = (props) =>
+    <div class="form-fields">
+        {props.components?.map(component =>
+          <DeployedFormComponent key={component.id} component={component} />)}
+    </div>
+
+const DeployedFormComponent = (props) =>
+    <div class={`col col-${props.component.layout.columns ? props.component.layout.columns : '16'}`}>
+
+        {(() => {
+            switch(props.component.type) {
+                case "spacer":
+                    return <span>&nbsp;</span>
+                case "separator":
+                    return <hr />
+                case "text":
+                    return <span>{props.component.text}</span>
+                case "checklist":
+                    return <MultiInput component={props.component} />
+                case "radio":
+                    return <MultiInput component={props.component} />
+                case "select":
+                    return <Select component={props.component} />
+                default:
+                    return <Input type={props.component.type} component={props.component} />
+            }
+        })()}
+    </div>
+
+const Input = (props) => {
+    let type = props.type
+    const label = props.component.dateLabel ? props.component.dateLabel : props.component.label
+
+    if (type === "textfield") {
+        type = "text"
+    }
+
+    if (type === "datetime") {
+        type = "datetime-local"
+    }
+
+    return (
+    <>
+        <label>{label}</label>
+        <input type={type} name={props.component.key}
+               required={props.component.validate && props.component.validate.required}
+               min={props.component.validate ? props.component.validate.min : ""}
+               max={props.component.validate ? props.component.validate.max : ""}
+               maxlength={props.component.validate ? props.component.validate.maxlength : ""}
+               pattern={props.component.validate ? props.component.validate.pattern : ""}
+               step={props.component.validate ? props.component.validate.step : ""}
+        />
+    </>)
+}
+
+const Select = (props) => {
+    const options = props.component.values.map((data) => <option key={data.value} value={data.value}>{data.label}</option>);
+
+    return (
+      <>
+          <label>{props.component.label}</label>
+          <select name={props.component.key}>
+              {options}
+          </select>
+      </>
+    )
+}
+
+const MultiInput = (props) => {
+    let type = props.component.type
+
+    if (type === "checklist") {
+        type = "checkbox"
+    }
+
+    const options = props.component.values.map((data) => {
+        return (
+          <div class="input-list" key={`list_${data.value}`}>
+            <input type={type} name={data.value} value={data.value} key={`field_${data.value}`} />
+            <label key={data.value}>{data.label}</label>
+          </div>
+        )
+    });
+
+    return (
+      <>
+          <label>{props.component.label}</label>
+          {options}
+      </>)
 }
 
 export { Form }

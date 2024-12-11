@@ -134,6 +134,11 @@ export const get_task_rendered_form = (state, task_id) =>
      .then((response) => response.text())
      .then(text => state.task_generated_form.value = text)
 
+export const get_task_deployed_form = (state, task_id) =>
+  fetch(`${_url(state)}/task/${task_id}/deployed-form`, { headers: headers })
+    .then((response) => response.json())
+    .then(json => state.task_deployed_form.value = json)
+
 // claim and unclaim tasks
 export const post_task_claim = (state, do_claim, task_id) => {
   headers.set('Content-Type', 'application/json');

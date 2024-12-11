@@ -37,6 +37,7 @@ const createAppState = () => {
   const task = signal(null)
   const task_change_result = signal(null) // used for reloading the task
   const task_generated_form = signal(null)
+  const task_deployed_form = signal(null)
 
   return {
     server,
@@ -58,7 +59,8 @@ const createAppState = () => {
     selected_task,
     task,
     task_change_result,
-    task_generated_form
+    task_generated_form,
+    task_deployed_form
   }
 }
 

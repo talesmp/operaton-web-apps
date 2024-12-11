@@ -31,6 +31,8 @@ const createAppState = () => {
   const selection_values = signal(null)
   const called_definitions = signal(null)
   const job_definitions = signal(null)
+  const users = signal(null)
+  const user_count = signal(null)
   const user_profile = signal(null) // should be set after login
   const tasks = signal(null)
   const selected_task = signal(null)
@@ -40,27 +42,28 @@ const createAppState = () => {
   const task_deployed_form = signal(null)
 
   return {
-    server,
-    process_definitions,
+    called_definitions,
+    called_process_instances,
+    job_definitions,
     process_definition,
     process_definition_diagram,
-    selected_process_definition_id,
-    process_instances,
+    process_definitions,
+    process_incidents,
     process_instance,
     process_instance_incidents,
     process_instance_tasks,
-    called_process_instances,
-    process_incidents,
-    selection_values,
-    called_definitions,
-    job_definitions,
-    user_profile,
-    tasks,
+    process_instances,
+    selected_process_definition_id,
     selected_task,
+    selection_values,
+    server,
     task,
     task_change_result,
     task_generated_form,
-    task_deployed_form
+    task_deployed_form,
+    user_count,
+    user_profile,
+    users
   }
 }
 

@@ -23,6 +23,17 @@ export const get_user_profile = (state, user_name) => {
     .then(json => state.user_profile.value = json)
 }
 
+export const get_users = (state) =>
+  fetch(`${_url(state)}/user`)
+    .then(response => response.json())
+    .then(json => state.users.value = json)
+
+export const get_user_count = (state) =>
+  fetch(`${_url(state)}/user`)
+    .then(response => response.json())
+    .then(json => state.user_count.value = json)
+
+
 export const get_process_definitions = (state) =>
   fetch(`${_url(state)}/process-definition/statistics`)
     .then(response => response.json())

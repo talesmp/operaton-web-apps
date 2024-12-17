@@ -7,10 +7,12 @@ import { signal } from '@preact/signals'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const createSearchState = () => {
+  const server = signal(localStorage.getItem("server") || JSON.parse(import.meta.env.VITE_BACKEND)[0].url)
   const process_definition = signal(null)
   const process_instance = signal(null)
 
   return {
+    server,
     process_definition,
     process_instance,
   }

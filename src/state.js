@@ -58,6 +58,7 @@ const createAppState = () => {
     selection_values,
     server,
     task,
+    tasks,
     task_change_result,
     task_generated_form,
     task_deployed_form,

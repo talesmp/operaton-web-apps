@@ -2,6 +2,8 @@
 
 The accompanying web apps for the Operaton BPM system.
 
+![operaton process page](/docs/screenshots/operaton-processes-page.png)
+
 ## First use
 
 You require the following software to run the app
@@ -18,10 +20,17 @@ You require the following software to run the app
 
 ## Documentation
 
+Documentation for the Operaton web apps can currently be found inside the [`/docs`](./docs/) folder.
+
 ## Contributing
 
 Please refer to the [Contributing.md](docs/Contributing.md) file for detailed information.
 As well have a look at [Coding Conventions.md](docs/Coding%20Conventions.md).
+
+## Screenshots
+
+![operaton process page](/docs/screenshots/operaton-tasks-page.png)
+![operaton process page](/docs/screenshots/operaton-global-search.png)
 
 ## License
 

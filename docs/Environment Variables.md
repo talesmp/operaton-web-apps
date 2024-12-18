@@ -1,6 +1,6 @@
 # Environment Variables
 
-We use Vite as a build tool https://vite.dev/guide/env-and-mode
+We use Vite as a build tool: https://vite.dev/guide/env-and-mode  
 
 ## Overview on our Env Vars
 
@@ -16,3 +16,8 @@ Examples are:
 
 - `http://localhost:8080`
 - `https://operaton.example.com`
+
+```properties
+# .env.development.local
+VITE_BACKEND=[{"name": "Development", "url": "http://localhost:8080"}, {"name": "Production", "url": "http://localhost:8888"}]
+```

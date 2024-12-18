@@ -11,6 +11,7 @@ You require the following software to run the app
 - [Preact & Vite Setup](https://preactjs.com/guide/v10/getting-started#create-a-vite-powered-preact-app)
   - An up-to-date version of `node.js` 
 - An Operaton API for the backend to consume ([example](https://github.com/javahippie/operaton-spring-boot-example))
+- Create a `.env.development.local` file in the root of this project and configure your backend as shown [here](./docs/Environment%20Variables.md)
 
 ## Running the app
 

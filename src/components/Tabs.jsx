@@ -5,8 +5,8 @@ const Tabs = ({ base_url, tabs, param_name = 'tab' }) => {
   const { route, path } = useLocation()
   const tab = params[param_name]
 
-  if (tab === null) {
-    route(`${path}/$tabs[0].id}`)
+  if (tab === null || tab === undefined && path === base_url) {
+    route(`${path}/${tabs[0].id}`)
   }
 
   const change_tab = (event, current_tab) => {
@@ -24,7 +24,6 @@ const Tabs = ({ base_url, tabs, param_name = 'tab' }) => {
           : tabs.length - 1]
       document.getElementById(`${param_name}-${new_tab.id}`).focus()
       route(`${base_url}/${new_tab.id}`)
-
     }
   }
 

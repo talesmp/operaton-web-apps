@@ -93,9 +93,13 @@ div#app {
 
                         &#skip-links {
                             opacity: 0;
+                            width: 0;
+                            height: 0;
                             transition: opacity 100ms;
 
                             &:focus-within {
+                                width: initial;
+                                height: initial;
                                 opacity: 1;
                                 transition: opacity 100ms;
                             }

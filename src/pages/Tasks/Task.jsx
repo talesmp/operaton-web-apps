@@ -1,30 +1,15 @@
 import * as Icons from '../../assets/icons.jsx'
-import { useState, useContext } from 'preact/hooks'
+import { useContext } from 'preact/hooks'
 import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
-import { useRoute } from 'preact-iso'
 import { useSignalEffect } from '@preact/signals'
+import { Tabs } from '../../components/Tabs.jsx'
 
 const Task = () => {
   const state = useContext(AppState)
   const task = state.selected_task.value
   const user = state.user_profile.value
-
-  const [tab, setTab] = useState('task-tab-form')
-  const { params } = useRoute()
-
-  // tabs on the task main page
-  const tabs = new Map([
-    ['task-tab-form', 'Form'],
-    ['task-tab-history', 'History'],
-    ['task-tab-diagram', 'Diagram']
-  ])
-
-  // tab can be called directly
-  if (params.tab) {
-    setTab(`task-tab-${params.tab}`)
-  }
 
   useSignalEffect(() => {
     if (state.task_change_result.value) {
@@ -48,120 +33,53 @@ const Task = () => {
 
   return (
     <div id="task-details" className="fade-in">
-      <div className="task-menu">
-        <menu>
-          {(() => {
-            // show claim only, if this task has no assignee
-            if (!task.assignee && user && user.id !== task.assignee) {
-              return (
-                <li aria-label="Claim Task"
-                  onClick={() => claim_task(state, true, task)}>
-                  <div className="border">
-                    <span class="icon"><Icons.user_plus /></span>
-                    <span class="label">Claim</span>
-                  </div>
-                </li>
-              )
-              // show unclaim, when the current user is the assignee
-            } else if (user && user.id === task.assignee) {
-              return (
-                <li aria-label="Unclaim Task"
-                  onClick={() => claim_task(state, false, task)}>
-                  <div class="border">
-                    <span class="icon"><Icons.user_minus /></span>
-                    <span class="label">Unclaim</span>
-                  </div>
-                </li>
-              )
-            } // show reset
-            return (
-              <li aria-label="Reset"
-                onClick={() => assign_task(state, null, task)}>
-                <div class="border">
-                  <span class="icon"><Icons.user_minus /></span>
-                  <span class="label">Reset Assignee</span>
-                </div>
-              </li>
-            )
-          })()}
-          <li>
-            <div class="border">
-              <span class="icon"><Icons.users /></span>
-              <span class="label">Set Group</span>
-            </div>
-          </li>
-          <li>
-            <div class="border">
-              <span class="icon"><Icons.calendar /></span>
-              <span class="label">Set Follow Up Date</span>
-            </div>
-          </li>
-          <li>
-            <div class="border">
-              <span class="icon"><Icons.bell /></span>
-              <span class="label">Set Due Date</span>
-            </div>
-          </li>
-          <li>
-            <span class="icon"><Icons.chat_bubble_left /></span>
-            <span class="label">Comment</span>
-          </li>
-        </menu>
-        <menu>
-          <li>
-            <span class="icon"><Icons.play /></span>
-            <span class="label">Start Process</span>
-          </li>
-        </menu>
-      </div>
-
-      <div class="task-container">
-        <div style="display: flex;">
-          <div>{task.def_name}</div>
-          <div>[Process version: v{task.def_version} | <a href="">Show
-            process</a>]
-          </div>
-        </div>
-
-        <h1>{task.name}</h1>
-
-        {(() => {
-          if (task.description) {
-            return (<div>
-              <p class="title">Description</p>
-              {task.description}
-            </div>)
+      <menu class="action-bar">
+        <li>
+          {(!task.assignee && user && user.id !== task.assignee)
+            ?
+            <button onClick={() => claim_task(state, true, task)}>
+              <Icons.user_plus /> Claim
+            </button>
+            : (user && user.id === task.assignee)
+              ? <button onClick={() => claim_task(state, false, task)}>
+                <Icons.user_minus /> Unclaim
+              </button>
+              : <button onClick={() => assign_task(state, null, task)}>
+                <Icons.user_minus /> Reset Assignee
+              </button>
           }
+        </li>
+        <li>
+          <button><Icons.users /> Set Group</button>
+        </li>
+        <li>
+          <button><Icons.calendar /> Set Follow Up Date</button>
+        </li>
+        <li>
+          <button><Icons.bell /> Set Due Date</button>
+        </li>
+        <li>
+          <button><Icons.chat_bubble_left /> Comment</button>
+        </li>
+        <li>
+          <button><Icons.play /> Start Process</button>
+        </li>
+      </menu>
 
-        })()}
+      <section class="task-container">
+        {task.def_name} [Process version: v{task.def_version} | <a href="">Show
+        process</a>]
+        <h2>{task.name}</h2>
 
-        <div class="task-tabs">
-          {(() => {  // instead of duplicate code we have more code here, yeah (but you can add easily a tab)
-            const helper = []
-            tabs.forEach((value, key) => {
-              helper.push(<a class={tab === key ? 'selected' : ''}
-                             id={key}
-                             href={`/tasks/${state.selected_task.value.id}/${key.substring(key.lastIndexOf('-') + 1)}`}>{value}</a>)
-            })
-            return helper
-          })()}
-        </div>
+        {(task.description) ??
+          <>
+            <h3>Description</h3>
+            <p>{task.description}</p>
+          </>}
 
-        <div
-          class={tab !== 'task-tab-form' ? 'tab-content hide' : 'tab-content'}>
-          <Form />
-        </div>
-
-        <div
-          class={tab !== 'task-tab-history' ? 'tab-content hide' : 'tab-content'}>
-          HISTORY
-        </div>
-
-        <div
-          class={tab !== 'task-tab-diagram' ? 'tab-content hide' : 'tab-content'}>
-          DIAGRAM
-        </div>
-      </div>
+        <Tabs tabs={task_tabs}
+              base_url={`/tasks/${state.selected_task.value.id}`} />
+      </section>
     </div>
   )
 }
@@ -178,11 +96,31 @@ const assign_task = (state, assignee, selectedTask) => {
 const update_task_list = (state, task) => {
   state.tasks.value = state.tasks.value.map((item) => {
     if (item.id === task.id) {
-        return task
+      return task
     }
 
     return item
-  });
+  })
 }
+
+const task_tabs = [
+  {
+    name: 'Form',
+    id: 'form',
+    pos: 0,
+    target: <Form />
+  },
+  {
+    name: 'History',
+    id: 'history',
+    pos: 1,
+    target: <p>History</p>
+  },
+  {
+    name: 'Diagram',
+    id: 'diagram',
+    pos: 2,
+    target: <p>Diagram</p>
+  }]
 
 export { Task }

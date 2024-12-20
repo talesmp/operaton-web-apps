@@ -93,7 +93,7 @@ export function Header () {
       <menu>
         <li>
           <button class="neutral" onClick={showSearch}>
-            <Icons.search /> Search <small class="font-mono">[ ALT + S ]</small>
+            <Icons.search /> Search <small class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>
           </button>
         </li>
       </menu>

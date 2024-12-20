@@ -139,6 +139,8 @@
     }
 
     #task-details {
+        margin: var(--spacing-3);
+
         /* menu bar at task detail page */
         .task-menu {
             display: flex;
@@ -186,7 +188,7 @@
 
         /* content at task detail page */
         .task-container {
-            margin: var(--spacing-3);
+            margin-top: var(--spacing-3);
 
             h1 {
                 font-size: var(--h2-size);
@@ -437,6 +439,8 @@
     padding: var(--spacing-1);
     display: inline-flex;
     justify-content: start;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) 0;
 }
 
 .action-bar > li {

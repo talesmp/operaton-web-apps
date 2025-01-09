@@ -27,16 +27,14 @@ const Form = () => {
 
     // generated form was loaded, so do something
     useSignalEffect(() => {
-        if (state.task_generated_form.value) {
+        if (state.task_generated_form.value && generated !== "") {
             setGenerated(parse_html(state, state.task_generated_form.value))
         }
     })
 
     // deployed form was loaded, so do something
     useSignalEffect(() => {
-        console.log("deployed form has changed")
-        if (state.task_deployed_form.value) {
-            console.log("set deployed")
+        if (state.task_deployed_form.value && deployed.length === 0) {
             setDeployed(prepare_form_data(state.task_deployed_form.value))
         }
     })
@@ -218,6 +216,7 @@ const build_form_data = (temporary) => {
     return data
 }
 
+// make a nicer structure that helps us to render the rows
 const prepare_form_data = (form) => {
     const components = []
     let rowName = ""

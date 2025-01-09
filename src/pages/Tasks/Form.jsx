@@ -9,27 +9,30 @@ const Form = () => {
     const [generated, setGenerated] = useState("")
     const [deployed, setDeployed] = useState([])
     const [error, setError] = useState(null)
-    const state = useContext(AppState);
+    const state = useContext(AppState)
+    const refName = get_form_ref(state)
 
     // no embedded form and no Camunda form, we have to look for generated form
     useSignalEffect(() => {
         if (state.task.value && !state.task.value?.formKey
-          && !state.task.value?.camundaFormRef && state.task.value?.id) {
+          && !state.task.value?[refName] && state.task.value?.id) {
             api.get_task_rendered_form(state, state.task.value?.id)
         }
 
-        if (state.task.value && !state.task.value?.formKey && state.task.value?.camundaFormRef
+        if (state.task.value && !state.task.value?.formKey && state.task.value?[refName]
           && state.task.value?.id) {
             api.get_task_deployed_form(state, state.task.value?.id)
         }
     })
 
+    // generated form was loaded, so do something
     useSignalEffect(() => {
         if (state.task_generated_form.value) {
             setGenerated(parse_html(state, state.task_generated_form.value))
         }
     })
 
+    // deployed form was loaded, so do something
     useSignalEffect(() => {
         console.log("deployed form has changed")
         if (state.task_deployed_form.value) {
@@ -47,7 +50,7 @@ const Form = () => {
                     return ( // TODO needs to be clarified what to do here
                         <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
                     );
-                } else if (state.task.value?.camundaFormRef) {
+                } else if (state.task.value?[refName]) {
                     return (
                       <div id="deployed-form" class="deployed-form">
                           <form>
@@ -329,6 +332,20 @@ const MultiInput = (props) => {
           <label>{props.component.label}</label>
           {options}
       </>)
+}
+
+// Camunda 7 can be used too, so there can be an operatonFormRef or a camundaFormRef
+const get_form_ref = (state) => {
+    let refName = "operatonFormRef"
+
+    const servers = JSON.parse(import.meta.env.VITE_BACKEND)
+    const obj = servers.find(s => s.url === state.server.value);
+
+    if (obj && obj.name.toLowerCase().includes('cam')) {
+        refName = 'camundaFormRef'
+    }
+
+    return refName
 }
 
 export { Form }

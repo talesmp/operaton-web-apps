@@ -15,6 +15,7 @@ const Tasks = () => {
   if (!state.user_profile.value) {
     void api.get_user_profile(state, null)
   }
+
   void api.get_tasks(state)
 
   // if (params.task_id) {

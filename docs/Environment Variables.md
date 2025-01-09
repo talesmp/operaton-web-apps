@@ -12,6 +12,9 @@ The data is a JSON list with objects consisting of a `name` and `url` string.
 The URL string has the following structure:  
 `{http|https}` + `://` + `{your.domain}` + `{port|_}`
 
+If Camunda 7 is used as backend, the `name` should contain the string "cam" (not case-sensitive).
+
+
 Examples are:
 
 - `http://localhost:8080`

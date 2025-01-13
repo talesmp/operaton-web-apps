@@ -40,6 +40,8 @@ const createAppState = () => {
   const task_change_result = signal(null) // used for reloading the task
   const task_generated_form = signal(null)
   const task_deployed_form = signal(null)
+  // admin
+  // const admin_users = signal(null)
 
   return {
     called_definitions,

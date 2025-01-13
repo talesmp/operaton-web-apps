@@ -20,8 +20,6 @@ const ProcessesPage = () => {
   const { params } = useRoute()
   const details_width = signal(localStorage.getItem('details_width'))
 
-  console.log(details_width)
-
   useEffect(() => {
     document.getElementById('selection').style.width = details_width.value
   }, [details_width.value])

@@ -43,13 +43,14 @@ export function Header () {
           <li><a href="/account">Account</a></li>
 
         </menu>
-        <menu  id="server_selector">
+        <menu id="server_selector">
           <li>
             <label className="row center gap-1 p-1" title="Server selection">
               <Icons.server title="Server selection" />
               <select
                 onChange={(e) => swap_server(e, state)}>
-                <option disabled>ℹ️ Choose a server to retrieve your processes</option>
+                <option disabled>ℹ️ Choose a server to retrieve your processes
+                </option>
                 {JSON.parse(import.meta.env.VITE_BACKEND).map(server =>
                   <option key={server.url} value={server.url}
                           selected={localStorage.getItem('server') === server.url}>
@@ -66,9 +67,8 @@ export function Header () {
       <menu>
         <menu>
           <li>
-            <a href="/tasks" class={url.startsWith('/tasks') && 'active'}>
-              Tasks
-            </a>
+            <a href="/tasks"
+               class={url.startsWith('/tasks') && 'active'}>Tasks</a>
           </li>
         </menu>
         <menu>
@@ -86,14 +86,16 @@ export function Header () {
           <li><a href="/">Migrations</a></li>
         </menu>
         <menu>
-          <li><a href="/">Admin</a></li>
+          <li><a href="/admin"
+                 class={url.startsWith('/admin') && 'active'}>Admin</a></li>
         </menu>
       </menu>
 
       <menu>
         <li>
           <button class="neutral" onClick={showSearch}>
-            <Icons.search /> Search <small class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>
+            <Icons.search /> Search <small
+            class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>
           </button>
         </li>
       </menu>

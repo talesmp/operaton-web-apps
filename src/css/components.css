@@ -40,7 +40,7 @@
 .tile-list .title {
   font-size: var(--h4-size);
   font-weight: normal;
-  margin: var(--spacing-2) 0;
+  margin: var(--spacing-1) 0;
 }
 :where(.tile, .tile-list)  :where(header, footer) {
   display: flex;
@@ -423,18 +423,17 @@
 /* action bar */
 
 .action-bar {
-  background-color: var(--background-2);
   border-radius: var(--border-radius);
   list-style: none;
-  padding: var(--spacing-1);
+  padding: 0;
   display: inline-flex;
   justify-content: start;
   flex-wrap: wrap;
-  gap: var(--spacing-2) 0;
+  gap: var(--spacing-1);
 }
 
 .action-bar > li {
-  border-right: var(--border-width) solid var(--border-color);
+  /*border-right: var(--border-width) solid var(--border-color);*/
 }
 
 .action-bar > li:last-child {
@@ -442,10 +441,11 @@
 }
 
 .action-bar > li > button {
-  background-color: transparent;
+  /*background-color: transparent;*/
   border: none;
   color: var(--text);
   font-weight: normal;
+  padding: var(--spacing-1);
 }
 
 hr {
@@ -572,6 +572,7 @@ main#processes {
 .tabs > .tab-selection > a {
   border: var(--border);
   padding: var(--spacing-1);
+  padding-top: calc(var(--spacing-1) + var(--border-width-3) - var(--border-width)) ;
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   color: var(--text);
   text-decoration: none;
@@ -580,9 +581,18 @@ main#processes {
   position: relative;
   top: var(--border-width);
 }
+.tabs > .tab-selection > a::before {
+  display: block;
+  content: attr(title);
+  font-weight: bold;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
 
 .tabs > .tab-selection > a[aria-selected="true"] {
   background: var(--background-1);
+  padding-top: var(--spacing-1);
   border-top-width: var(--border-width-3);
   border-top-color: var(--color-primary);
   color: var(--color-primary);

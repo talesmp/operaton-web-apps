@@ -1,6 +1,6 @@
 import { useLocation, useRoute } from 'preact-iso'
 
-const Tabs = ({ base_url, tabs, param_name = 'tab' }) => {
+const Tabs = ({ base_url, tabs, param_name = 'tab', className = '' }) => {
   const { params } = useRoute()
   const { route, path } = useLocation()
   const tab = params[param_name]
@@ -28,7 +28,7 @@ const Tabs = ({ base_url, tabs, param_name = 'tab' }) => {
   }
 
   return (
-    <div class="tabs">
+    <div class={`tabs ${className}`}>
       <div class="tab-selection" role="tablist"
            aria-labelledby="tablist-1">
 
@@ -41,6 +41,7 @@ const Tabs = ({ base_url, tabs, param_name = 'tab' }) => {
                  aria-controls={`tabpanel-${tab_name.id}}`}
                  href={`${base_url}/${tab_name.id}`}
                  tabIndex={tab !== tab_name.id ? '-1' : null}
+                 title={tab_name.name}
                  onKeyDown={(event) => change_tab(event, tab_name)}
               >
                 {tab_name.name}

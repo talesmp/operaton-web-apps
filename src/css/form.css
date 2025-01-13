@@ -23,7 +23,7 @@ button {
     font-size: var(--small-font-size);
 
     &.secondary {
-        background: var(--background-1);
+        background: var(--background-2);
         color: var(--color-primary);
     }
     &.neutral {

@@ -16,12 +16,22 @@ const Task = () => {
   return (
     <div id="task-details" className="fade-in">
       <menu class="action-bar">
-        <li><TaskActionBar /></li>
-        <li><button><Icons.users /> Set Group</button></li>
-        <li><button><Icons.calendar /> Set Follow Up Date</button></li>
-        <li><button><Icons.bell /> Set Due Date</button></li>
-        <li><button><Icons.chat_bubble_left /> Comment</button></li>
-        <li><button><Icons.play /> Start Process</button></li>
+        <li><ResetAssigneeBtn /></li>
+        <li>
+          <button class="secondary"><Icons.users /> Set Group</button>
+        </li>
+        <li>
+          <button class="secondary"><Icons.calendar /> Set Follow Up Date</button>
+        </li>
+        <li>
+          <button class="secondary"><Icons.bell /> Set Due Date</button>
+        </li>
+        <li>
+          <button class="secondary"><Icons.chat_bubble_left /> Comment</button>
+        </li>
+        <li>
+          <button class="secondary"><Icons.play /> Start Process</button>
+        </li>
       </menu>
 
       <TaskDetails />
@@ -33,37 +43,32 @@ const TaskDetails = () => {
   const { task } = useContext(AppState)
 
   return <section className="task-container">
-    {task.value?.def_name} [Process version: v{task.value?.def_version} | <a
-    href="">Show
-    process</a>]
-    <h2>{task.value?.name}</h2>
+    {task.value?.def_name} [Process version: v{task.value?.def_version} | <a href="">Show process</a>]
+    <h3>{task.value?.name}</h3>
 
-    {(task.value?.description) ??
-      <>
-        <h3>Description</h3>
-        <p>{task.value?.description}</p>
-      </>}
+    {task.value?.description ?? <p>{task.value?.description}</p>}
 
     <Tabs tabs={task_tabs}
-          base_url={`/tasks/${task.value?.id}`} />
+          base_url={`/tasks/${task.value?.id}`}
+          className="fade-in" />
   </section>
 }
 
-const TaskActionBar = () => {
+const ResetAssigneeBtn = () => {
   const
     state = useContext(AppState),
     { task, user } = state
 
   return (!task.value?.assignee && user && user.id !== task.value?.assignee)
     ?
-    <button onClick={() => claim_task(state, true, task)}>
+    <button onClick={() => claim_task(state, true, task)} class="secondary">
       <Icons.user_plus /> Claim
     </button>
     : (user && user.id === task.value?.assignee)
-      ? <button onClick={() => claim_task(state, false, task)}>
+      ? <button onClick={() => claim_task(state, false, task)} class="secondary">
         <Icons.user_minus /> Unclaim
       </button>
-      : <button onClick={() => assign_task(state, null, task)}>
+      : <button onClick={() => assign_task(state, null, task)} class="secondary">
         <Icons.user_minus /> Reset Assignee
       </button>
 

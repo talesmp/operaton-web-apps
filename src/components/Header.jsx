@@ -24,7 +24,7 @@ export function Header () {
   return <header>
     <nav id="secondary-navigation">
       <span id="logo">
-        <a href="/">Operaton BPM</a>
+        <a href="/">Operaton&nbsp;BPM</a>
       </span>
       <menu>
         <menu id="skip-links">
@@ -94,8 +94,8 @@ export function Header () {
       <menu>
         <li>
           <button class="neutral" onClick={showSearch}>
-            <Icons.search /> Search <small
-            class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>
+            <Icons.search /> Search
+            {/*<small class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>*/}
           </button>
         </li>
       </menu>

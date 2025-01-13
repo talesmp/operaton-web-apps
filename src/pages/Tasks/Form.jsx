@@ -13,14 +13,14 @@ const Form = () => {
 
     // no embedded form and no Camunda form, we have to look for generated form
     useSignalEffect(() => {
-        if (state.selected_task.value && !state.selected_task.value.formKey
-          && !state.selected_task.value.camundaFormRef && state.selected_task.value.id) {
-            api.get_task_rendered_form(state, state.selected_task.value.id)
+        if (state.task.value && !state.task.value?.formKey
+          && !state.task.value?.camundaFormRef && state.task.value?.id) {
+            api.get_task_rendered_form(state, state.task.value?.id)
         }
 
-        if (state.selected_task.value && !state.selected_task.value.formKey && state.selected_task.value.camundaFormRef
-          && state.selected_task.value.id) {
-            api.get_task_deployed_form(state, state.selected_task.value.id)
+        if (state.task.value && !state.task.value?.formKey && state.task.value?.camundaFormRef
+          && state.task.value?.id) {
+            api.get_task_deployed_form(state, state.task.value?.id)
         }
     })
 
@@ -41,13 +41,13 @@ const Form = () => {
     return (
         <>
             {(() => {
-                if (state.selected_task.value.formKey) {
-                    const formLink = state.selected_task.value.formKey.substring(13);
+                if (state.task.value?.formKey) {
+                    const formLink = state.task.value?.formKey.substring(13);
 
                     return ( // TODO needs to be clarified what to do here
                         <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
                     );
-                } else if (state.selected_task.value.camundaFormRef) {
+                } else if (state.task.value?.camundaFormRef) {
                     return (
                       <div id="deployed-form" class="deployed-form">
                           <form>
@@ -87,10 +87,10 @@ const parse_html = (state, html) => {
     const doc = parser.parseFromString(html, "text/html");
     const form = doc.getElementsByTagName("form")[0];
 
-    const disable = state.user_profile.value.id !== state.selected_task.value.assignee
+    const disable = state.user_profile.value.id !== state.task.value?.assignee
     const inputs = form.getElementsByTagName("input");
     const selects = form.getElementsByTagName("select");
-    let storedData = localStorage.getItem(`task_form_${  state.selected_task.value.id}`)
+    let storedData = localStorage.getItem(`task_form_${  state.task.value?.id}`)
 
     if (storedData) {
         storedData = JSON.parse(storedData);
@@ -152,10 +152,10 @@ const parse_html = (state, html) => {
 
 const post_form = (e, state, setError) => {
     setError(null) // reset former error message from server
-    const task_id = state.selected_task.value.id
+    const task_id = state.task.value?.id
     const data = build_form_data()
 
-    const message = api.post_task_form(state, state.selected_task.value.id, data)
+    const message = api.post_task_form(state, state.task.value?.id, data)
 
     // error message from server
     if (message) {
@@ -171,7 +171,7 @@ const post_form = (e, state, setError) => {
 /* with "Save Form" we store the form data in the local storage, so the task can be completed in the future,
    no matter when, we reuse the JSON structure from the REST API POST call */
 const store_data = (state) => {
-    localStorage.setItem(`task_form_${  state.selected_task.value.id}`, JSON.stringify(build_form_data(true)))
+    localStorage.setItem(`task_form_${  state.task.value?.id}`, JSON.stringify(build_form_data(true)))
 }
 
 // building Json format for posting the data, if we store it temporarily we don't change the format

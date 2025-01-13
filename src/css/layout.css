@@ -10,12 +10,12 @@ div#app {
         grid-area: main;
         /*padding: var(--spacing-1);*/
         overflow-y: auto;
+        height: 100%;
 
         &#tasks {
-            display: grid;
-            grid-template-columns: fit-content(20ch) auto;
+            display: flex;
 
-            aside {
+            nav {
                 /*overflow-y: auto;*/
                 position: relative;
                 display: grid;
@@ -33,7 +33,7 @@ div#app {
         }
     }
 
-    header {
+    > header {
         grid-area: header;
         display: flex;
         flex-direction: column;

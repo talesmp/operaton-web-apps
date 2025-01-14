@@ -39,7 +39,7 @@ const DeploymentList = ({ setSelectedDeployment, selectedDeployment }) => {
     }
 
     return (
-        <nav id="deployments-list" aria-label="deployments" class="deployments-item">
+        <nav id="deployments-list" aria-label="deployments" class="deployments-item list-scrollable">
             <ul class="tile-list">
                 {process_definitions.value.map((deployment) => (
                     <li

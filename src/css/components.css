@@ -806,6 +806,7 @@ dialog#global-search {
 .list-scrollable {
   overflow-y: auto;
   overflow-x: hidden;
+  padding: var(--spacing-1);
   height: 85vh;
 }
 

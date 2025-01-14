@@ -33,6 +33,7 @@ const createAppState = () => {
   const job_definitions = signal(null)
   const users = signal(null)
   const user_count = signal(null)
+  const user_create = signal({ profile: {}, credentials: { } })
   const user_profile = signal(null) // should be set after login
   const tasks = signal(null)
   const selected_task = signal(null)
@@ -65,6 +66,7 @@ const createAppState = () => {
     task_generated_form,
     task_deployed_form,
     user_count,
+    user_create,
     user_profile,
     users
   }

@@ -11,6 +11,8 @@ const _url = (state) => `${state.server.value}/engine-rest`
 
 let headers = new Headers()
 headers.set('Authorization', 'Basic ' + window.btoa(unescape(encodeURIComponent('demo:demo')))) //TODO authentication
+let headers_json = headers
+headers_json.set('Content-Type', 'application/json')
 
 export const get_user_profile = (state, user_name) => {
   // TODO remove it when we have a login!
@@ -18,7 +20,7 @@ export const get_user_profile = (state, user_name) => {
     user_name = 'demo'
   }
 
-  fetch(`${_url(state)}/user/${user_name}/profile`, { headers: headers })
+  fetch(`${_url(state)}/user/${user_name}/profile`, { headers })
     .then(response => response.json())
     .then(json => state.user_profile.value = json)
 }
@@ -27,6 +29,17 @@ export const get_users = (state) =>
   fetch(`${_url(state)}/user`)
     .then(response => response.json())
     .then(json => state.users.value = json)
+
+export const create_user = (state) =>
+  fetch(`${_url(state)}/user/create`,
+    {
+      headers: headers_json,
+      method: 'POST',
+      body: JSON.stringify(state.user_create.value)
+    })
+    .then((response) => response.ok)
+    .then(result => state.task_change_result.value = result)
+
 
 export const get_user_count = (state) =>
   fetch(`${_url(state)}/user`)
@@ -151,39 +164,33 @@ export const get_task_deployed_form = (state, task_id) =>
     .then(json => state.task_deployed_form.value = json)
 
 // claim and unclaim tasks
-export const post_task_claim = (state, do_claim, task_id) => {
-  headers.set('Content-Type', 'application/json');
-
+export const post_task_claim = (state, do_claim, task_id) =>
   fetch(`${_url(state)}/task/${task_id}/${do_claim ? 'claim' : 'unclaim'}`,
     {
-      headers: headers ,
+      headers: headers_json,
       method: 'POST',
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
     .then((response) => response.ok)
     .then(result => state.task_change_result.value = result)
-}
 
-export const post_task_assign = (state, assignee, task_id) => {
-  headers.set('Content-Type', 'application/json');
 
+export const post_task_assign = (state, assignee, task_id) =>
   fetch(`${_url(state)}/task/${task_id}/assignee`,
     {
-      headers: headers ,
+      headers: headers_json ,
       method: 'POST',
       body: JSON.stringify({ userId: assignee })
     })
     .then((response) => response.ok)
     .then(result => state.task_change_result.value = result)
-}
+
 
 /* return null or error message from server, in fact all validation should be done by HTML5 validation, but who knows ... */
 export const post_task_form = (state, task_id, data) => {
-  headers.set('Content-Type', 'application/json');
-
   fetch(`${_url(state)}/task/${task_id}/submit-form`,
     {
-      headers: headers ,
+      headers: headers_json ,
       method: 'POST',
       body: JSON.stringify({ variables: data, withVariablesInReturn: true })
     })

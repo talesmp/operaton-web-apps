@@ -6,7 +6,12 @@ form > * {
     break-inside: avoid-column;
 }
 
-button {
+label:not(:first-child) {
+    margin-top: 1em;
+    display: block;
+}
+
+button, .button {
     border: var(--border-width-2) solid var(--color-primary-transparent);
     /* border-width: 0; */
     background-clip: padding-box;
@@ -82,6 +87,7 @@ textarea {
     border-radius: var(--border-radius);
     background: var(--background-1);
     font: var(--body-font-family);
+    width: clamp(100%, 20ch, 30ch);
 }
 
 :where(input, select, textarea):disabled {

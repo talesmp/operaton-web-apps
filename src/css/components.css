@@ -799,16 +799,16 @@ dialog#global-search {
 /* deployments page */
 .deployments-container {
   display: grid;
-  grid-template-columns: 1fr 2fr; 
+  grid-template-columns: 3fr 9fr; 
   gap: var(--spacing-1);
 }
 
 .deployments-item {
   padding: var(--spacing-2);
-  background: var(--background-2);
 }
 
 .list-scrollable {
   overflow-y: auto;
-  height: 80vh;
+  overflow-x: hidden;
+  height: 85vh;
 }

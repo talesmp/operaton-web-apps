@@ -1,29 +1,25 @@
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { AppState } from '../../state.js';
 import * as api from '../../api';
-import * as Icons from '../../assets/icons.jsx';
 
 const Deployments = () => {
     const state = useContext(AppState);
     const [selectedDeployment, setSelectedDeployment] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         // Fetch all deployed process definitions
         void api.get_process_definitions(state)
-            .then(() => {
-                console.log('Deployments fetched successfully:', state.process_definitions.value);
-            })
-            .catch((error) => {
-                console.error('Error fetching deployments:', error);
-            });
     }, []);
 
     return (
         <div id="deployments" class="fade-in">
             <main class="fade-in deployments-container">
-                <DeploymentList 
-                    setSelectedDeployment={setSelectedDeployment} 
-                    selectedDeployment={selectedDeployment} 
+                <DeploymentList
+                    setSelectedDeployment={setSelectedDeployment}
+                    selectedDeployment={selectedDeployment}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
                 />
                 <DeploymentDetails selectedDeployment={selectedDeployment} />
             </main>
@@ -31,22 +27,34 @@ const Deployments = () => {
     );
 };
 
-const DeploymentList = ({ setSelectedDeployment, selectedDeployment }) => {
+const DeploymentList = ({ setSelectedDeployment, selectedDeployment, searchTerm, setSearchTerm }) => {
     const { process_definitions } = useContext(AppState);
 
     if (!process_definitions || !process_definitions.value || process_definitions.value.length === 0) {
-        return <p className="p-2">No deployments found.</p>;
+        return <p>No deployments found.</p>;
     }
+
+    const filteredDeployments = process_definitions.value.filter((deployment) =>
+        (deployment.definition.name || 'N/A').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <nav id="deployments-list" aria-label="deployments" class="deployments-item list-scrollable">
+            <div class="filter-header">
+                <input
+                    type="text"
+                    placeholder="Search Deployments..."
+                    value={searchTerm}
+                    onInput={(e) => setSearchTerm(e.target.value)}
+                    class="search-input"
+                />
+            </div>
             <ul class="tile-list">
-                {process_definitions.value.map((deployment) => (
+                {filteredDeployments.map((deployment) => (
                     <li
                         key={deployment.id}
-                        className={`${selectedDeployment === deployment.id ? 'selected' : ''}`}
+                        class={`${selectedDeployment?.id === deployment.id ? 'selected' : ''}`}
                         onClick={() => {
-                            console.log(`Selected deployment: ${deployment.id}`);
                             setSelectedDeployment(deployment);
                         }}
                     >
@@ -60,7 +68,7 @@ const DeploymentList = ({ setSelectedDeployment, selectedDeployment }) => {
 
 const DeploymentTile = ({ deployment }) => {
     return (
-        <a href="">
+        <div>
             <header>
                 {deployment.definition.name ? (
                     <span class="title">{deployment.definition.name}</span>
@@ -80,7 +88,7 @@ const DeploymentTile = ({ deployment }) => {
             <footer>
                 <p>Deployment ID: {deployment.id}</p>
             </footer>
-        </a>
+        </div>
     );
 };
 
@@ -95,8 +103,7 @@ const DeploymentDetails = ({ selectedDeployment }) => {
 
     return (
         <div class="details-panel deployments-item">
-            <h3>Process Name</h3>
-            <p>{selectedDeployment.definition.name || 'No Process Name defined'}</p>
+            <h3>{selectedDeployment.definition.name || 'No Process Name defined'}</h3>
             <p>{selectedDeployment.definition.id}</p>
         </div>
     );

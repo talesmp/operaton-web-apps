@@ -1,4 +1,4 @@
-import { useSignalEffect } from '@preact/signals'
+import { signal, useSignalEffect } from '@preact/signals'
 import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
 import * as api from '../../api'
@@ -91,21 +91,23 @@ const UserDetails = (user_id) => {
 const CreateUserPage = () => {
   const
     state = useContext(AppState),
-    { user_create } = state
+    { user_create, user_create_response } = state
 
   const set_value = (k1, k2, v) => user_create.value[k1][k2] = v.currentTarget.value
   const set_p_value = (k, v) => set_value('profile', k, v)
   const set_c_value = (k, v) => set_value('credentials', k, v)
 
   const on_submit = e => {
-    e.preventDefault();
+    e.preventDefault()
     console.log(user_create.value)
-    void api.create_user(state)
+    user_create_response.value = api.create_user(state)
     // e.currentTarget.reset(); // Clear the inputs to prepare for the next submission
   }
 
   return <div>
     <h2>Create New User</h2>
+    {(user_create_response.value !== undefined) ?
+      <p class="error">Error: {user_create_response.value?.message}</p> : null}
     <form onSubmit={on_submit}>
       <label>
         User ID <br />

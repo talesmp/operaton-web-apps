@@ -37,8 +37,10 @@ export const create_user = (state) =>
       method: 'POST',
       body: JSON.stringify(state.user_create.value)
     })
-    .then((response) => response.ok)
-    .then(result => state.task_change_result.value = result)
+    .then(response => response.ok ? response.json() : Promise.reject(response))
+    .then(result => state.user_create_response.value = result)
+    .catch(response => response.json())
+    .then(json => state.user_create_response.value = json)
 
 
 export const get_user_count = (state) =>

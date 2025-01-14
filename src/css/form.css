@@ -1,6 +1,9 @@
 form {
     column-width: 20rem;
 }
+form:not(:first-child) {
+    margin-top: var(--spacing-2);
+}
 
 form > * {
     break-inside: avoid-column;
@@ -103,4 +106,13 @@ option {
         color: var(--text-2);
         font-size: var(--small-font-size);
     }
+}
+
+.error {
+    color: var(--color-danger);
+    font-weight: 600;
+    /*background: var(--color-danger-transparent);*/
+    padding: var(--spacing-2);
+    border: .1em solid var(--color-danger);
+    border-radius: var(--border-radius-2);
 }

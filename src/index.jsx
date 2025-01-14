@@ -5,8 +5,9 @@ import {AppState, createAppState} from "./state.js";
 import { Header } from './components/Header.jsx'
 
 import { Home } from "./pages/Home/index.jsx";
-import { Tasks } from "./pages/Tasks/index.jsx";
+import { TasksPage } from "./pages/Tasks/index.jsx";
 import { ProcessesPage } from "./pages/Processes/index.jsx";
+import { AdminPage } from "./pages/Admin/index.jsx";
 import { NotFound } from "./pages/_404.jsx";
 
 import './css/fonts.css'
@@ -27,9 +28,9 @@ export function App () {
         <Header />
         <Router>
           <Route path="/" component={Home} />
-          <Route path="/tasks" component={Tasks} />
-          <Route path="/tasks/:task_id" component={Tasks} />
-          <Route path="/tasks/:task_id/:tab" component={Tasks} />
+          <Route path="/tasks" component={TasksPage} />
+          <Route path="/tasks/:task_id" component={TasksPage} />
+          <Route path="/tasks/:task_id/:tab" component={TasksPage} />
           <Route path="/processes" component={ProcessesPage} />
           <Route path="/processes/:definition_id" component={ProcessesPage} />
           <Route path="/processes/:definition_id/:panel" component={ProcessesPage} />

@@ -14,7 +14,7 @@ const Form = () => {
 
     // no embedded form and no Camunda form, we have to look for generated form
     useSignalEffect(() => {
-        if (state.task.value && !state.task.valueformKey && !state.task.value[refName]) {
+        if (state.task.value && !state.task_generated_form.value && !state.task.value.formKey && !state.task.value[refName]) {
             api.get_task_rendered_form(state, state.task.value.id)
         }
 
@@ -25,7 +25,7 @@ const Form = () => {
 
     // generated form was loaded, so do something
     useSignalEffect(() => {
-        if (state.task_generated_form.value && generated !== "") {
+        if (state.task_generated_form.value && generated === "") {
             setGenerated(parse_html(state, state.task_generated_form.value))
         }
     })

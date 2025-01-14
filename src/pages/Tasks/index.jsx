@@ -4,12 +4,21 @@ import * as formatter from '../../helper/formatter'
 import { Task } from './Task.jsx'
 import * as Icons from '../../assets/icons.jsx'
 import { AppState } from '../../state.js'
+import { useRoute, useLocation } from 'preact-iso'
 import { useSignalEffect } from '@preact/signals'
-import { useRoute } from 'preact-iso'
 
-const Tasks = () => {
+const TasksPage = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
+  const location = useLocation();
+  const server = state.server.value
+
+  // when the server is changed and a task is selected, we return to /tasks
+  useSignalEffect(() => {
+    if (state.server.value !== server && location.path !== '/tasks') {
+      location.route('/tasks', true)
+    }
+  })
 
   // TODO remove it when we have a login
   if (!state.user_profile.value) {
@@ -18,22 +27,17 @@ const Tasks = () => {
 
   void api.get_tasks(state)
 
-  // if (params.task_id) {
-  //   void api.get_task(state, params.task_id)
-  // } else {
-  //   state.task.value = null
-  // }
   return (
     <main id="tasks" class="fade-in">
       <TaskList />
       { params?.task_id
         ? <Task />
-        : <NoSelectedTasks /> }
+        : <NoSelectedTask /> }
     </main>
   )
 }
 
-const NoSelectedTasks = () => {
+const NoSelectedTask = () => {
   return (
     <div id="task-details" className="fade-in">
       <div class="task-empty">
@@ -95,7 +99,7 @@ const TaskTile = ({ id, name, created, assignee, priority, def_name }) => {
     </li>
   )}
 
-export { Tasks }
+export { TasksPage }
 
 
 

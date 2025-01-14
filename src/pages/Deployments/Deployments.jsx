@@ -39,7 +39,7 @@ const DeploymentList = ({ setSelectedDeployment, selectedDeployment, searchTerm,
     );
 
     return (
-        <nav id="deployments-list" aria-label="deployments" class="deployments-item list-scrollable">
+        <nav id="deployments-list" aria-label="deployments" class="list-scrollable">
             <div class="filter-header">
                 <input
                     type="text"
@@ -95,14 +95,14 @@ const DeploymentTile = ({ deployment }) => {
 const DeploymentDetails = ({ selectedDeployment }) => {
     if (!selectedDeployment) {
         return (
-            <div class="details-panel deployments-item">
+            <div class="details-panel deployments-details">
                 Select a deployment to view details.
             </div>
         );
     }
 
     return (
-        <div class="details-panel deployments-item">
+        <div class="details-panel deployments-details">
             <h3>{selectedDeployment.definition.name || 'No Process Name defined'}</h3>
             <p>{selectedDeployment.definition.id}</p>
         </div>

@@ -803,12 +803,12 @@ dialog#global-search {
   gap: var(--spacing-1);
 }
 
-.deployments-item {
-  padding: var(--spacing-2);
-}
-
 .list-scrollable {
   overflow-y: auto;
   overflow-x: hidden;
   height: 85vh;
+}
+
+.deployments-details {
+  padding: var(--spacing-2);
 }

@@ -5,6 +5,7 @@ import * as Icons from '../../assets/icons.jsx';
 
 const Deployments = () => {
     const state = useContext(AppState);
+    const [selectedDeployment, setSelectedDeployment] = useState(null);
 
     useEffect(() => {
         // Fetch all deployed process definitions
@@ -19,32 +20,34 @@ const Deployments = () => {
 
     return (
         <div id="deployments" class="fade-in">
-            <main class="fade-in">
-                <DeploymentList />
+            <main class="fade-in deployments-container">
+                <DeploymentList 
+                    setSelectedDeployment={setSelectedDeployment} 
+                    selectedDeployment={selectedDeployment} 
+                />
+                <DeploymentDetails selectedDeployment={selectedDeployment} />
             </main>
         </div>
     );
 };
 
-const DeploymentList = () => {
+const DeploymentList = ({ setSelectedDeployment, selectedDeployment }) => {
     const { process_definitions } = useContext(AppState);
-    const [selectedDeployment, setSelectedDeployment] = useState(null);
 
     if (!process_definitions || !process_definitions.value || process_definitions.value.length === 0) {
-        // TODO: refactor design
         return <p className="p-2">No deployments found.</p>;
     }
 
     return (
-        <nav id="deployments-list" aria-label="deployments">
-            <ul className="tile-list">
+        <nav id="deployments-list" aria-label="deployments" class="deployments-item">
+            <ul class="tile-list">
                 {process_definitions.value.map((deployment) => (
                     <li
                         key={deployment.id}
                         className={`${selectedDeployment === deployment.id ? 'selected' : ''}`}
                         onClick={() => {
                             console.log(`Selected deployment: ${deployment.id}`);
-                            setSelectedDeployment(deployment.id);
+                            setSelectedDeployment(deployment);
                         }}
                     >
                         <DeploymentTile deployment={deployment} />
@@ -66,7 +69,7 @@ const DeploymentTile = ({ deployment }) => {
                 )}
             </header>
             <div>
-            {deployment.definition.suspended ? (
+                {deployment.definition.suspended ? (
                     <p>Suspended</p>
                 ) : (
                     <p>Active</p>
@@ -78,6 +81,24 @@ const DeploymentTile = ({ deployment }) => {
                 <p>Deployment ID: {deployment.id}</p>
             </footer>
         </a>
+    );
+};
+
+const DeploymentDetails = ({ selectedDeployment }) => {
+    if (!selectedDeployment) {
+        return (
+            <div class="details-panel deployments-item">
+                Select a deployment to view details.
+            </div>
+        );
+    }
+
+    return (
+        <div class="details-panel deployments-item">
+            <h3>Process Name</h3>
+            <p>{selectedDeployment.definition.name || 'No Process Name defined'}</p>
+            <p>{selectedDeployment.definition.id}</p>
+        </div>
     );
 };
 

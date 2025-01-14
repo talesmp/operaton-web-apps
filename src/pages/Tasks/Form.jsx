@@ -14,13 +14,11 @@ const Form = () => {
 
     // no embedded form and no Camunda form, we have to look for generated form
     useSignalEffect(() => {
-        if (state.task.value && !state.task.value?.formKey
-          && !state.task.value?[refName] && state.task.value?.id) {
-            api.get_task_rendered_form(state, state.task.value?.id)
+        if (state.task.value && !state.task.valueformKey && !state.task.value[refName]) {
+            api.get_task_rendered_form(state, state.task.value.id)
         }
 
-        if (state.task.value && !state.task.value?.formKey && state.task.value?[refName]
-          && state.task.value?.id) {
+        if (state.task.value && !state.task.value.formKey && state.task.value[refName]) {
             api.get_task_deployed_form(state, state.task.value?.id)
         }
     })
@@ -48,7 +46,7 @@ const Form = () => {
                     return ( // TODO needs to be clarified what to do here
                         <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
                     );
-                } else if (state.task.value?[refName]) {
+                } else if (state.task.value && state.task.value[refName]) {
                     return (
                       <div id="deployed-form" class="deployed-form">
                           <form>

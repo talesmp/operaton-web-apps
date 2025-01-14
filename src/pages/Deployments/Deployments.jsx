@@ -1,13 +1,13 @@
 import { useContext, useEffect } from 'preact/hooks';
 import { AppState } from '../../state.js';
 import * as api from '../../api';
-import * as Icons from '../../assets/icons.jsx'
+import * as Icons from '../../assets/icons.jsx';
 
 const Deployments = () => {
   const state = useContext(AppState);
 
   useEffect(() => {
-    // fetch all deployed process definitions
+    // Fetch all deployed process definitions
     void api.get_process_definitions(state)
       .then(() => {
         console.log('Deployments fetched successfully:', state.process_definitions.value);
@@ -18,7 +18,7 @@ const Deployments = () => {
   }, []);
 
   return (
-    <div id="deployments-page" className="p-2 fade-in">
+    <div id="deployments" className="fade-in">
       <main className="p-2 bg-1">
         <DeploymentList />
       </main>
@@ -30,37 +30,46 @@ const DeploymentList = () => {
   const { process_definitions } = useContext(AppState);
 
   if (!process_definitions || !process_definitions.value || process_definitions.value.length === 0) {
+    // TODO: refactor design
     return <p className="p-2">No deployments found.</p>;
   }
 
   return (
-    <div className="grid-list">
-      {process_definitions.value.map((deployment) => (
-        <DeploymentTile key={deployment.id} deployment={deployment} />
+    <nav id="deployments-list" aria-label="deployments">
+        <ul className="tile-list">
+            {process_definitions.value.map((deployments) => (
+        <li key={deployments.id}>
+          <DeploymentTile deployment={deployments} />
+        </li>
       ))}
-    </div>
+    </ul>
+    </nav>
   );
 };
 
 const DeploymentTile = ({ deployment }) => {
   return (
-    <div className="tile bg-2 p-2 fade-in">
-      <h3>{deployment.definition.name}</h3>
+    <li className="tile">
+      <header className="row space-between">
+        <h3 class="title">{deployment.definition.name}</h3>
+        {deployment.definition.suspended ? (
+          <span className="icon text-danger">Suspended</span>
+        ) : (
+          <span className="icon text-success">Active</span>
+        )}
+      </header>
       <p>Running Instances: {deployment.instances}</p>
       <p>Incidents: {deployment.incidents.length}</p>
-      <p>Suspended: {deployment.definition.suspended ? 'Yes' : 'No'}</p>
-      <br />
-      <p>Process Definition Key: {deployment.definition.key}</p>
-      <p>Deployment ID: {deployment.id}</p>
-      <div className="row space-between">
+      <footer className="row space-between">
+        <p>Deployment ID: {deployment.id}</p>
         <button
           className="secondary"
           onClick={() => console.log(`Viewing deployment: ${deployment.id}`)}
         >
           View Details
         </button>
-      </div>
-    </div>
+      </footer>
+    </li>
   );
 };
 

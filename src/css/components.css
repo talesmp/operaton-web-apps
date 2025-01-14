@@ -822,3 +822,15 @@ dialog#global-search {
 .breadcrumbs a:visited {
   color: var(--text-2);
 }
+
+/* deployments page */
+.deployments-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--spacing-1);
+}
+
+.deployments-item {
+  padding: var(--spacing-2);
+  background: var(--background-2);
+}

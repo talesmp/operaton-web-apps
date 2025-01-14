@@ -58,23 +58,25 @@ const DeploymentList = () => {
 const DeploymentTile = ({ deployment }) => {
     return (
         <a href="">
-                <header>
-                    <span>
-                        {deployment.definition.name}
-                    </span>
-                    {deployment.definition.suspended ? (
-                        <span className="icon text-danger">Suspended</span>
-                    ) : (
-                        <span className="icon text-success">Active</span>
-                    )}
-                </header>
-                <div>
-                    <p>Running Instances: {deployment.instances}</p>
-                    <p>Incidents: {deployment.incidents.length}</p>
-                </div>
-                <footer>
-                    <p>Deployment ID: {deployment.id}</p>
-                </footer>
+            <header>
+                {deployment.definition.name ? (
+                    <span class="title">{deployment.definition.name}</span>
+                ) : (
+                    <span class="title">N/A</span>
+                )}
+            </header>
+            <div>
+            {deployment.definition.suspended ? (
+                    <p>Suspended</p>
+                ) : (
+                    <p>Active</p>
+                )}
+                <p>Running Instances: {deployment.instances}</p>
+                <p>Incidents: {deployment.incidents.length}</p>
+            </div>
+            <footer>
+                <p>Deployment ID: {deployment.id}</p>
+            </footer>
         </a>
     );
 };

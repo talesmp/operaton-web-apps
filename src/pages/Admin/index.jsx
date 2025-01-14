@@ -106,8 +106,10 @@ const CreateUserPage = () => {
 
   return <div>
     <h2>Create New User</h2>
-    {(user_create_response.value !== undefined) ?
-      <p class="error">Error: {user_create_response.value?.message}</p> : null}
+    {(user_create_response.value !== undefined)
+      ? user_create_response.value.success
+        ? <p class="success">Successfully created new user.</p>
+        : <p class="error">Error: {user_create_response.value?.message}</p> : null}
     <form onSubmit={on_submit}>
       <label>
         User ID <br />

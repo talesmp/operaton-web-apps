@@ -54,7 +54,7 @@ export function Header () {
                 {JSON.parse(import.meta.env.VITE_BACKEND).map(server =>
                   <option key={server.url} value={server.url}
                           selected={localStorage.getItem('server') === server.url}>
-                    {server.name}
+                    {server.name} {server.c7_mode ? '(C7)' : ''}
                   </option>)}
               </select>
             </label>

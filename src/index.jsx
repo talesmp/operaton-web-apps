@@ -8,7 +8,7 @@ import { Home } from "./pages/Home/index.jsx";
 import { TasksPage } from "./pages/Tasks/index.jsx";
 import { ProcessesPage } from "./pages/Processes/index.jsx";
 import { AdminPage } from "./pages/Admin/index.jsx";
-import { Deployments } from "./pages/Deployments/Deployments.jsx";
+import { Deployments } from "./pages/Deployments/index.jsx";
 import { NotFound } from "./pages/_404.jsx";
 
 import './css/fonts.css'

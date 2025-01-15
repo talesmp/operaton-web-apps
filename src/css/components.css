@@ -795,21 +795,3 @@ dialog#global-search {
 #admin-page > div {
   padding: var(--spacing-2);
 }
-
-/* deployments page */
-.deployments-container {
-  display: grid;
-  grid-template-columns: 3fr 9fr; 
-  gap: var(--spacing-1);
-}
-
-.list-scrollable {
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: var(--spacing-1);
-  height: 85vh;
-}
-
-.deployments-details {
-  padding: var(--spacing-2);
-}

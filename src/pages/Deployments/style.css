@@ -26,11 +26,11 @@
 }
 
 .deployments-details-panel {
-  display: flex; /* Aktiviert Flexbox */
-  justify-content: center; /* Horizontal zentrieren */
-  align-items: center; /* Vertikal zentrieren */
-  height: 100%; /* Höhe des Containers */
-  text-align: center; /* Text zentrieren (optional) */
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  height: 100%; 
+  text-align: center; 
 }
 
 .deployments-details {

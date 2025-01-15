@@ -1,4 +1,11 @@
+import * as Icons from '../../assets/icons.jsx'
+import { useContext } from "preact/hooks";
+import { delete_deployment } from "../../api";
+import { AppState } from "../../state";
+
 const DeploymentDetails = ({ selectedDeployment }) => {
+    const state = useContext(AppState);
+    
     if (!selectedDeployment) {
         return (
             <div class="deployments-details-panel deployments-details">
@@ -28,9 +35,17 @@ const DeploymentDetails = ({ selectedDeployment }) => {
             <p><strong>Deployment ID: </strong>{selectedDeployment.definition.deploymentId}</p>
             {selectedDeployment.definition.startableInTasklist ? (
                 <p><strong>Startable in Tasklist: </strong>True</p>
-                ) : (
+            ) : (
                 <p><strong>Startable in Tasklist: </strong>False</p>
             )}
+            <button 
+                onClick={() => delete_deployment(state, selectedDeployment.definition.deploymentId, {
+                    cascade: true,
+                    skipCustomListeners: true,
+                    skipIoMappings: true,
+                })}
+                class="delete-button"><Icons.trash /> Delete Deployment
+            </button>
         </div>
     );
 };

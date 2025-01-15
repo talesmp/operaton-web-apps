@@ -37,6 +37,11 @@
   padding: var(--spacing-2);
 }
 
+.delete-button {
+  padding: var(--spacing-1);
+  margin-top: var(--spacing-2);
+}
+
 .list-scrollable {
   overflow-y: auto;
   overflow-x: hidden;

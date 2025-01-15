@@ -10,8 +10,7 @@ const Deployments = () => {
     const state = useContext(AppState);
     const [selectedDeployment, setSelectedDeployment] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState('details'); 
-
+    
     useEffect(() => {
         // Fetch all deployed process definitions
         void api.get_process_definitions(state);
@@ -28,8 +27,6 @@ const Deployments = () => {
                 />
                 <DeploymentDetails 
                     selectedDeployment={selectedDeployment} 
-                    activeTab={activeTab} 
-                    setActiveTab={setActiveTab} 
                 />
             </main>
         </div>

@@ -25,6 +25,14 @@
   border: 2px solid var(--color-primary);
 }
 
+.deployments-details-panel {
+  display: flex; /* Aktiviert Flexbox */
+  justify-content: center; /* Horizontal zentrieren */
+  align-items: center; /* Vertikal zentrieren */
+  height: 100%; /* Höhe des Containers */
+  text-align: center; /* Text zentrieren (optional) */
+}
+
 .deployments-details {
   padding: var(--spacing-2);
 }

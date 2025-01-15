@@ -75,8 +75,6 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                     class="delete-button"><Icons.trash /> Delete Deployment
                 </button>
             </div>
-    
-            {/* Rechter Bereich: Diagramm */}
             <div class="diagram-content" ref={diagramContainerRef}>
                 {diagramXml ? (
                     <ReactBpmn

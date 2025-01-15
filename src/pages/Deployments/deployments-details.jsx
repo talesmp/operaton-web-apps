@@ -1,5 +1,5 @@
 import * as Icons from '../../assets/icons.jsx'
-import { useContext, useEffect, useState } from "preact/hooks";
+import { useContext, useEffect, useRef, useState } from "preact/hooks";
 import { delete_deployment } from "../../api";
 import { AppState } from "../../state";
 import ReactBpmn from 'react-bpmn';
@@ -8,6 +8,7 @@ import * as api from '../../api'
 const DeploymentDetails = ({ selectedDeployment }) => {
     const state = useContext(AppState);
     const [diagramXml, setDiagramXml] = useState(null);
+    const diagramContainerRef = useRef(null);
 
     useEffect(() => {
         if (selectedDeployment?.definition?.id) {
@@ -20,6 +21,16 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                 });
         }
     }, [selectedDeployment]);
+
+    useEffect(() => {
+        if (diagramContainerRef.current) {
+            const breadcrumbs = diagramContainerRef.current.querySelector(".bjs-powered-by, .bjs-breadcrumbs");
+            if (breadcrumbs) {
+                breadcrumbs.remove();
+            }
+        }
+    }, [diagramXml]); 
+
         
     if (!selectedDeployment) {
         return (
@@ -66,7 +77,7 @@ const DeploymentDetails = ({ selectedDeployment }) => {
             </div>
     
             {/* Rechter Bereich: Diagramm */}
-            <div class="diagram-content">
+            <div class="diagram-content" ref={diagramContainerRef}>
                 {diagramXml ? (
                     <ReactBpmn
                         diagramXML={diagramXml}

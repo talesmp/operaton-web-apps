@@ -26,11 +26,8 @@
 }
 
 .deployments-details-panel {
-  display: flex; 
-  justify-content: center; 
   align-items: center; 
-  height: 100%; 
-  text-align: center; 
+  margin: var(--spacing-1);
 }
 
 .deployments-details {
@@ -40,6 +37,13 @@
 .delete-button {
   padding: var(--spacing-1);
   margin-top: var(--spacing-2);
+  transition: background-color 0.5s ease;
+  transition: border-color 0.5s ease;
+}
+
+.delete-button:hover {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .list-scrollable {

@@ -32,36 +32,41 @@ const DeploymentDetails = ({ selectedDeployment }) => {
     }
 
     return (
-        <div class="details-panel deployments-details">
-            <h1 class="title">{selectedDeployment.definition.name}</h1>
-            {selectedDeployment.definition.suspended ? (
-                <p>
-                    <strong>Status: </strong>
-                    <span class="status-suspended">Suspended</span>
-                </p>
-            ) : (
-                <p>
-                    <strong>Status: </strong>
-                    <span class="status-active">Active</span>
-                </p>
-            )}
-            <p> <strong>Process Definition Key: </strong>{selectedDeployment.definition.key}</p>
-            <p><strong>Version: </strong>{selectedDeployment.definition.version}</p>
-            <p><strong>Deployment ID: </strong>{selectedDeployment.definition.deploymentId}</p>
-            {selectedDeployment.definition.startableInTasklist ? (
-                <p><strong>Startable in Tasklist: </strong>True</p>
-            ) : (
-                <p><strong>Startable in Tasklist: </strong>False</p>
-            )}
-            <button 
-                onClick={() => delete_deployment(state, selectedDeployment.definition.deploymentId, {
-                    cascade: true,
-                    skipCustomListeners: true,
-                    skipIoMappings: true,
-                })}
-                class="delete-button"><Icons.trash /> Delete Deployment
-            </button>
-            <div id="process-diagram" class="fade-in">
+        <div class="deployments-details-panel">
+            <div class="details-content">
+                <h1 class="title">{selectedDeployment.definition.name}</h1>
+                {selectedDeployment.definition.suspended ? (
+                    <p>
+                        <strong>Status: </strong>
+                        <span class="status-suspended">Suspended</span>
+                    </p>
+                ) : (
+                    <p>
+                        <strong>Status: </strong>
+                        <span class="status-active">Active</span>
+                    </p>
+                )}
+                <p> <strong>Process Definition Key: </strong>{selectedDeployment.definition.key}</p>
+                <p><strong>Version: </strong>{selectedDeployment.definition.version}</p>
+                <p><strong>Deployment ID: </strong>{selectedDeployment.definition.deploymentId}</p>
+                {selectedDeployment.definition.startableInTasklist ? (
+                    <p><strong>Startable in Tasklist: </strong>True</p>
+                ) : (
+                    <p><strong>Startable in Tasklist: </strong>False</p>
+                )}
+                <button 
+                    onClick={() => delete_deployment(state, selectedDeployment.definition.deploymentId, {
+                        // TODO: ask user for params in UI
+                        cascade: true,
+                        skipCustomListeners: true,
+                        skipIoMappings: true,
+                    })}
+                    class="delete-button"><Icons.trash /> Delete Deployment
+                </button>
+            </div>
+    
+            {/* Rechter Bereich: Diagramm */}
+            <div class="diagram-content">
                 {diagramXml ? (
                     <ReactBpmn
                         diagramXML={diagramXml}

@@ -1,10 +1,10 @@
-import "./style.css";
-
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { AppState } from '../../state.js';
 import DeploymentList from './deployments-list';
 import DeploymentDetails from './deployments-details';
 import * as api from "../../api"
+
+import "./style.css";
 
 const Deployments = () => {
     const state = useContext(AppState);

@@ -1,21 +1,37 @@
+.mt-1 {
+  margin-top: var(--spacing-1);
+}
+
+.status-suspended {
+  color: var(--color-warning);
+}
+
+.status-active {
+  color: var(--color-success);
+}
+
 .deployments-container {
-    display: grid;
-    grid-template-columns: 3fr 9fr; 
-    gap: var(--spacing-1);
-  }
-  
-  .deployments-details-empty {
-    padding: var(--spacing-2);
-    border: 2px solid var(--color-primary);
-  }
+  display: grid;
+  grid-template-columns: 3fr 9fr;
+  gap: var(--spacing-1);
+}
 
-  .deployments-details {
-    padding: var(--spacing-2);
-  }
+.deployments-tile {
+  padding: var(--spacing-2);
+}
 
-  .list-scrollable {
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: var(--spacing-1);
-    height: 90vh;
-  }
+.deployments-details-empty {
+  padding: var(--spacing-2);
+  border: 2px solid var(--color-primary);
+}
+
+.deployments-details {
+  padding: var(--spacing-2);
+}
+
+.list-scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-1);
+  height: 90vh;
+}

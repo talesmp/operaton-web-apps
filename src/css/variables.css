@@ -12,7 +12,7 @@
         var(--color-danger) 50%,
         transparent
     );
-    --color-warning: #ff8800;
+    --color-warning: #d47100;
     --color-warning-transparent: color-mix(
         in srgb,
         var(--color-warning) 50%,

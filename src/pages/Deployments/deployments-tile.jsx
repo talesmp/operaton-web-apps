@@ -1,6 +1,6 @@
 const DeploymentTile = ({ deployment }) => {
     return (
-        <div>
+        <div class="deployments-tile">
             <header>
                 {deployment.definition.name ? (
                     <span class="title">{deployment.definition.name}</span>
@@ -10,16 +10,20 @@ const DeploymentTile = ({ deployment }) => {
             </header>
             <div>
                 {deployment.definition.suspended ? (
-                    <p>Suspended</p>
+                    <p class="status-suspended">Suspended</p>
                 ) : (
-                    <p>Active</p>
+                    <p class="status-active">Active</p>
                 )}
-                <p>Running Instances: {deployment.instances}</p>
-                <p>Incidents: {deployment.incidents.length}</p>
+                <span>
+                    <div class="mt-1"></div>
+                    <p>Running Instances: {deployment.instances}</p>
+                </span>
+                <span>
+                    <p>Incidents: {deployment.incidents.length}</p>
+                </span>
+                
+
             </div>
-            <footer>
-                <p>Deployment ID: {deployment.id}</p>
-            </footer>
         </div>
     );
 };

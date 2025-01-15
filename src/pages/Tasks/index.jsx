@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks'
 import * as api from '../../api'
 import * as formatter from '../../helper/formatter'
-import { Task } from './Task.jsx'
+import { Task, task_tabs } from './Task.jsx'
 import * as Icons from '../../assets/icons.jsx'
 import { AppState } from '../../state.js'
 import { useRoute, useLocation } from 'preact-iso'
@@ -26,6 +26,12 @@ const TasksPage = () => {
   }
 
   void api.get_tasks(state)
+
+  if (params.task_id) {
+    void api.get_task(state, params.task_id)
+  } else {
+    state.task.value = null
+  }
 
   return (
     <main id="tasks" class="fade-in">
@@ -85,7 +91,7 @@ const TaskTile = ({ id, name, created, assignee, priority, def_name }) => {
 
   return (
     <li key={id} class={ selected ? 'selected' : ''}>
-      <a href={`/tasks/${id}`} data-task-id={id} aria-labelledby={id}>
+      <a href={`/tasks/${id}/${task_tabs[0].id}`} data-task-id={id} aria-labelledby={id}>
         <header>
           <span>{def_name}</span>
           <span>{formatter.formatRelativeDate(created)}</span>

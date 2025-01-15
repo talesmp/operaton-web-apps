@@ -4,14 +4,8 @@ import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
 import { Tabs } from '../../components/Tabs.jsx'
-import { useRoute } from 'preact-iso'
 
 const Task = () => {
-  const
-    state = useContext(AppState),
-    { params } = useRoute()
-
-  void api.get_task(state, params.task_id)
 
   return (
     <div id="task-details" className="fade-in">
@@ -113,4 +107,4 @@ const task_tabs = [
     target: <p>Diagram</p>
   }]
 
-export { Task }
+export { Task, task_tabs }

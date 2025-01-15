@@ -221,6 +221,7 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
     .then((response) => {
       if (response.ok) {
         console.log(`Deployment ${deployment_id} deleted successfully.`);
+        get_process_definitions(state)
       } else {
         return response.json().then((json) => {
           console.error(`Failed to delete deployment ${deployment_id}:`, json.message);

@@ -1,0 +1,10 @@
+
+services:
+  operaton:
+    image: operaton/operaton:1.0.0-beta-3-SNAPSHOT
+    ports:
+      - "8084:8080"
+  c7:
+    image: camunda/camunda-bpm-platform:run-latest
+    ports:
+      - "8088:8080"

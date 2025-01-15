@@ -3,7 +3,12 @@
     grid-template-columns: 3fr 9fr; 
     gap: var(--spacing-1);
   }
-    
+  
+  .deployments-details-empty {
+    padding: var(--spacing-2);
+    border: 2px solid var(--color-primary);
+  }
+
   .deployments-details {
     padding: var(--spacing-2);
   }

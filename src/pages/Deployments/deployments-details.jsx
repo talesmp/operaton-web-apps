@@ -1,11 +1,26 @@
 import * as Icons from '../../assets/icons.jsx'
-import { useContext } from "preact/hooks";
+import { useContext, useEffect, useState } from "preact/hooks";
 import { delete_deployment } from "../../api";
 import { AppState } from "../../state";
+import ReactBpmn from 'react-bpmn';
+import * as api from '../../api'
 
 const DeploymentDetails = ({ selectedDeployment }) => {
     const state = useContext(AppState);
-    
+    const [diagramXml, setDiagramXml] = useState(null);
+
+    useEffect(() => {
+        if (selectedDeployment?.definition?.id) {
+            api.get_diagram(state, selectedDeployment.definition.id)
+                .then((response) => {
+                    setDiagramXml(response.bpmn20Xml);
+                })
+                .catch((error) => {
+                    console.error("Error loading process diagram:", error);
+                });
+        }
+    }, [selectedDeployment]);
+        
     if (!selectedDeployment) {
         return (
             <div class="deployments-details-panel deployments-details">
@@ -46,6 +61,18 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                 })}
                 class="delete-button"><Icons.trash /> Delete Deployment
             </button>
+            <div id="process-diagram" class="fade-in">
+                {diagramXml ? (
+                    <ReactBpmn
+                        diagramXML={diagramXml}
+                        onLoading={null}
+                        onShown={null}
+                        onError={null}
+                    />
+                ) : (
+                    <p>Loading process diagram...</p>
+                )}
+            </div>
         </div>
     );
 };

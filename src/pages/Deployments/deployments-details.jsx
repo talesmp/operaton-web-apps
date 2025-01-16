@@ -144,11 +144,11 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                                     <button
                                         class="btn btn-primary"
                                         onClick={handleDelete}
-                                        disabled={!(selectedDeployment.definition.instances < 1 || cascade)}
+                                        disabled={(selectedDeployment.instances > 0 && !cascade)}
                                     >
                                         Delete
                                     </button>
-                                    {!(selectedDeployment.definition.instances < 1 || cascade) && (
+                                    {(selectedDeployment.instances > 0 && !cascade) && (
                                         <span class="tooltip">
                                             There are running process instances which belong to this deployment. In order to delete this deployment it is necessary to enable the option Cascade flag.
                                         </span>

@@ -1,7 +1,6 @@
-import { signal, useSignalEffect } from '@preact/signals'
 import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
-import * as api from '../../api'
+import { api } from '../../api'
 import { AppState } from '../../state.js'
 
 const AdminPage = () => {
@@ -38,7 +37,11 @@ const AdminPage = () => {
 }
 
 const UserAdminPage = () => {
-  const { params: { selection_id } } = useRoute()
+  const
+    state = useContext(AppState),
+    { params: { selection_id } } = useRoute()
+
+  selection_id === undefined ? void api(state).user.get() : null
 
   return (selection_id === 'new')
     ? <CreateUserPage />
@@ -47,11 +50,8 @@ const UserAdminPage = () => {
       : <UserDetails user_id={selection_id} />
 }
 
-const UserList = () => {
-  const state = useContext(AppState)
-  useSignalEffect(() => { void api.get_users(state) })
-
-  return <div>
+const UserList = () =>
+  <div>
     <h2>Users</h2>
     <a href="/admin/users/new">Create New User</a>
     <table>
@@ -64,7 +64,7 @@ const UserList = () => {
       </tr>
       </thead>
       <tbody>
-      {state.users.value?.map((user) => (
+      {useContext(AppState).api.value?.user.value?.list.value?.map((user) => (
         <tr key={user.id}>
           <td><a href={`/admin/users/${user.id}`}>{user.id}</a></td>
           <td>{user.firstName}</td>
@@ -77,18 +77,28 @@ const UserList = () => {
       </tbody>
     </table>
   </div>
-}
+
 
 const UserDetails = (user_id) => {
+  const
+    state = useContext(AppState)
+
+  void api.get_user_profile(state, user_id.value)
+  void api.get_user_groups(state, user_id.value)
+
   return <div>
     <h2>User Details</h2>
-    <p>
-      {/*{user_id ?? 'unknown'}*/}
-    </p>
+
+    <h3>Profile</h3>
+    <h3>Password</h3>
+    <h3>Groups</h3>
+    <h3>Tenants</h3>
+    <h3>Danger Zone</h3>
   </div>
 }
 
 const CreateUserPage = () => {
+  // https://preactjs.com/guide/v10/forms/
   const
     state = useContext(AppState),
     { user_create, user_create_response } = state

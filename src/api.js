@@ -10,87 +10,45 @@
 const _url = (state) => `${state.server.value.url}/engine-rest`
 
 let headers = new Headers()
-headers.set('Authorization', 'Basic ' + window.btoa(unescape(encodeURIComponent('demo:demo')))) //TODO authentication
+headers.set('Authorization', `Basic ${window.btoa(unescape(encodeURIComponent('demo:demo')))}`) //TODO authentication
 let headers_json = headers
 headers_json.set('Content-Type', 'application/json')
 
-export const get_user_profile = (state, user_name) => {
-  // TODO remove it when we have a login!
-  if (!user_name) {
-    user_name = 'demo'
-  }
-
-  fetch(`${_url(state)}/user/${user_name}/profile`, { headers })
+const get = (url, state, signal) =>
+  fetch(`${_url(state)}${url}`)
     .then(response => response.json())
-    .then(json => state.user_profile.value = json)
-}
+    .then(json => state[signal].value = json)
 
-export const get_users = (state) =>
-  fetch(`${_url(state)}/user`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.users.value = json)
 
-export const create_user = (state) =>
-  fetch(`${_url(state)}/user/create`,
+const post = (url, body, state, signal) =>
+  fetch(`${_url(state)}${url}`,
     {
       headers: headers_json,
       method: 'POST',
-      body: JSON.stringify(state.user_create.value)
+      body: JSON.stringify(body)
     })
     .then(response => response.ok ? response.ok : Promise.reject(response))
-    .then(result => state.user_create_response.value = {success: true, ...result})
+    .then(result => state[signal].value = { success: true, ...result })
     .catch(response => response.json())
-    .then(json => state.user_create_response.value = { success: false, ...json })
+    .then(json => state[signal].value = { success: false, ...json })
 
-
-export const get_user_count = (state) =>
-  fetch(`${_url(state)}/user`, { headers: headers })
+export const get_user_profile = (state, user_name) =>
+  // TODO remove `?? 'demo'` when we have working authentication
+  fetch(`${_url(state)}/user/${user_name ?? 'demo'}/profile`, { headers })
     .then(response => response.json())
-    .then(json => state.user_count.value = json)
+    .then(json => state.user_profile.value = json)
 
-
-export const get_process_definitions = (state) =>
-  fetch(`${_url(state)}/process-definition/statistics`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.process_definitions.value = json)
-
-export const get_process_definition = (state, id) =>
-  fetch(`${_url(state)}/process-definition/${id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.process_definition.value = json)
-
-const url_params = (definition_id) =>
-  new URLSearchParams({
-    unfinished: true,
-    sortBy: 'startTime',
-    sortOrder: 'asc',
-    processDefinitionId: definition_id,
-  }).toString()
-
-export const get_process_instances = (state, definition_id) =>
-  fetch(`${_url(state)}/history/process-instance?${url_params(definition_id)}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => (state.process_instances.value = json))
-
-export const get_process_incidents = (state, definition_id) =>
-  fetch(`${_url(state)}/history/incident?processDefinitionId=${definition_id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => (state.process_incidents.value = json))
-
-export const get_process_instance = (state, instance_id) =>
-  fetch(`${_url(state)}/process-instance/${instance_id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.process_instance.value = json)
-
-export const get_process_instance_variables = (state, instance_id) =>
-  fetch(`${_url(state)}/process-instance/${instance_id}/variables`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.selection_values.value = json)
-
-export const get_process_instance_incidents = (state, instance_id) =>
-  fetch(`${_url(state)}/history/incident?processInstanceId=${instance_id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => (state.process_instance_incidents.value = json))
+export const get_users = (state) => get('/user', state, 'users')
+export const create_user = (state) => post('/user/create', state.user_create.value, state, 'user_create_response')
+export const get_user_count = (state) => get('/user', state, 'user_count')
+export const get_user_groups = (state, user_name) => post('/group', { member: user_name, firstResult: 0, maxResults: 50 }, state, 'user_groups')
+export const get_process_definitions = (state) => get('/process-definition/statistics', state, 'process_definitions')
+export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, 'process_definition')
+export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, 'process_instances')
+export const get_process_incidents = (state, definition_id) => get(`/history/incident?processDefinitionId=${definition_id}`, state, 'process_incidents')
+export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, 'process_instance')
+export const get_process_instance_variables = (state, instance_id) => get(`/process-instance/${instance_id}/variables`, state, 'selection_values')
+export const get_process_instance_incidents = (state, instance_id) => get(`/history/incident?processInstanceId=${instance_id}`, state, 'process_instance_incidents')
 
 export const get_process_instance_tasks = (state, instance_id) =>
   fetch(`${_url(state)}/task?processInstanceId=${instance_id}`, { headers: headers })
@@ -129,7 +87,7 @@ export const get_tasks = (state, sort_key, sort_order) => {
 
       // we need the process definition name for each task
       get_task_process_definitions(state, ids)
-        .then( defList => {
+        .then(defList => {
           const defMap = new Map() // helper map, mapping ID to process name
           defList.map(def => defMap.set(def.id, def))
 
@@ -151,14 +109,14 @@ const get_task_process_definitions = (state, ids) =>
     .then((response) => response.json())
 
 export const get_task = (state, task_id) =>
-   fetch(`${_url(state)}/task/${task_id}`, { headers: headers })
-     .then((response) => response.json())
-     .then(json => state.task.value = json)
+  fetch(`${_url(state)}/task/${task_id}`, { headers: headers })
+    .then((response) => response.json())
+    .then(json => state.task.value = json)
 
 export const get_task_rendered_form = (state, task_id) =>
-   fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers: headers })
-     .then((response) => response.text())
-     .then(text => state.task_generated_form.value = text)
+  fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers: headers })
+    .then((response) => response.text())
+    .then(text => state.task_generated_form.value = text)
 
 export const get_task_deployed_form = (state, task_id) =>
   fetch(`${_url(state)}/task/${task_id}/deployed-form`, { headers: headers })
@@ -179,19 +137,18 @@ export const post_task_claim = (state, do_claim, task_id) =>
 export const post_task_assign = (state, assignee, task_id) =>
   fetch(`${_url(state)}/task/${task_id}/assignee`,
     {
-      headers: headers_json ,
+      headers: headers_json,
       method: 'POST',
       body: JSON.stringify({ userId: assignee })
     })
     .then((response) => response.ok)
     .then(() => get_task(state, task_id))
 
-
 /* return null or error message from server, in fact all validation should be done by HTML5 validation, but who knows ... */
 export const post_task_form = (state, task_id, data) => {
   fetch(`${_url(state)}/task/${task_id}/submit-form`,
     {
-      headers: headers_json ,
+      headers: headers_json,
       method: 'POST',
       body: JSON.stringify({ variables: data, withVariablesInReturn: true })
     })

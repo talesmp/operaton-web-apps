@@ -174,12 +174,7 @@ export const post_task_claim = (state, do_claim, task_id) =>
       body: JSON.stringify({ userId: state.user_profile.value.id })
     })
     .then((response) => response.ok)
-    .then(() => get_task(state, task_id)
-    )
-}
-
-export const post_task_assign = (state, assignee, task_id) => {
-  headers.set('Content-Type', 'application/json');
+    .then(() => get_task(state, task_id))
 
 export const post_task_assign = (state, assignee, task_id) =>
   fetch(`${_url(state)}/task/${task_id}/assignee`,
@@ -189,7 +184,7 @@ export const post_task_assign = (state, assignee, task_id) =>
       body: JSON.stringify({ userId: assignee })
     })
     .then((response) => response.ok)
-    .then(result => state.task_change_result.value = result)
+    .then(() => get_task(state, task_id))
 
 
 /* return null or error message from server, in fact all validation should be done by HTML5 validation, but who knows ... */

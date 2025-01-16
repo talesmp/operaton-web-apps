@@ -44,6 +44,7 @@ const createAppState = () => {
   const user_create = signal({ profile: {}, credentials: { } })
   const user_create_response = signal()
   const user_profile = signal(null) // should be set after login
+  const user_groups = signal(null) // should be set after login
   const tasks = signal(null)
   const selected_task = signal(null)
   const task = signal(null)
@@ -53,6 +54,7 @@ const createAppState = () => {
   // const admin_users = signal(null)
 
   return {
+    server,
     called_definitions,
     called_process_instances,
     job_definitions,
@@ -67,7 +69,6 @@ const createAppState = () => {
     selected_process_definition_id,
     selected_task,
     selection_values,
-    server,
     task,
     tasks,
     task_generated_form,
@@ -76,6 +77,7 @@ const createAppState = () => {
     user_create,
     user_create_response,
     user_profile,
+    user_groups,
     users
   }
 }

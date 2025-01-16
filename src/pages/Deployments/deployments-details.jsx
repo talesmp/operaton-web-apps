@@ -135,16 +135,25 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                             <div class="modal-footer-buttons">
                                 <button
                                     class="btn btn-secondary"
-                                    onClick={() => setShowModal(false)} 
+                                    onClick={() => setShowModal(false)}
                                 >
                                     Cancel
                                 </button>
-                                <button
-                                    class="btn btn-primary"
-                                    onClick={handleDelete}
-                                >
-                                    Delete
-                                </button>
+
+                                <div class="tooltip-container">
+                                    <button
+                                        class="btn btn-primary"
+                                        onClick={handleDelete}
+                                        disabled={!(selectedDeployment.definition.instances < 1 || cascade)}
+                                    >
+                                        Delete
+                                    </button>
+                                    {!(selectedDeployment.definition.instances < 1 || cascade) && (
+                                        <span class="tooltip">
+                                            There are running process instances which belong to this deployment. In order to delete this deployment it is necessary to enable the option Cascade flag.
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

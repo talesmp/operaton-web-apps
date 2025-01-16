@@ -4,8 +4,20 @@ import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
 import { Tabs } from '../../components/Tabs.jsx'
+import { useSignalEffect } from '@preact/signals'
 
 const Task = () => {
+  const state = useContext(AppState)
+  let initial = true
+
+  // when something has changed (e.g. assignee) in the task we have to update the task list
+  useSignalEffect(() => {
+    if (state.task.value && initial) {
+      initial = false
+    } else if (state.task.value) {
+      update_task_list(state, state.task.value)
+    }
+  })
 
   return (
     <div id="task-details" className="fade-in">
@@ -51,14 +63,14 @@ const TaskDetails = () => {
 const ResetAssigneeBtn = () => {
   const
     state = useContext(AppState),
-    { task, user } = state
+    { task, user_profile } = state
 
-  return (!task.value?.assignee && user && user.id !== task.value?.assignee)
+  return (!task.value?.assignee)
     ?
     <button onClick={() => claim_task(state, true, task)} class="secondary">
       <Icons.user_plus /> Claim
     </button>
-    : (user && user.id === task.value?.assignee)
+    : (user_profile.value && user_profile.value.id === task.value?.assignee)
       ? <button onClick={() => claim_task(state, false, task)} class="secondary">
         <Icons.user_minus /> Unclaim
       </button>
@@ -69,17 +81,22 @@ const ResetAssigneeBtn = () => {
 }
 
 const claim_task = (state, claim, selectedTask) => {
-  api.post_task_claim(state, claim, selectedTask.id)
+  console.log("selected task: " + selectedTask.value.id)
+  api.post_task_claim(state, claim, selectedTask.value.id)
 }
 
 const assign_task = (state, assignee, selectedTask) => {
   api.post_task_assign(state, assignee, selectedTask.id)
 }
 
-// update the task list with a changed task
+// update the task list with a changed task, avoid reloading the task list
 const update_task_list = (state, task) => {
-  state.tasks.value = state.tasks.value.map((item) => {
-    if (item.id === task.value?.id) {
+  console.log("map")
+  state.tasks.value = state.tasks.peek().map((item) => {
+    if (item.id === task.id) {
+      task.def_name = item.def_name
+      task.def_version = item.def_version
+
       return task
     }
 

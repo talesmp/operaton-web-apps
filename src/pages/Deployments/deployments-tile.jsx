@@ -21,7 +21,7 @@ const DeploymentTile = ({ deployment }) => {
                 <span>
                     <p>Incidents: {deployment.incidents.length}</p>
                 </span>
-                
+                <p>Deployment Name: {deployment.name}</p>
 
             </div>
         </div>

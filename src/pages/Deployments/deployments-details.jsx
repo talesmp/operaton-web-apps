@@ -16,24 +16,15 @@ const DeploymentDetails = ({ selectedDeployment }) => {
     const [skipIoMappings, setSkipIoMappings] = useState(true);
 
     useEffect(() => {
-        const abortController = new AbortController();
-        const signal = abortController.signal;
-
         if (selectedDeployment?.definition?.id) {
-            api.get_diagram(state, selectedDeployment.definition.id, { signal })
+            api.get_diagram(state, selectedDeployment.definition.id)
                 .then((response) => {
                     setDiagramXml(response.bpmn20Xml);
                 })
                 .catch((error) => {
-                    if (!signal.aborted) {
-                        console.error("Error loading process diagram:", error);
-                    }
+                    console.error("Error loading process diagram:", error);
                 });
         }
-
-        return () => {
-            abortController.abort();
-        };
     }, [selectedDeployment]);
 
     useEffect(() => {

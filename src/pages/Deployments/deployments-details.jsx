@@ -16,15 +16,24 @@ const DeploymentDetails = ({ selectedDeployment }) => {
     const [skipIoMappings, setSkipIoMappings] = useState(true);
 
     useEffect(() => {
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+
         if (selectedDeployment?.definition?.id) {
-            api.get_diagram(state, selectedDeployment.definition.id)
+            api.get_diagram(state, selectedDeployment.definition.id, { signal })
                 .then((response) => {
                     setDiagramXml(response.bpmn20Xml);
                 })
                 .catch((error) => {
-                    console.error("Error loading process diagram:", error);
+                    if (!signal.aborted) {
+                        console.error("Error loading process diagram:", error);
+                    }
                 });
         }
+
+        return () => {
+            abortController.abort();
+        };
     }, [selectedDeployment]);
 
     useEffect(() => {
@@ -92,7 +101,7 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                         <div class="modal-body">
                             <hr />
                             <form style="display: flex; flex-direction: column; gap: var(--spacing-2);">
-                                <div className="form-group">
+                                <div class="form-group">
                                     <input
                                         type="checkbox"
                                         checked={cascade}
@@ -103,7 +112,7 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                                         <span>If the value is enabled, all instances, including historic Instances, related to this deployment will also be deleted.</span>
                                     </label>
                                 </div>
-                                <div className="form-group">
+                                <div class="form-group">
                                     <input
                                         type="checkbox"
                                         checked={skipCustomListeners}
@@ -114,7 +123,7 @@ const DeploymentDetails = ({ selectedDeployment }) => {
                                         <span>If the value is enabled, only built-in listeners will be notified with the end event.</span>
                                     </label>
                                 </div>
-                                <div className="form-group">
+                                <div class="form-group">
                                     <input
                                         type="checkbox"
                                         checked={skipIoMappings}

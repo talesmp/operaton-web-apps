@@ -21,10 +21,6 @@ const ProcessDetails = () => {
     setShowModal(false);
   };
 
-  if (globalState.selectedProcessStatistics.value) {
-    console.log(globalState.selectedProcessStatistics)
-  }
-
   return (
     <div class="process-details">
       {globalState.selectedProcessStatistics.value ? (

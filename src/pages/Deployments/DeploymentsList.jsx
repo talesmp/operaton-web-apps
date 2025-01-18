@@ -2,7 +2,6 @@ import { fetchResources } from "./api/api";
 import { globalState } from "./globalState";
 
 const DeploymentsList = () => {
-  console.log(globalState.deployments.value)
   return (
     <div class="deployments-list list-scrollable">
       <h1 class="title">Deployments</h1>

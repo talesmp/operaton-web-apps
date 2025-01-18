@@ -209,29 +209,3 @@ export const post_task_form = (state, task_id, data) => {
 
   return null
 }
-
-// deployment endpoint
-export const delete_deployment = (state, deployment_id, params = {}) => {
-  const queryParams = new URLSearchParams(params).toString();
-  
-  fetch(`${_url(state)}/deployment/${deployment_id}?${queryParams}`, {
-    headers: headers_json,
-    method: 'DELETE',
-  })
-    .then((response) => {
-      if (response.ok) {
-        console.log(`Deployment ${deployment_id} deleted successfully.`);
-        get_process_definitions(state)
-      } else {
-        return response.json().then((json) => {
-          console.error(`Failed to delete deployment ${deployment_id}:`, json.message);
-          return json.message;
-        });
-      }
-    })
-    .catch((error) => {
-      console.error(`Error deleting deployment ${deployment_id}:`, error);
-    });
-
-  return null;
-};

@@ -2,6 +2,7 @@ import ReactBpmn from "react-bpmn";
 import { globalState } from "./globalState";
 import { delete_deployment, fetchDeploymentInstancesCountById } from "./api/api";
 import { useState } from "preact/hooks";
+import * as Icons from '../../assets/icons'
 
 const ProcessDetails = () => {
   const [showModal, setShowModal] = useState(false);
@@ -85,6 +86,13 @@ const ProcessDetails = () => {
                 <td class="strong">Process Definition Key:</td>
                 <td>{globalState.selectedProcessStatistics.value?.definition.key || "N/A"}</td>
               </tr>
+              <tr>
+                <td>
+                  <a href={`/processes/${globalState.selectedProcessStatistics.value?.definition.id}/instances`}>
+                  <Icons.link_out /> {globalState.selectedProcessStatistics.value?.definition.name || globalState.selectedProcessStatistics.value?.definition.key}
+                  </a>
+                </td>
+              </tr>
             </tbody>
           </table>
 
@@ -148,12 +156,12 @@ const ProcessDetails = () => {
                       </label>
                     </div>
                     <div className="form-group">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={skipCustomListeners}
-                        onChange={(e) => setSkipCustomListeners(e.target.checked)}
-                      />
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={skipCustomListeners}
+                          onChange={(e) => setSkipCustomListeners(e.target.checked)}
+                        />
                         Skip Custom Listeners
                         <span>
                           If enabled, only built-in listeners will be notified of the end event.
@@ -161,12 +169,12 @@ const ProcessDetails = () => {
                       </label>
                     </div>
                     <div className="form-group">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={skipIoMappings}
-                        onChange={(e) => setSkipIoMappings(e.target.checked)}
-                      />
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={skipIoMappings}
+                          onChange={(e) => setSkipIoMappings(e.target.checked)}
+                        />
                         Skip IO Mappings
                         <span>
                           If enabled, IO mappings will be skipped during deployment removal.

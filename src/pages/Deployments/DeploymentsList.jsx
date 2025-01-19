@@ -1,49 +1,37 @@
-import { useEffect, useContext } from 'preact/hooks';
-import { AppState } from '../../state.js';
-import { get_deployment_resources, get_deployment } from '../../api.js';
+import { useContext } from 'preact/hooks';
+import { AppState } from '../../state.js'
+import { get_deployment_resources } from '../../api.js';
+import { resetSelectedDetails } from "./globalState";
 
 export const DeploymentsList = () => {
-  const state = useContext(AppState);
-
-  useEffect(() => {
-    if (!state.deployments.value) { 
-      get_deployment(state)
-        .then((response) => {
-          if (response != null) {
-            state.deployments.value = response;
-          }
-        });
-    }
-  }, [state.deployments.value]);
-
+  const state = useContext(AppState)
+  
   return (
-    <div>
-      {state.deployments.value ? (
-        <div class="deployments-list list-scrollable">
-          <h3 class="screen-hidden">Queried deployments</h3>
-          <ul class="tile-list">
-            {state.deployments.value.map((deployment) => (
-              <li
-                key={deployment.id}
-                class={`tile-item ${state.selected_deployment.value?.id === deployment.id ? 'selected' : ''}`}
-                onClick={() => {
-                  state.selected_deployment.value = deployment;
-                  get_deployment_resources(state, deployment.id);
-                }}
-              >
-                <a>
-                  <div class="title">
-                    {deployment?.name || deployment?.id}
-                  </div>
-                  <span>{new Date(deployment.deploymentTime).toLocaleDateString()}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p>Loading deployments...</p>
-      )}
+    <div class="deployments-list list-scrollable">
+      <h1 class="title">Deployments</h1>
+      <ul class="tile-list">
+        {state.deployments.value.map((deployment) => (
+          <li
+            key={deployment.id}
+            class={`tile-item ${state.selected_deployment.value?.id === deployment.id ? "selected" : ""}`}
+            onClick={() => {
+              resetSelectedDetails(); 
+              state.selected_deployment.value = deployment; 
+              get_deployment_resources(state, deployment.id)
+            }}
+          >
+            <div class="padding-1">
+              <header>
+                {deployment?.name ? (
+                  <span class="title">{deployment?.name}</span>
+                ) : (
+                  <span class="title">N/A</span>
+                )}
+              </header>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

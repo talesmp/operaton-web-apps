@@ -1,109 +1,127 @@
-import { get_deployment_instance_count, delete_deployment, get_deployment } from '../../api'
-import { useContext, useState } from 'preact/hooks'
-import { AppState } from '../../state'
-import { BpmnViewer } from './Bpmn-Viewer'
+import ReactBpmn from "react-bpmn";
+import { get_deployment_instance_count } from "../../api";
+import { delete_deployment } from "../../api";
+import { useContext, useState } from "preact/hooks";
+import * as Icons from '../../assets/icons'
+import { AppState } from "../../state";
 
-export const ProcessDetails = () => {
+const ProcessDetails = () => {
   const state = useContext(AppState)
-  const [showModal, setShowModal] = useState(false)
-  const [cascade, setCascade] = useState(false)
-  const [skipCustomListeners, setSkipCustomListeners] = useState(true)
-  const [skipIoMappings, setSkipIoMappings] = useState(true)
-  const [instanceCount, setInstanceCount] = useState(0)
+  const [showModal, setShowModal] = useState(false);
+  const [cascade, setCascade] = useState(false);
+  const [skipCustomListeners, setSkipCustomListeners] = useState(true);
+  const [skipIoMappings, setSkipIoMappings] = useState(true);
+  const [instanceCount, setInstanceCount] = useState(0);
 
   const handleDelete = () => {
-    delete_deployment(state, state.selected_deployment.value.id, {
+    delete_deployment(state.selected_deployment.value.id, {
       cascade,
       skipCustomListeners,
       skipIoMappings,
-    })
-    .then(() => get_deployment(state))
-    .then((data) => (state.deployments.value = data))
-      .catch((error) => {
-        console.error("Deletion failed:", error);
-      })
-      .finally(() => setShowModal(false));
-  }
+    });
+    setShowModal(false);
+  };
 
   const openModal = () => {
     if (state.selected_deployment.value) {
       get_deployment_instance_count(state, state.selected_deployment.value.id)
         .then((data) => {
-          setInstanceCount(data.count || 0)
+          setInstanceCount(data.count || 0);
         })
         .catch((error) => {
-          console.error('Error fetching instance count:', error)
-          setInstanceCount(0)
-        })
+          console.error("Error fetching instance count:", error);
+          setInstanceCount(0);
+        });
     }
-    setShowModal(true)
-  }
+    setShowModal(true);
+  };
 
   return (
     <div class="process-details">
       {state.selected_process_statistics.value ? (
         <>
           {/* Process Details */}
-          <h3>{state.selected_process_statistics.value?.definition.name || 'N/A - Process name is not defined'}</h3>
-          <p class={state.selected_process_statistics.value?.definition.suspended ? 'status-suspended' : 'status-active'}>
-            {state.selected_process_statistics.value?.definition.suspended ? 'Suspended' : 'Active'}
+          <h1>{state.selected_process_statistics.value?.definition.name || "N/A - Process name is not defined"}</h1>
+          <p class={state.selected_process_statistics.value?.definition.suspended ? "status-suspended" : "status-active"}>
+            {state.selected_process_statistics.value?.definition.suspended ? "Suspended" : "Active"}
           </p>
           <table class="process-details-table">
-            <thead class="screen-hidden">
-            <tr>
-              <th scope="col">Key</th>
-              <th scope="col">Value</th>
-            </tr>
-            </thead>
             <tbody>
-            <tr>
-              <th scope="row">Running Instances</th>
-              <td>{state.selected_process_statistics.value?.instances || 0}</td>
-            </tr>
-            <tr>
-              <th scope="row">Open Incidents</th>
-              <td>{state.selected_process_statistics.value?.incidents.length || 0}</td>
-            </tr>
-            <tr>
-              <th scope="row">Failed Jobs</th>
-              <td>{state.selected_process_statistics.value?.failedJobs || 0}</td>
-            </tr>
-            <tr>
-              <th scope="row">Tenant</th>
-              <td>{state.selected_process_statistics.value?.definition.tenant || 'N/A'}</td>
-            </tr>
-            <tr>
-              <th scope="row">Version</th>
-              <td>{state.selected_process_statistics.value?.definition.version || 'N/A'}</td>
-            </tr>
-            <tr>
-              <th scope="row">Version Tag</th>
-              <td>{state.selected_process_statistics.value?.definition.versionTag || 'N/A'}</td>
-            </tr>
-            <tr>
-              <th scope="row">Startable in Tasklist</th>
-              <td>{state.selected_process_statistics.value?.definition.startableInTasklist ? 'Yes' : 'No'}</td>
-            </tr>
-            <tr>
-              <th scope="row">History Time to Live</th>
-              <td>{state.selected_process_statistics.value?.definition.historyTimeToLive || 'N/A'}</td>
-            </tr>
-            <tr>
-              <th scope="row">Process Definition ID</th>
-              <td>
-                <a href={`/processes/${state.selected_process_statistics.value?.definition.id}/instances`}>
-                  {state.selected_process_statistics.value?.definition.id || 'N/A'}
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Process Definition Key</th>
-              <td>{state.selected_process_statistics.value?.definition.key || 'N/A'}</td>
-            </tr>
+              <tr>
+                <td class="strong">Running Instances:</td>
+                <td>{state.selected_process_statistics.value?.instances || 0}</td>
+              </tr>
+              <tr>
+                <td class="strong">Open Incidents:</td>
+                <td>{state.selected_process_statistics.value?.incidents.length || 0}</td>
+              </tr>
+              <tr>
+                <td class="strong">Failed Jobs:</td>
+                <td>{state.selected_process_statistics.value?.failedJobs || 0}</td>
+              </tr>
+              <tr>
+                <td class="strong">Tenant:</td>
+                <td>{state.selected_process_statistics.value?.definition.tenant || "N/A"}</td>
+              </tr>
+              <tr>
+                <td class="strong">Version:</td>
+                <td>{state.selected_process_statistics.value?.definition.version || "N/A"}</td>
+              </tr>
+              <tr>
+                <td class="strong">Version Tag:</td>
+                <td>{state.selected_process_statistics.value?.definition.versionTag || "N/A"}</td>
+              </tr>
+              <tr>
+                <td class="strong">Startable in Tasklist:</td>
+                <td>{state.selected_process_statistics.value?.definition.startableInTasklist ? "Yes" : "No"}</td>
+              </tr>
+              <tr>
+                <td class="strong">History Time to Live:</td>
+                <td>{state.selected_process_statistics.value?.definition.historyTimeToLive || "N/A"}</td>
+              </tr>
+              <tr>
+                <td class="strong">Process Definition ID:</td>
+                <td>{state.selected_process_statistics.value?.definition.id || "N/A"}</td>
+              </tr>
+              <tr>
+                <td class="strong">Process Definition Key:</td>
+                <td>{state.selected_process_statistics.value?.definition.key || "N/A"}</td>
+              </tr>
+              <tr>
+                <td>
+                  <a href={`/processes/${state.selected_process_statistics.value?.definition.id}/instances`}>
+                  <Icons.link_out /> {state.selected_process_statistics.value?.definition.name || state.selected_process_statistics.value?.definition.key}
+                  </a>
+                </td>
+              </tr>
             </tbody>
           </table>
 
-          <BpmnViewer state={state} process_definition_id={state.selected_process_statistics.value?.definition.id}/>
+          {/* BPMN Viewer */}
+          <div class="bpmn-viewer">
+            {state.bpmn20Xml.value ? (
+              <ReactBpmn
+                diagramXML={state.bpmn20Xml.value}
+                onLoading={() => console.log("Loading BPMN...")}
+                onShown={() => {
+                  const diagramContainer = document.querySelector(".bpmn-viewer");
+                  if (diagramContainer) {
+                    const breadcrumbs = diagramContainer.querySelector(".bjs-breadcrumbs");
+                    const poweredBy = diagramContainer.querySelector(".bjs-powered-by");
+                    if (breadcrumbs) {
+                      breadcrumbs.remove();
+                    }
+                    if (poweredBy) {
+                      poweredBy.remove();
+                    }
+                  }
+                }}
+                onError={(error) => console.error("Error loading BPMN diagram:", error)}
+              />
+            ) : (
+              <p>Loading process diagram...</p>
+            )}
+          </div>
 
           {/* Delete Button */}
           <button onClick={openModal} class="delete-button">
@@ -191,8 +209,10 @@ export const ProcessDetails = () => {
           )}
         </>
       ) : (
-        <h1 class="info-box">No deployments found</h1>
+        <h1 class="info-box">Select a resource to view details.</h1>
       )}
     </div>
-  )
-}
+  );
+};
+
+export { ProcessDetails };

@@ -59,6 +59,15 @@
     padding: var(--spacing-1);
   }
   
+  .checkbox-hover:hover {
+    cursor: pointer;
+    color: var(--color-primary);
+  }
+
+  .warning {
+    color: var(--color-warning);
+  }
+
   .modal-overlay {
     position: fixed;
     top: 0;

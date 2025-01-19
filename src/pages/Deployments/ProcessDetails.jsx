@@ -112,7 +112,7 @@ const ProcessDetails = () => {
                 <div class="title">
                   <h3>
                     Delete Deployment Resource:{" "}
-                    {globalState.selectedDeployment.value.name}
+                    {globalState.selectedProcessStatistics.value?.definition.name}
                   </h3>
                 </div>
                 <div class="modal-body">
@@ -183,13 +183,13 @@ const ProcessDetails = () => {
                         class="btn btn-primary"
                         onClick={handleDelete}
                         disabled={
-                          globalState.selectedDeployment.value.instances > 0 &&
+                          globalState.selectedProcessStatistics.value?.instances > 0 &&
                           !cascade
                         }
                       >
                         Delete
                       </button>
-                      {globalState.selectedDeployment.value.instances > 0 &&
+                      {globalState.selectedProcessStatistics.value?.instances > 0 &&
                         !cascade && (
                           <span class="tooltip">
                             There are running process instances. Enable the

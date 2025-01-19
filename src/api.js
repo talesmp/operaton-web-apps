@@ -215,7 +215,6 @@ export const post_task_form = (state, task_id, data) => {
 //  DEPLOYMENTS PAGE
 
 export const get_deployment = (state) => { 
-  console.log("Get Deployments")
   fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
     .then((res) => res.json())
     .then((data) => {
@@ -230,7 +229,6 @@ export const get_deployment = (state) => {
 };
 
 export const get_deployment_resources = (state, deploymentId) => {
-  console.log("Get Deployment Resources")
   fetch(`${_url(state)}/deployment/${deploymentId}/resources`)
     .then((res) => res.json())
     .then((data) => {
@@ -250,7 +248,6 @@ export const get_deployment_resources = (state, deploymentId) => {
 };
 
 export const get_bpmn20xml = (state, deploymentId, resourceId) => {
-  console.log("Get bpmn20Xml")
   fetch(`${_url(state)}/deployment/${deploymentId}/resources/${resourceId}/data`)
     .then((res) => res.text())
     .then((xml) => {
@@ -259,7 +256,6 @@ export const get_bpmn20xml = (state, deploymentId, resourceId) => {
 };
 
 export const delete_deployment = (state, deployment_id, params = {}) => {
-  console.log("Delete Deployment")
   const queryParams = new URLSearchParams(params).toString();
 
   fetch(`${_url(state)}/deployment/${deployment_id}?${queryParams}`, {
@@ -267,12 +263,8 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
   })
     .then((response) => {
       if (response.ok) {
-        console.log(`Deployment ${deployment_id} deleted successfully.`);
-        
-        // Aktualisiere die Deployment-Liste nach dem Löschen
         get_deployment(state);
 
-        // Setze globale View zurück
         state.selected_deployment.value = null;
         state.deployment_resources.value = [];
         state.selected_resource.value = null;
@@ -290,7 +282,6 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
 };
 
 export const get_deployment_instance_count = (state, deployment_id) => {
-  console.log("Get Deployment Count")
   return fetch(`${_url(state)}/process-instance/count`, {
     method: "POST",
     headers: {
@@ -316,7 +307,6 @@ export const get_deployment_instance_count = (state, deployment_id) => {
 };
 
 export const get_process_definition_statistics = (state, processDefinitionId) => {
-  console.log("Get Process Definition Statistics")
   fetch(`${_url(state)}/process-definition/statistics`)
     .then((res) => res.json())
     .then((data) => {
@@ -334,7 +324,6 @@ export const get_process_definition_statistics = (state, processDefinitionId) =>
 };
 
 export const get_process_definition_2 = (state, deploymentId, resourceName) => {
-  console.log("Get Proess Definition_2")
   fetch(
     `${_url(state)}/process-definition?deploymentId=${deploymentId}&resourceName=${encodeURIComponent(
       resourceName

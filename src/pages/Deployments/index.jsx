@@ -7,19 +7,26 @@ import "./assets/styles.css";
 import { useContext } from "preact/hooks";
 
 const Deployments = () => {
-  const state = useContext(AppState)
+  const state = useContext(AppState);
 
-  void get_deployment(state)
-  console.log(state)
+  // Initialisiere Deployments, falls noch keine geladen wurden
+  if (!state.deployments.value.length) {
+    get_deployment(state);
+  }
 
   return (
     <div class="fade-in deployments-container">
-      <DeploymentsList />
-      <ResourcesList />
-      <ProcessDetails />
+      {state.deployments.value.length > 0 ? (
+        <>
+          <DeploymentsList />
+          <ResourcesList />
+          <ProcessDetails />
+        </>
+      ) : (
+        <p>Loading deployments...</p>
+      )}
     </div>
   );
+};
 
-}
-
-export  { Deployments };
+export { Deployments };

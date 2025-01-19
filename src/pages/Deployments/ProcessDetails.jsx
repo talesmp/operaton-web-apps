@@ -10,8 +10,9 @@ const ProcessDetails = () => {
   const [skipIoMappings, setSkipIoMappings] = useState(true);
 
   const handleDelete = () => {
+    console.table(globalState)
     delete_deployment(
-      globalState.selectedDeployment.value.deploymentId,
+      globalState.selectedDeployment.value.id,
       {
         cascade,
         skipCustomListeners,
@@ -102,7 +103,7 @@ const ProcessDetails = () => {
 
           {/* Delete Button */}
           <button onClick={() => setShowModal(true)} class="delete-button">
-            Delete Deployment Resource
+            Delete Deployment
           </button>
 
           {/* Modal */}
@@ -111,8 +112,8 @@ const ProcessDetails = () => {
               <div class="modal-content">
                 <div class="title">
                   <h3>
-                    Delete Deployment Resource:{" "}
-                    {globalState.selectedProcessStatistics.value?.definition.name}
+                    Delete Deployment:{" "}
+                    {globalState.selectedDeployment.value?.name}
                   </h3>
                 </div>
                 <div class="modal-body">

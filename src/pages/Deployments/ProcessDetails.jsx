@@ -1,6 +1,6 @@
 import ReactBpmn from "react-bpmn";
 import { globalState } from "./globalState";
-import { delete_deployment } from "./api/api";
+import { delete_deployment, fetchDeploymentInstancesCountById } from "./api/api";
 import { useState } from "preact/hooks";
 
 const ProcessDetails = () => {
@@ -8,24 +8,37 @@ const ProcessDetails = () => {
   const [cascade, setCascade] = useState(false);
   const [skipCustomListeners, setSkipCustomListeners] = useState(true);
   const [skipIoMappings, setSkipIoMappings] = useState(true);
+  const [instanceCount, setInstanceCount] = useState(0);
 
   const handleDelete = () => {
-    console.table(globalState)
-    delete_deployment(
-      globalState.selectedDeployment.value.id,
-      {
-        cascade,
-        skipCustomListeners,
-        skipIoMappings,
-      }
-    );
+    console.table(globalState);
+    delete_deployment(globalState.selectedDeployment.value.id, {
+      cascade,
+      skipCustomListeners,
+      skipIoMappings,
+    });
     setShowModal(false);
+  };
+
+  const openModal = () => {
+    if (globalState.selectedDeployment.value) {
+      fetchDeploymentInstancesCountById(globalState.selectedDeployment.value.id)
+        .then((data) => {
+          setInstanceCount(data.count || 0);
+        })
+        .catch((error) => {
+          console.error("Error fetching instance count:", error);
+          setInstanceCount(0);
+        });
+    }
+    setShowModal(true);
   };
 
   return (
     <div class="process-details">
       {globalState.selectedProcessStatistics.value ? (
         <>
+          {/* Process Details */}
           <h1>{globalState.selectedProcessStatistics.value?.definition.name || "N/A - Process name is not defined"}</h1>
           <p class={globalState.selectedProcessStatistics.value?.definition.suspended ? "status-suspended" : "status-active"}>
             {globalState.selectedProcessStatistics.value?.definition.suspended ? "Suspended" : "Active"}
@@ -75,13 +88,13 @@ const ProcessDetails = () => {
             </tbody>
           </table>
 
+          {/* BPMN Viewer */}
           <div class="bpmn-viewer">
             {globalState.bpmnXml.value ? (
               <ReactBpmn
                 diagramXML={globalState.bpmnXml.value}
                 onLoading={() => console.log("Loading BPMN...")}
                 onShown={() => {
-                  // Entferne Breadcrumbs nach dem Rendern
                   const diagramContainer = document.querySelector(".bpmn-viewer");
                   if (diagramContainer) {
                     const breadcrumbs = diagramContainer.querySelector(".bjs-breadcrumbs");
@@ -102,7 +115,7 @@ const ProcessDetails = () => {
           </div>
 
           {/* Delete Button */}
-          <button onClick={() => setShowModal(true)} class="delete-button">
+          <button onClick={openModal} class="delete-button">
             Delete Deployment
           </button>
 
@@ -111,55 +124,52 @@ const ProcessDetails = () => {
             <div class="modal-overlay">
               <div class="modal-content">
                 <div class="title">
-                  <h3>
-                    Delete Deployment:{" "}
-                    {globalState.selectedDeployment.value?.name}
-                  </h3>
+                  <h3>Delete Deployment: {globalState.selectedDeployment.value?.name}</h3>
                 </div>
                 <div class="modal-body">
                   <hr />
-                  <form
-                    style="display: flex; flex-direction: column; gap: var(--spacing-2);"
-                  >
-                    <div className="form-group">
-                      <input
-                        type="checkbox"
-                        checked={cascade}
-                        onChange={(e) => setCascade(e.target.checked)}
-                      />
+                  {instanceCount > 0 && (
+                    <p class="info-box">
+                      There are {instanceCount} running process instances which belong to this deployment. <br />In order to delete this deployment, it is necessary to enable the Cascade flag.
+                    </p>
+                  )}
+                  <form>
+                    <div class="form-group">
                       <label>
+                        <input
+                          type="checkbox"
+                          checked={cascade}
+                          onChange={(e) => setCascade(e.target.checked)}
+                        />
                         Cascade
                         <span>
-                          If enabled, all instances and historic instances
-                          related to this deployment will be deleted.
+                          If enabled, all instances and historic instances related to this deployment will be deleted.
                         </span>
                       </label>
                     </div>
                     <div className="form-group">
+                    <label>
                       <input
                         type="checkbox"
                         checked={skipCustomListeners}
                         onChange={(e) => setSkipCustomListeners(e.target.checked)}
                       />
-                      <label>
                         Skip Custom Listeners
                         <span>
-                          If enabled, only built-in listeners will be notified
-                          of the end event.
+                          If enabled, only built-in listeners will be notified of the end event.
                         </span>
                       </label>
                     </div>
                     <div className="form-group">
+                    <label>
                       <input
                         type="checkbox"
                         checked={skipIoMappings}
                         onChange={(e) => setSkipIoMappings(e.target.checked)}
                       />
-                      <label>
                         Skip IO Mappings
                         <span>
-                          If enabled, IO mappings will be skipped during
-                          deployment removal.
+                          If enabled, IO mappings will be skipped during deployment removal.
                         </span>
                       </label>
                     </div>
@@ -170,33 +180,23 @@ const ProcessDetails = () => {
                   <p class="modal-footer-hint">
                     Are you sure you want to permanently delete this deployment?
                   </p>
-
                   <div class="modal-footer-buttons">
-                    <button
-                      class="btn btn-secondary"
-                      onClick={() => setShowModal(false)}
-                    >
+                    <button class="btn btn-secondary" onClick={() => setShowModal(false)}>
                       Cancel
                     </button>
-
                     <div class="tooltip-container">
                       <button
                         class="btn btn-primary"
                         onClick={handleDelete}
-                        disabled={
-                          globalState.selectedProcessStatistics.value?.instances > 0 &&
-                          !cascade
-                        }
+                        disabled={instanceCount > 0 && !cascade}
                       >
                         Delete
                       </button>
-                      {globalState.selectedProcessStatistics.value?.instances > 0 &&
-                        !cascade && (
-                          <span class="tooltip">
-                            There are running process instances. Enable the
-                            Cascade option to delete this deployment.
-                          </span>
-                        )}
+                      {instanceCount > 0 && !cascade && (
+                        <span class="tooltip">
+                          There are {instanceCount} running process instances. Enable the Cascade option to delete this deployment.
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

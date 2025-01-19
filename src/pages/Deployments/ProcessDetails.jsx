@@ -1,10 +1,12 @@
 import ReactBpmn from "react-bpmn";
-import { globalState } from "./globalState";
-import { delete_deployment, fetchDeploymentInstancesCountById } from "./api/api";
-import { useState } from "preact/hooks";
+import { get_deployment_instance_count } from "../../api";
+import { delete_deployment } from "../../api";
+import { useContext, useState } from "preact/hooks";
 import * as Icons from '../../assets/icons'
+import { AppState } from "../../state";
 
 const ProcessDetails = () => {
+  const state = useContext(AppState)
   const [showModal, setShowModal] = useState(false);
   const [cascade, setCascade] = useState(false);
   const [skipCustomListeners, setSkipCustomListeners] = useState(true);
@@ -12,8 +14,7 @@ const ProcessDetails = () => {
   const [instanceCount, setInstanceCount] = useState(0);
 
   const handleDelete = () => {
-    console.table(globalState);
-    delete_deployment(globalState.selectedDeployment.value.id, {
+    delete_deployment(state.selected_deployment.value.id, {
       cascade,
       skipCustomListeners,
       skipIoMappings,
@@ -22,8 +23,8 @@ const ProcessDetails = () => {
   };
 
   const openModal = () => {
-    if (globalState.selectedDeployment.value) {
-      fetchDeploymentInstancesCountById(globalState.selectedDeployment.value.id)
+    if (state.selected_deployment.value) {
+      get_deployment_instance_count(state, state.selected_deployment.value.id)
         .then((data) => {
           setInstanceCount(data.count || 0);
         })
@@ -37,59 +38,59 @@ const ProcessDetails = () => {
 
   return (
     <div class="process-details">
-      {globalState.selectedProcessStatistics.value ? (
+      {state.selected_process_statistics.value ? (
         <>
           {/* Process Details */}
-          <h1>{globalState.selectedProcessStatistics.value?.definition.name || "N/A - Process name is not defined"}</h1>
-          <p class={globalState.selectedProcessStatistics.value?.definition.suspended ? "status-suspended" : "status-active"}>
-            {globalState.selectedProcessStatistics.value?.definition.suspended ? "Suspended" : "Active"}
+          <h1>{state.selected_process_statistics.value?.definition.name || "N/A - Process name is not defined"}</h1>
+          <p class={state.selected_process_statistics.value?.definition.suspended ? "status-suspended" : "status-active"}>
+            {state.selected_process_statistics.value?.definition.suspended ? "Suspended" : "Active"}
           </p>
           <table class="process-details-table">
             <tbody>
               <tr>
                 <td class="strong">Running Instances:</td>
-                <td>{globalState.selectedProcessStatistics.value?.instances || 0}</td>
+                <td>{state.selected_process_statistics.value?.instances || 0}</td>
               </tr>
               <tr>
                 <td class="strong">Open Incidents:</td>
-                <td>{globalState.selectedProcessStatistics.value?.incidents.length || 0}</td>
+                <td>{state.selected_process_statistics.value?.incidents.length || 0}</td>
               </tr>
               <tr>
                 <td class="strong">Failed Jobs:</td>
-                <td>{globalState.selectedProcessStatistics.value?.failedJobs || 0}</td>
+                <td>{state.selected_process_statistics.value?.failedJobs || 0}</td>
               </tr>
               <tr>
                 <td class="strong">Tenant:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.tenant || "N/A"}</td>
+                <td>{state.selected_process_statistics.value?.definition.tenant || "N/A"}</td>
               </tr>
               <tr>
                 <td class="strong">Version:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.version || "N/A"}</td>
+                <td>{state.selected_process_statistics.value?.definition.version || "N/A"}</td>
               </tr>
               <tr>
                 <td class="strong">Version Tag:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.versionTag || "N/A"}</td>
+                <td>{state.selected_process_statistics.value?.definition.versionTag || "N/A"}</td>
               </tr>
               <tr>
                 <td class="strong">Startable in Tasklist:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.startableInTasklist ? "Yes" : "No"}</td>
+                <td>{state.selected_process_statistics.value?.definition.startableInTasklist ? "Yes" : "No"}</td>
               </tr>
               <tr>
                 <td class="strong">History Time to Live:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.historyTimeToLive || "N/A"}</td>
+                <td>{state.selected_process_statistics.value?.definition.historyTimeToLive || "N/A"}</td>
               </tr>
               <tr>
                 <td class="strong">Process Definition ID:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.id || "N/A"}</td>
+                <td>{state.selected_process_statistics.value?.definition.id || "N/A"}</td>
               </tr>
               <tr>
                 <td class="strong">Process Definition Key:</td>
-                <td>{globalState.selectedProcessStatistics.value?.definition.key || "N/A"}</td>
+                <td>{state.selected_process_statistics.value?.definition.key || "N/A"}</td>
               </tr>
               <tr>
                 <td>
-                  <a href={`/processes/${globalState.selectedProcessStatistics.value?.definition.id}/instances`}>
-                  <Icons.link_out /> {globalState.selectedProcessStatistics.value?.definition.name || globalState.selectedProcessStatistics.value?.definition.key}
+                  <a href={`/processes/${state.selected_process_statistics.value?.definition.id}/instances`}>
+                  <Icons.link_out /> {state.selected_process_statistics.value?.definition.name || state.selected_process_statistics.value?.definition.key}
                   </a>
                 </td>
               </tr>
@@ -98,9 +99,9 @@ const ProcessDetails = () => {
 
           {/* BPMN Viewer */}
           <div class="bpmn-viewer">
-            {globalState.bpmnXml.value ? (
+            {state.bpmn20Xml.value ? (
               <ReactBpmn
-                diagramXML={globalState.bpmnXml.value}
+                diagramXML={state.bpmn20Xml.value}
                 onLoading={() => console.log("Loading BPMN...")}
                 onShown={() => {
                   const diagramContainer = document.querySelector(".bpmn-viewer");
@@ -132,18 +133,18 @@ const ProcessDetails = () => {
             <div class="modal-overlay">
               <div class="modal-content">
                 <div class="title">
-                  <h3>Delete Deployment: {globalState.selectedDeployment.value?.name}</h3>
+                  <h3>Delete Deployment: {state.selected_deployment.value?.name}</h3>
                 </div>
                 <div class="modal-body">
                   <hr />
                   {instanceCount > 0 && (
-                    <p class="info-box">
+                    <p class="info-box warning">
                       There are {instanceCount} running process instances which belong to this deployment. <br />In order to delete this deployment, it is necessary to enable the Cascade flag.
                     </p>
                   )}
                   <form>
                     <div class="form-group">
-                      <label>
+                      <label class="checkbox-hover">
                         <input
                           type="checkbox"
                           checked={cascade}
@@ -156,7 +157,7 @@ const ProcessDetails = () => {
                       </label>
                     </div>
                     <div className="form-group">
-                      <label>
+                      <label class="checkbox-hover">
                         <input
                           type="checkbox"
                           checked={skipCustomListeners}
@@ -169,7 +170,7 @@ const ProcessDetails = () => {
                       </label>
                     </div>
                     <div className="form-group">
-                      <label>
+                      <label class="checkbox-hover">
                         <input
                           type="checkbox"
                           checked={skipIoMappings}
@@ -200,11 +201,6 @@ const ProcessDetails = () => {
                       >
                         Delete
                       </button>
-                      {instanceCount > 0 && !cascade && (
-                        <span class="tooltip">
-                          There are {instanceCount} running process instances. Enable the Cascade option to delete this deployment.
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>

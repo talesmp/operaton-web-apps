@@ -1,42 +1,37 @@
-import { fetchResources } from "./api/api";
-import { globalState } from "./globalState";
+import { useContext } from 'preact/hooks';
+import { AppState } from '../../state.js'
+import { get_deployment_resources } from '../../api.js';
+import { resetSelectedDetails } from "./globalState";
 
-const DeploymentsList = () => {
+export const DeploymentsList = () => {
+  const state = useContext(AppState)
+  
   return (
     <div class="deployments-list list-scrollable">
       <h1 class="title">Deployments</h1>
       <ul class="tile-list">
-  {globalState.deployments.value.map((deployment) => (
-    <li
-      key={deployment.id}
-      class={`tile-item ${globalState.selectedDeployment.value?.id === deployment.id ? "selected" : ""}`}
-      onClick={() => {
-        resetSelectedDetails(); // Setze alle Details zurück
-        globalState.selectedDeployment.value = deployment; // Setze das neue Deployment
-        fetchResources(deployment.id); // Lade die Ressourcen des ausgewählten Deployments
-      }}
-    >
-      <div class="padding-1">
-        <header>
-          {deployment?.name ? (
-            <span class="title">{deployment?.name}</span>
-          ) : (
-            <span class="title">N/A</span>
-          )}
-        </header>
-      </div>
-    </li>
-  ))}
-</ul>
+        {state.deployments.value.map((deployment) => (
+          <li
+            key={deployment.id}
+            class={`tile-item ${state.selected_deployment.value?.id === deployment.id ? "selected" : ""}`}
+            onClick={() => {
+              resetSelectedDetails(); 
+              state.selected_deployment.value = deployment; 
+              get_deployment_resources(state, deployment.id)
+            }}
+          >
+            <div class="padding-1">
+              <header>
+                {deployment?.name ? (
+                  <span class="title">{deployment?.name}</span>
+                ) : (
+                  <span class="title">N/A</span>
+                )}
+              </header>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
-
-const resetSelectedDetails = () => {
-  globalState.selectedResource.value = null;
-  globalState.selectedProcessStatistics.value = null;
-  globalState.selectedProcessDetails.value = null;
-  globalState.bpmnXml.value = null;
-};
-
-export { DeploymentsList };

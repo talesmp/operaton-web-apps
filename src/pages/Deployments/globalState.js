@@ -1,11 +1,10 @@
-import { signal } from "@preact/signals";
+import { AppState } from "../../state";
+import { useContext } from "preact/hooks";
 
-export const globalState = {
-  deployments: signal([]),
-  selectedDeployment: signal(null),
-  resources: signal([]),
-  selectedResource: signal(null),
-  selectedProcessDetails: signal(null),
-  selectedProcessStatistics: signal(null),
-  bpmnXml: signal(null),
+export const resetSelectedDetails = () => {
+const state = useContext(AppState)
+
+  state.selected_resource.value = null;
+  state.selected_process_statistics.value = null;
+  state.bpmn20Xml.value = null;
 };

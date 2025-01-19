@@ -41,6 +41,12 @@ const createAppState = () => {
   const task_change_result = signal(null) // used for reloading the task
   const task_generated_form = signal(null)
   const task_deployed_form = signal(null)
+  const deployments = signal(null)
+  const selected_deployment = signal(null)
+  const deployment_resources = signal(null)
+  const selected_resource = signal(null)
+  const selected_process_statistics = signal(null)
+  const bpmn20Xml = signal(null)
   // admin
   // const admin_users = signal(null)
 
@@ -68,7 +74,13 @@ const createAppState = () => {
     user_count,
     user_create,
     user_profile,
-    users
+    users,
+    deployments,
+    selected_deployment,
+    deployment_resources,
+    selected_resource,
+    selected_process_statistics,
+    bpmn20Xml
   }
 }
 

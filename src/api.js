@@ -209,3 +209,139 @@ export const post_task_form = (state, task_id, data) => {
 
   return null
 }
+
+
+
+//  DEPLOYMENTS PAGE
+
+export const get_deployment = (state) => { 
+  console.log("Get Deployments")
+  fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
+    .then((res) => res.json())
+    .then((data) => {
+      state.deployments.value = data;
+      
+      // Automatisch das erste Deployment auswählen
+      if (data.length > 0) {
+        state.selected_deployment.value = data[0];
+        get_deployment_resources(state, data[0].id); // Ressourcen für das erste Deployment laden
+      }
+    });
+};
+
+export const get_deployment_resources = (state, deploymentId) => {
+  console.log("Get Deployment Resources")
+  fetch(`${_url(state)}/deployment/${deploymentId}/resources`)
+    .then((res) => res.json())
+    .then((data) => {
+      state.deployment_resources.value = data;
+
+      if (data.length > 0) {
+        const firstResource = data[0];
+        state.selected_resource.value = firstResource;
+
+        get_process_definition_2(state, deploymentId, firstResource.name);
+        get_bpmn20xml(state, deploymentId, firstResource.id);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching resources:", error);
+    });
+};
+
+export const get_bpmn20xml = (state, deploymentId, resourceId) => {
+  console.log("Get bpmn20Xml")
+  fetch(`${_url(state)}/deployment/${deploymentId}/resources/${resourceId}/data`)
+    .then((res) => res.text())
+    .then((xml) => {
+      state.bpmn20Xml.value = xml;
+    });
+};
+
+export const delete_deployment = (state, deployment_id, params = {}) => {
+  console.log("Delete Deployment")
+  const queryParams = new URLSearchParams(params).toString();
+
+  fetch(`${_url(state)}/deployment/${deployment_id}?${queryParams}`, {
+    method: "DELETE",
+  })
+    .then((response) => {
+      if (response.ok) {
+        console.log(`Deployment ${deployment_id} deleted successfully.`);
+        
+        // Aktualisiere die Deployment-Liste nach dem Löschen
+        get_deployment(state);
+
+        // Setze globale View zurück
+        state.selected_deployment.value = null;
+        state.deployment_resources.value = [];
+        state.selected_resource.value = null;
+        state.selected_process_statistics.value = null;
+        state.bpmn20Xml.value = null;
+      } else {
+        response.json().then((json) => {
+          console.error(`Failed to delete deployment ${deployment_id}:`, json.message);
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(`Error deleting deployment ${deployment_id}:`, error);
+    });
+};
+
+export const get_deployment_instance_count = (state, deployment_id) => {
+  console.log("Get Deployment Count")
+  return fetch(`${_url(state)}/process-instance/count`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      deploymentId: deployment_id,
+    }),
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to fetch instance count for deployment ${deployment_id}`);
+      }
+      return res.json();
+    })
+    .then((json) => {
+      return json;
+    })
+    .catch((error) => {
+      console.error("Error fetching deployment instance count:", error);
+      return null; 
+    });
+};
+
+export const get_process_definition_statistics = (state, processDefinitionId) => {
+  console.log("Get Process Definition Statistics")
+  fetch(`${_url(state)}/process-definition/statistics`)
+    .then((res) => res.json())
+    .then((data) => {
+      const filteredData = data.filter(
+        (item) => item.definition.id === processDefinitionId
+      );
+
+      state.selected_process_statistics.value =
+        filteredData.length > 0 ? filteredData[0] : null;
+    })
+    .catch((error) => {
+      console.error("Error fetching process definition statistics:", error);
+      state.selected_process_statistics.value = null; 
+    });
+};
+
+export const get_process_definition_2 = (state, deploymentId, resourceName) => {
+  console.log("Get Proess Definition_2")
+  fetch(
+    `${_url(state)}/process-definition?deploymentId=${deploymentId}&resourceName=${encodeURIComponent(
+      resourceName
+    )}&maxResults=50&firstResult=0`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      get_process_definition_statistics(state, data[0].id)
+    });
+};

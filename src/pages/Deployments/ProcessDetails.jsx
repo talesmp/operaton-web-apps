@@ -14,7 +14,7 @@ const ProcessDetails = () => {
   const [instanceCount, setInstanceCount] = useState(0);
 
   const handleDelete = () => {
-    delete_deployment(state.selected_deployment.value.id, {
+    delete_deployment(state, state.selected_deployment.value.id, {
       cascade,
       skipCustomListeners,
       skipIoMappings,

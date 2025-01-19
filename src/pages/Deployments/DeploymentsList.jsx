@@ -1,7 +1,6 @@
 import { useContext } from 'preact/hooks';
 import { AppState } from '../../state.js'
 import { get_deployment_resources } from '../../api.js';
-import { resetSelectedDetails } from "./globalState";
 
 export const DeploymentsList = () => {
   const state = useContext(AppState)
@@ -15,7 +14,7 @@ export const DeploymentsList = () => {
             key={deployment.id}
             class={`tile-item ${state.selected_deployment.value?.id === deployment.id ? "selected" : ""}`}
             onClick={() => {
-              resetSelectedDetails(); 
+              resetSelectedDetails(state); 
               state.selected_deployment.value = deployment; 
               get_deployment_resources(state, deployment.id)
             }}
@@ -34,4 +33,11 @@ export const DeploymentsList = () => {
       </ul>
     </div>
   );
+};
+
+export const resetSelectedDetails = (state) => {
+  state.selected_deployment.value = null;
+  state.selected_resource.value = null;
+  state.selected_process_statistics.value = null;
+  state.bpmn20Xml.value = null;
 };

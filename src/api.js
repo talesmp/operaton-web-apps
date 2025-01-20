@@ -239,6 +239,7 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
  * count all running process instances for a deployment and the related resources
  */
 export const get_deployment_instance_count = (state, deployment_id) => {
+  console.log("Get Deployment Count")
   return fetch(`${_url(state)}/process-instance/count`, {
     method: "POST",
     headers: {

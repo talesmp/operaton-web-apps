@@ -301,6 +301,7 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
  * count all running process instances for a deployment and the related resources
  */
 export const get_deployment_instance_count = (state, deployment_id) => {
+  console.log("Get Deployment Count")
   return fetch(`${_url(state)}/process-instance/count`, {
     method: "POST",
     headers: {
@@ -310,6 +311,19 @@ export const get_deployment_instance_count = (state, deployment_id) => {
       deploymentId: deployment_id,
     }),
   })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to fetch instance count for deployment ${deployment_id}`);
+      }
+      return res.json();
+    })
+    .then((json) => {
+      return json;
+    })
+    .catch((error) => {
+      console.error("Error fetching deployment instance count:", error);
+      return null; 
+    });
 };
 
 

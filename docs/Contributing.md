@@ -15,6 +15,19 @@ To the Operaton web apps aka. the front-end.
    - in the [Forum](https://forum.operaton.org), or
    - in the [Chat](https://chat.operaton.org) (TBD)
 
+## Using the old web apps as an example
+
+You can access the old C7 web apps when starting the backend with the 
+docker-compose file:
+
+- Operaton: `localhost:8084`
+- Camunda 7: `localhost:8088`
+
+For both, the login information are:
+
+- user: `demo`
+- password: `demo`
+
 ## Tools and their Documentation
 
 This project uses:

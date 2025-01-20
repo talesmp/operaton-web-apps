@@ -150,22 +150,31 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
 
 
 
-//  DEPLOYMENTS PAGE
+// ######### DEPLOYMENTS PAGE #########
 
+/**
+ * fetch deployments and sort by deployment time
+ * set the first entry as selected_deployment
+ * fetch deployment resources for details
+ */
 export const get_deployment = (state) => {
   fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
     .then((res) => res.json())
     .then((data) => {
       state.deployments.value = data;
-
-      // Automatisch das erste Deployment auswählen
-      if (data.length > 0) {
+      
+      if (data) {
         state.selected_deployment.value = data[0];
-        get_deployment_resources(state, data[0].id); // Ressourcen für das erste Deployment laden
+        get_deployment_resources(state, data[0].id);
       }
     });
 };
 
+/**
+ * fetch resources for a deployment
+ * fetch the process definition
+ * fetch the bpmn20Xml to display the diagram
+ */
 export const get_deployment_resources = (state, deploymentId) => {
   fetch(`${_url(state)}/deployment/${deploymentId}/resources`)
     .then((res) => res.json())
@@ -176,7 +185,7 @@ export const get_deployment_resources = (state, deploymentId) => {
         const firstResource = data[0];
         state.selected_resource.value = firstResource;
 
-        get_process_definition_2(state, deploymentId, firstResource.name);
+        get_process_definition_by_deployment_id(state, deploymentId, firstResource.name);
         get_bpmn20xml(state, deploymentId, firstResource.id);
       }
     })
@@ -185,6 +194,9 @@ export const get_deployment_resources = (state, deploymentId) => {
     });
 };
 
+/**
+ * fetch the bpmn xml data for a resource
+ */
 export const get_bpmn20xml = (state, deploymentId, resourceId) => {
   fetch(`${_url(state)}/deployment/${deploymentId}/resources/${resourceId}/data`)
     .then((res) => res.text())
@@ -193,6 +205,9 @@ export const get_bpmn20xml = (state, deploymentId, resourceId) => {
     });
 };
 
+/**
+ * delete a deployment and all related resources
+ */
 export const delete_deployment = (state, deployment_id, params = {}) => {
   const queryParams = new URLSearchParams(params).toString();
 
@@ -203,6 +218,7 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
       if (response.ok) {
         get_deployment(state);
 
+        // reset the details view
         state.selected_deployment.value = null;
         state.deployment_resources.value = [];
         state.selected_resource.value = null;
@@ -219,6 +235,9 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
     });
 };
 
+/**
+ * count all running process instances for a deployment and the related resources
+ */
 export const get_deployment_instance_count = (state, deployment_id) => {
   return fetch(`${_url(state)}/process-instance/count`, {
     method: "POST",
@@ -244,6 +263,10 @@ export const get_deployment_instance_count = (state, deployment_id) => {
     });
 };
 
+
+/*
+* fetch process definition details and statistics
+*/
 export const get_process_definition_statistics = (state, processDefinitionId) => {
   fetch(`${_url(state)}/process-definition/statistics`)
     .then((res) => res.json())
@@ -261,7 +284,10 @@ export const get_process_definition_statistics = (state, processDefinitionId) =>
     });
 };
 
-export const get_process_definition_2 = (state, deploymentId, resourceName) => {
+/**
+ * fetch a preocess definition by deploymentId and resource name
+ */
+export const get_process_definition_by_deployment_id = (state, deploymentId, resourceName) => {
   fetch(
     `${_url(state)}/process-definition?deploymentId=${deploymentId}&resourceName=${encodeURIComponent(
       resourceName

@@ -551,7 +551,7 @@ main#processes {
     &::before {
       content: ' ';
       width: var(--spacing-1);
-      background: linear-gradient(to right, #fff, #fff0);
+      background: linear-gradient(to right, var(--background-1), transparent);
       height: 100%;
       display: inline-block;
       position: fixed;

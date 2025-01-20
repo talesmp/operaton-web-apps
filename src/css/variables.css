@@ -63,3 +63,19 @@
     --border: var(--border-width) solid var(--border-color);
     --border-2: var(--border-width-2) solid var(--border-color-2);
 }
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-primary: #5ca2e4;
+
+        --background-1: #111;
+        --background-2: #222;
+
+        --border-color: #555;
+        --border-color-2: #777;
+
+        --text: #fff;
+        --text-2: #ccc;
+        --text-inverted: #000;
+    }
+}

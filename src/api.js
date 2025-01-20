@@ -225,7 +225,7 @@ export const get_deployment = (state) => {
     .then((data) => {
       state.deployments.value = data;
       
-      if (data) {
+      if (data && data.length > 0) {
         state.selected_deployment.value = data[0];
         get_deployment_resources(state, data[0].id); 
       }
@@ -237,8 +237,8 @@ export const get_deployment = (state) => {
  * fetch the process definition
  * fetch the bpmn20Xml to display the diagram
  */
-export const get_deployment_resources = (state, deploymentId) => {
-  fetch(`${_url(state)}/deployment/${deploymentId}/resources`)
+export const get_deployment_resources = (state, deployment_id) => {
+  fetch(`${_url(state)}/deployment/${deployment_id}/resources`)
     .then((res) => res.json())
     .then((data) => {
       state.deployment_resources.value = data;
@@ -247,8 +247,8 @@ export const get_deployment_resources = (state, deploymentId) => {
         const firstResource = data[0];
         state.selected_resource.value = firstResource;
 
-        get_process_definition_by_deployment_id(state, deploymentId, firstResource.name);
-        get_bpmn20xml(state, deploymentId, firstResource.id);
+        get_process_definition_by_deployment_id(state, deployment_id, firstResource.name);
+        get_bpmn20xml(state, deployment_id, firstResource.id);
       }
     })
     .catch((error) => {
@@ -259,8 +259,8 @@ export const get_deployment_resources = (state, deploymentId) => {
 /**
  * fetch the bpmn xml data for a resource
  */
-export const get_bpmn20xml = (state, deploymentId, resourceId) => {
-  fetch(`${_url(state)}/deployment/${deploymentId}/resources/${resourceId}/data`)
+export const get_bpmn20xml = (state, deployment_id, resource_id) => {
+  fetch(`${_url(state)}/deployment/${deployment_id}/resources/${resource_id}/data`)
     .then((res) => res.text())
     .then((xml) => {
       state.bpmn20Xml.value = xml;
@@ -330,12 +330,12 @@ export const get_deployment_instance_count = (state, deployment_id) => {
 /*
 * fetch process definition details and statistics
 */
-export const get_process_definition_statistics = (state, processDefinitionId) => {
+export const get_process_definition_statistics = (state, process_definition_id) => {
   fetch(`${_url(state)}/process-definition/statistics`)
     .then((res) => res.json())
     .then((data) => {
       const filteredData = data.filter(
-        (item) => item.definition.id === processDefinitionId
+        (item) => item.definition.id === process_definition_id
       );
 
       state.selected_process_statistics.value =
@@ -350,10 +350,10 @@ export const get_process_definition_statistics = (state, processDefinitionId) =>
 /**
  * fetch a preocess definition by deploymentId and resource name
  */
-export const get_process_definition_by_deployment_id = (state, deploymentId, resourceName) => {
+export const get_process_definition_by_deployment_id = (state, deployment_id, resource_name) => {
   fetch(
-    `${_url(state)}/process-definition?deploymentId=${deploymentId}&resourceName=${encodeURIComponent(
-      resourceName
+    `${_url(state)}/process-definition?deploymentId=${deployment_id}&resourceName=${encodeURIComponent(
+      resource_name
     )}&maxResults=50&firstResult=0`
   )
     .then((res) => res.json())

@@ -9,8 +9,8 @@ import { useContext } from "preact/hooks";
 const Deployments = () => {
   const state = useContext(AppState);
 
-  // Initialisiere Deployments, falls noch keine geladen wurden
-  if (!state.deployments.value.length) {
+  if (!state.deployments.value.length && !state.deployments_loaded.value) {
+    state.deployments_loaded.value = true; 
     get_deployment(state);
   }
 
@@ -23,7 +23,7 @@ const Deployments = () => {
           <ProcessDetails />
         </>
       ) : (
-        <p>Loading deployments...</p>
+        <h1 class="info-box">No deployments found</h1>
       )}
     </div>
   );

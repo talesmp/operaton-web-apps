@@ -248,7 +248,6 @@ export const get_deployment_resources = (state, deployment_id) => {
         state.selected_resource.value = firstResource;
 
         get_process_definition_by_deployment_id(state, deployment_id, firstResource.name);
-        get_bpmn20xml(state, deployment_id, firstResource.id);
       }
     })
     .catch((error) => {
@@ -259,12 +258,10 @@ export const get_deployment_resources = (state, deployment_id) => {
 /**
  * fetch the bpmn xml data for a resource
  */
-export const get_bpmn20xml = (state, deployment_id, resource_id) => {
-  fetch(`${_url(state)}/deployment/${deployment_id}/resources/${resource_id}/data`)
-    .then((res) => res.text())
-    .then((xml) => {
-      state.bpmn20Xml.value = xml;
-    });
+export const get_bpmn20xml = (state, process_definition_id) => {
+  return fetch(`${_url(state)}/process-definition/${process_definition_id}/xml`)
+    .then((response) => response.json())
+    .then((response) => response.bpmn20Xml)
 };
 
 /**
@@ -285,7 +282,6 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
         state.deployment_resources.value = [];
         state.selected_resource.value = null;
         state.selected_process_statistics.value = null;
-        state.bpmn20Xml.value = null;
       } else {
         response.json().then((json) => {
           console.error(`Failed to delete deployment ${deployment_id}:`, json.message);

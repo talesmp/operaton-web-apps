@@ -1,6 +1,6 @@
 import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
-import { api } from '../../api'
+import * as api from '../../api'
 import { AppState } from '../../state.js'
 
 const AdminPage = () => {
@@ -41,7 +41,7 @@ const UserAdminPage = () => {
     state = useContext(AppState),
     { params: { selection_id } } = useRoute()
 
-  selection_id === undefined ? void api(state).user.get() : null
+  selection_id === undefined ? void api.get_users(state) : null
 
   return (selection_id === 'new')
     ? <CreateUserPage />
@@ -64,7 +64,7 @@ const UserList = () =>
       </tr>
       </thead>
       <tbody>
-      {useContext(AppState).api.value?.user.value?.list.value?.map((user) => (
+      {useContext(AppState).users.value?.map((user) => (
         <tr key={user.id}>
           <td><a href={`/admin/users/${user.id}`}>{user.id}</a></td>
           <td>{user.firstName}</td>

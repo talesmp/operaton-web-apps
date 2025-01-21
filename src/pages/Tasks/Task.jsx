@@ -4,7 +4,7 @@ import { Form } from './Form.jsx'
 import { AppState } from '../../state.js'
 import * as api from '../../api'
 import { Tabs } from '../../components/Tabs.jsx'
-import { useSignalEffect } from '@preact/signals'
+import { useSignalEffect, signal } from '@preact/signals'
 
 const Task = () => {
   const state = useContext(AppState)
@@ -46,7 +46,10 @@ const Task = () => {
 }
 
 const TaskDetails = () => {
-  const { task } = useContext(AppState)
+  const { task, task_claim_result, task_assign_result } = useContext(AppState)
+
+  task_claim_result.value = null
+  task_assign_result.value = null
 
   return <section className="task-container">
     {task.value?.def_name} [Process version: v{task.value?.def_version} | <a href="">Show process</a>]
@@ -63,33 +66,27 @@ const TaskDetails = () => {
 const ResetAssigneeBtn = () => {
   const
     state = useContext(AppState),
-    { task, user_profile } = state
+    { task, user_profile, task_claim_result, task_assign_result } = state,
+    user_is_assignee = task.value?.assignee,
+    assignee_is_different_user = task.value?.assignee && !(user_profile.value && user_profile.value.id === task.value?.assignee)
 
-  return (!task.value?.assignee)
-    ?
-    <button onClick={() => claim_task(state, true, task)} class="secondary">
-      <Icons.user_plus /> Claim
-    </button>
-    : (user_profile.value && user_profile.value.id === task.value?.assignee)
-      ? <button onClick={() => claim_task(state, false, task)} class="secondary">
-        <Icons.user_minus /> Unclaim
-      </button>
-      : <button onClick={() => assign_task(state, null, task)} class="secondary">
+  return assignee_is_different_user && !(task_assign_result.value?.success ?? false)
+    ? <button onClick={() => api.assign_task(state, null, task.value.id)} className="secondary">
         <Icons.user_minus /> Reset Assignee
       </button>
-
+    : user_is_assignee || (task_claim_result.value?.success ?? false)
+      ? <button onClick={() => api.unclaim_task(state, task.value.id)} className="secondary">
+          <Icons.user_minus /> Unclaim
+        </button>
+      : <button onClick={() => api.claim_task(state, task.value.id)} className="secondary">
+          <Icons.user_plus /> Claim
+        </button>
 }
 
-const claim_task = (state, claim, selectedTask) => {
-  api.post_task_claim(state, claim, selectedTask.value.id)
-}
-
-const assign_task = (state, assignee, selectedTask) => {
-  api.post_task_assign(state, assignee, selectedTask.value.id)
-}
 
 // update the task list with a changed task, avoid reloading the task list
 const update_task_list = (state, task) => {
+  console.log('map')
   state.tasks.value = state.tasks.peek().map((item) => {
     if (item.id === task.id) {
       task.def_name = item.def_name

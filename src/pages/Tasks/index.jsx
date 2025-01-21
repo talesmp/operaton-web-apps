@@ -1,6 +1,6 @@
 import { useContext } from 'preact/hooks'
 import * as api from '../../api'
-import * as formatter from '../../helper/formatter'
+import * as formatter from '../../helper/date_formatter.js'
 import { Task, task_tabs } from './Task.jsx'
 import * as Icons from '../../assets/icons.jsx'
 import { AppState } from '../../state.js'

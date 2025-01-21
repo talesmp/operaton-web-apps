@@ -48,6 +48,8 @@ const createAppState = () => {
   const tasks = signal(null)
   const selected_task = signal(null)
   const task = signal(null)
+  const task_claim_result = signal(null)
+  const task_assign_result = signal(null)
   const task_generated_form = signal(null)
   const task_deployed_form = signal(null)
   // admin
@@ -70,6 +72,8 @@ const createAppState = () => {
     selected_task,
     selection_values,
     task,
+    task_claim_result,
+    task_assign_result,
     tasks,
     task_generated_form,
     task_deployed_form,

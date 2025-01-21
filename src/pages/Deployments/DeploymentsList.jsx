@@ -62,5 +62,4 @@ export const resetSelectedDetails = (state) => {
   state.selected_deployment.value = null
   state.selected_resource.value = null
   state.selected_process_statistics.value = null
-  state.bpmn20Xml.value = null
 }

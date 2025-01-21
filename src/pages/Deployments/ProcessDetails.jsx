@@ -3,6 +3,7 @@ import { get_deployment_instance_count, delete_deployment } from '../../api'
 import { useContext, useState } from 'preact/hooks'
 import * as Icons from '../../assets/icons'
 import { AppState } from '../../state'
+import { BpmnViewer } from './Bpmn-Viewer'
 
 const ProcessDetails = () => {
   const state = useContext(AppState)
@@ -99,31 +100,7 @@ const ProcessDetails = () => {
             </tbody>
           </table>
 
-          {/* BPMN Viewer */}
-          <div class="bpmn-viewer">
-            {state.bpmn20Xml.value ? (
-              <ReactBpmn
-                diagramXML={state.bpmn20Xml.value}
-                onLoading={() => console.log('Loading BPMN...')}
-                onShown={() => {
-                  const diagramContainer = document.querySelector('.bpmn-viewer')
-                  if (diagramContainer) {
-                    const breadcrumbs = diagramContainer.querySelector('.bjs-breadcrumbs')
-                    const poweredBy = diagramContainer.querySelector('.bjs-powered-by')
-                    if (breadcrumbs) {
-                      breadcrumbs.remove()
-                    }
-                    if (poweredBy) {
-                      poweredBy.remove()
-                    }
-                  }
-                }}
-                onError={(error) => console.error('Error loading BPMN diagram:', error)}
-              />
-            ) : (
-              <p>Loading process diagram...</p>
-            )}
-          </div>
+          <BpmnViewer state={state} process_definition_id={state.selected_process_statistics.value?.definition.id}/>
 
           {/* Delete Button */}
           <button onClick={openModal} class="delete-button">

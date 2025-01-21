@@ -1,5 +1,5 @@
 import { AppState } from "../../state";
-import { get_process_definition_by_deployment_id, get_bpmn20xml } from "../../api";
+import { get_process_definition_by_deployment_id } from "../../api";
 import { useContext } from "preact/hooks";
 
 const ResourcesList = () => {
@@ -14,9 +14,7 @@ const ResourcesList = () => {
             class={state.selected_resource.value?.id === resource.id ? "selected" : ""}
             onClick={() => {
               state.selected_resource.value = resource;
-              get_process_definition_by_deployment_id(state, state.selected_deployment.value.id, resource.name);
-              get_bpmn20xml(state, state.selected_deployment.value.id, resource.id);
-            }}
+              get_process_definition_by_deployment_id(state, state.selected_deployment.value.id, resource.name);       }}
           >
             <div class="padding-1">
               <span class="title">

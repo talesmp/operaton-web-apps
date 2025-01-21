@@ -5,6 +5,7 @@ import { ProcessDetails } from "./ProcessDetails.jsx";
 import { get_deployment } from "../../api.js";
 import "./css/style.css";
 import { useContext } from "preact/hooks";
+import { DeploymentsList_V2 } from "./DeploymentsList_V2.jsx";
 
 const Deployments = () => {
   const state = useContext(AppState);
@@ -19,7 +20,7 @@ const Deployments = () => {
       <h2 class="screen-hidden">Deployments</h2>
       {state.deployments.value.length > 0 ? (
         <>
-          <DeploymentsList />
+          <DeploymentsList_V2 />
           <ResourcesList />
           <ProcessDetails />
         </>

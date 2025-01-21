@@ -5,7 +5,7 @@ import * as Icons from '../../assets/icons'
 import { AppState } from '../../state'
 import { BpmnViewer } from './Bpmn-Viewer'
 
-const ProcessDetails = () => {
+export const ProcessDetails = () => {
   const state = useContext(AppState)
   const [showModal, setShowModal] = useState(false)
   const [cascade, setCascade] = useState(false)
@@ -193,5 +193,3 @@ const ProcessDetails = () => {
     </div>
   )
 }
-
-export { ProcessDetails }

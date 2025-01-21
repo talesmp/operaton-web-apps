@@ -2,7 +2,7 @@ import { AppState } from "../../state";
 import { get_process_definition_by_deployment_id } from "../../api";
 import { useContext } from "preact/hooks";
 
-const ResourcesList = () => {
+export const ResourcesList = () => {
   const state = useContext(AppState)
   return (
     <div class="resources-list">
@@ -29,5 +29,3 @@ const ResourcesList = () => {
     </div>
   );
 };
-
-export { ResourcesList };

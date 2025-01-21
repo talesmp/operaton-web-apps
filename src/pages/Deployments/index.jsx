@@ -3,7 +3,7 @@ import { DeploymentsList } from "./DeploymentsList.jsx";
 import { ResourcesList } from "./ResourcesList.jsx";
 import { ProcessDetails } from "./ProcessDetails.jsx";
 import { get_deployment } from "../../api.js";
-import "./assets/deployments.css";
+import "./css/style.css";
 import { useContext } from "preact/hooks";
 
 const Deployments = () => {

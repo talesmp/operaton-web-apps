@@ -17,10 +17,9 @@ headers_json.set('Content-Type', 'application/json')
 const get = (url, state, signal) =>
   fetch(`${_url(state)}${url}`)
     .then(response => response.json())
-    .then(json => state[signal].value = json)
+    .then(json => signal.value = json)
 
-
-const post = (url, body, state, signal) =>
+const post = (url, body, state, signl) =>
   fetch(`${_url(state)}${url}`,
     {
       headers: headers_json,
@@ -28,121 +27,35 @@ const post = (url, body, state, signal) =>
       body: JSON.stringify(body)
     })
     .then(response => response.ok ? response.ok : Promise.reject(response))
-    .then(result => state[signal].value = { success: true, ...result })
+    .then(result => signl.value = { success: true, ...result })
     .catch(response => response.json())
-    .then(json => state[signal].value = { success: false, ...json })
+    .then(json => signl.value = { success: false, ...json })
 
-export const get_user_profile = (state, user_name) =>
-  // TODO remove `?? 'demo'` when we have working authentication
-  fetch(`${_url(state)}/user/${user_name ?? 'demo'}/profile`, { headers })
-    .then(response => response.json())
-    .then(json => state.user_profile.value = json)
 
-export const get_users = (state) => get('/user', state, 'users')
-export const create_user = (state) => post('/user/create', state.user_create.value, state, 'user_create_response')
-export const get_user_count = (state) => get('/user', state, 'user_count')
-export const get_user_groups = (state, user_name) => post('/group', { member: user_name, firstResult: 0, maxResults: 50 }, state, 'user_groups')
-export const get_process_definitions = (state) => get('/process-definition/statistics', state, 'process_definitions')
-export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, 'process_definition')
-export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, 'process_instances')
-export const get_process_incidents = (state, definition_id) => get(`/history/incident?processDefinitionId=${definition_id}`, state, 'process_incidents')
-export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, 'process_instance')
-export const get_process_instance_variables = (state, instance_id) => get(`/process-instance/${instance_id}/variables`, state, 'selection_values')
-export const get_process_instance_incidents = (state, instance_id) => get(`/history/incident?processInstanceId=${instance_id}`, state, 'process_instance_incidents')
+export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
+export const get_users = (state) => get('/user', state, state.users)
+export const create_user = (state) => post('/user/create', state.user_create.value, state, state.user_create_response)
+export const get_user_count = (state) => get('/user', state, state.user_count)
+export const get_user_groups = (state, user_name) => post('/group', { member: user_name, firstResult: 0, maxResults: 50 }, state, state.user_groups)
+export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.process_definitions)
+export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.process_definition)
+export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.process_instances)
+export const get_process_incidents = (state, definition_id) => get(`/history/incident?processDefinitionId=${definition_id}`, state, state.process_incidents)
+export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, state.process_instance)
+export const get_process_instance_variables = (state, instance_id) => get(`/process-instance/${instance_id}/variables`, state, state.selection_values)
+export const get_process_instance_incidents = (state, instance_id) => get(`/history/incident?processInstanceId=${instance_id}`, state, state.process_instance_incidents)
+export const get_process_instance_tasks = (state, instance_id) => get(`/task?processInstanceId=${instance_id}`, state, state.process_instance_tasks)
+export const get_called_process_instances = (state, instance_id) => get(`/process-instance?superProcessInstance=${instance_id}`, state, state.called_process_instances)
+export const get_called_process_definitions = (state, definition_id) => get(`/process-definition/${definition_id}/static-called-process-definitions`, state, state.called_definitions)
+export const get_job_definitions = (state, definition_id) => get(`/job-definition?processDefinitionId=${definition_id}`, state, state.job_definitions)
+export const get_diagram = (state, definition_id) => get(`/process-definition/${definition_id}/xml`, state, state.process_definition_diagram)
+export const get_task = (state, task_id) => get(`/task/${task_id}`, state, state.task)
+export const get_task_rendered_form = (state, task_id) => get(`/task/${task_id}/rendered-form`, state, state.task_generated_form)
+export const get_task_deployed_form = (state, task_id) => get(`/task/${task_id}/deployed-form`, state, state.task_deployed_form)
+export const claim_task = (state, task_id) => post(`/task/${task_id}/claim`, { userId: state.user_profile.value.id }, state, state.task_claim_result)
+export const unclaim_task = (state, task_id) => post(`/task/${task_id}/unclaim`, { userId: state.user_profile.value.id }, state, state.task_claim_result)
+export const assign_task = (state, assignee, task_id) => post(`/task/${task_id}/assignee`, { userId: assignee }, state, state.task_assign_result)
 
-export const get_process_instance_tasks = (state, instance_id) =>
-  fetch(`${_url(state)}/task?processInstanceId=${instance_id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => (state.process_instance_tasks.value = json))
-
-export const get_called_process_instances = (state, instance_id) =>
-  fetch(`${_url(state)}/process-instance?superProcessInstance=${instance_id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => (state.called_process_instances.value = json))
-
-export const get_called_process_definitions = (state, definition_id) =>
-  fetch(`${_url(state)}/process-definition/${definition_id}/static-called-process-definitions`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.called_definitions.value = json)
-
-export const get_job_definitions = (state, definition_id) =>
-  fetch(`${_url(state)}/job-definition?processDefinitionId=${definition_id}`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.job_definitions.value = json)
-
-export const get_diagram = (state, definition_id) =>
-  fetch(`${_url(state)}/process-definition/${definition_id}/xml`, { headers: headers })
-    .then(response => response.json())
-    .then(json => state.process_definition_diagram.value = json)
-
-// getting all tasks, when no sorting is provided it will use "name" and ascending
-export const get_tasks = (state, sort_key, sort_order) => {
-  const sort = sort_key ? sort_key : 'name'
-  const order = sort_order ? sort_order : 'asc'
-
-  fetch(`${_url(state)}/task?sortBy=${sort}&sortOrder=${order}`, { headers: headers })
-    .then((response) => response.json())
-    .then(json => {
-      const ids = json.map(task => task.processDefinitionId) // list of needed process definitions
-
-      // we need the process definition name for each task
-      get_task_process_definitions(state, ids)
-        .then(defList => {
-          const defMap = new Map() // helper map, mapping ID to process name
-          defList.map(def => defMap.set(def.id, def))
-
-          // set process name to task list
-          json.forEach((task) => {
-            const def = defMap.get(task.processDefinitionId)
-            task.def_name = def ? def.name : ''
-            task.def_version = def ? def.version : ''
-          })
-
-          state.tasks.value = json
-        })
-    })
-}
-
-// API call to enhance the data of the task list, no need for signal here
-const get_task_process_definitions = (state, ids) =>
-  fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers: headers })
-    .then((response) => response.json())
-
-export const get_task = (state, task_id) =>
-  fetch(`${_url(state)}/task/${task_id}`, { headers: headers })
-    .then((response) => response.json())
-    .then(json => state.task.value = json)
-
-export const get_task_rendered_form = (state, task_id) =>
-  fetch(`${_url(state)}/task/${task_id}/rendered-form`, { headers: headers })
-    .then((response) => response.text())
-    .then(text => state.task_generated_form.value = text)
-
-export const get_task_deployed_form = (state, task_id) =>
-  fetch(`${_url(state)}/task/${task_id}/deployed-form`, { headers: headers })
-    .then((response) => response.json())
-    .then(json => state.task_deployed_form.value = json)
-
-// claim and unclaim tasks
-export const post_task_claim = (state, do_claim, task_id) =>
-  fetch(`${_url(state)}/task/${task_id}/${do_claim ? 'claim' : 'unclaim'}`,
-    {
-      headers: headers_json,
-      method: 'POST',
-      body: JSON.stringify({ userId: state.user_profile.value.id })
-    })
-    .then((response) => response.ok)
-    .then(() => get_task(state, task_id))
-
-export const post_task_assign = (state, assignee, task_id) =>
-  fetch(`${_url(state)}/task/${task_id}/assignee`,
-    {
-      headers: headers_json,
-      method: 'POST',
-      body: JSON.stringify({ userId: assignee })
-    })
-    .then((response) => response.ok)
-    .then(() => get_task(state, task_id))
 
 /* return null or error message from server, in fact all validation should be done by HTML5 validation, but who knows ... */
 export const post_task_form = (state, task_id, data) => {
@@ -169,6 +82,45 @@ export const post_task_form = (state, task_id, data) => {
 }
 
 
+export const get_tasks = (state, sort_key = 'name', sort_order = 'asc') =>
+  fetch(`${_url(state)}/task?sortBy=${sort_key}&sortOrder=${sort_order}`, { headers })
+    .then((response) => response.json())
+    .then(json => {
+      const definition_ids = [...new Set((json.map(task => task.processDefinitionId)))]
+
+      // we need the process definition name for each task
+      get_task_process_definitions(state, definition_ids)
+        .then(defList => {
+          const defMap = new Map() // helper map, mapping ID to process name
+          defList.map(def => defMap.set(def.id, def))
+
+          // set process name to task list
+          json.forEach((task) => {
+            const def = defMap.get(task.processDefinitionId)
+            task.def_name = def ? def.name : ''
+            task.def_version = def ? def.version : ''
+          })
+
+          state.tasks.value = json
+        })
+    })
+
+
+// API call to enhance the data of the task list, no need for signal here
+const get_task_process_definitions = (state, ids) =>
+  fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers })
+    .then((response) => response.json())
+
+// claim and unclaim tasks
+
+const url_params = (definition_id) =>
+  new URLSearchParams({
+    unfinished: true,
+    sortBy: 'startTime',
+    sortOrder: 'asc',
+    processDefinitionId: definition_id,
+  }).toString()
+
 
 // ######### DEPLOYMENTS API #########
 
@@ -176,14 +128,14 @@ export const post_task_form = (state, task_id, data) => {
  * Fetches deployments sorted by deployment time, sets the first as selected
  * @sideeffects Updates `state.deployments`, triggers `get_deployment_resources`
  */
-export const get_deployment = (state) => { 
+export const get_deployment = (state) => {
   return fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
     .then((res) => res.json())
     .then((data) => {
-      state.deployments.value = data;      
+      state.deployments.value = data;
       if (data?.length > 0) {
         state.selected_deployment.value = data[0];
-        get_deployment_resources(state, data[0].id); 
+        get_deployment_resources(state, data[0].id);
       }
     })
     .catch((error) => console.error("Error fetching deployments:", error));
@@ -228,7 +180,7 @@ export const get_process_definition_xml = (state, process_definition_id) => {
  */
 export const delete_deployment = (state, deployment_id, params = {}) => {
   const queryParams = new URLSearchParams(params).toString();
-  
+
   return fetch(`${_url(state)}/deployment/${deployment_id}?${queryParams}`, {
     method: "DELETE",
   })

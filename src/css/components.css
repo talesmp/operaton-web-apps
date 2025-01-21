@@ -18,6 +18,7 @@
 .tile-list li {
   border-top: var(--border-width) solid var(--border-color);
   font-size: var(--small-font-size);
+  word-break: break-word;
 }
 .tile-list li a {
   padding: var(--spacing-2);
@@ -41,6 +42,9 @@
   font-size: var(--h4-size);
   font-weight: normal;
   margin: var(--spacing-1) 0;
+}
+.tile-list .title:first-child {
+  margin-top: 0;
 }
 :where(.tile, .tile-list)  :where(header, footer) {
   display: flex;

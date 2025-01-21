@@ -1,16 +1,12 @@
 .deployments-container {
     display: grid;
-    grid-template-columns: 2fr 2fr 7fr;
+    grid-template-columns: max-content max-content 7fr;
     gap: var(--spacing-1);
   }
-  
-  .deployments-list,
-  .resources-list,
+
   .process-details {
-    padding: var(--spacing-1);
-    background-color: #f8f9fa;
-    border-radius: var(--border-radius);
     overflow-y: auto;
+    padding: var(--spacing-2);
   }
 
   .strong {
@@ -23,12 +19,6 @@
     background: #fff;
     border-radius: var(--border-radius);
     overflow: auto;
-  }
-
-  .list-scrollable {
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: var(--spacing-1);
   }
 
   /****** old css *********/

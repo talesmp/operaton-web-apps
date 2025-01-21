@@ -15,7 +15,8 @@ const Deployments = () => {
   }
 
   return (
-    <div class="fade-in deployments-container">
+    <main class="fade-in deployments-container">
+      <h2 class="screen-hidden">Deployments</h2>
       {state.deployments.value.length > 0 ? (
         <>
           <DeploymentsList />
@@ -23,9 +24,9 @@ const Deployments = () => {
           <ProcessDetails />
         </>
       ) : (
-        <h1 class="info-box">No deployments found</h1>
+        <span class="info-box">No deployments found</span>
       )}
-    </div>
+    </main>
   );
 };
 

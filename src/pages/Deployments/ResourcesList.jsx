@@ -1,13 +1,12 @@
 import { AppState } from "../../state";
-import { get_process_definition_by_deployment_id } from "../../api";
-import { get_bpmn20xml } from "../../api";
+import { get_process_definition_by_deployment_id, get_bpmn20xml } from "../../api";
 import { useContext } from "preact/hooks";
 
 const ResourcesList = () => {
   const state = useContext(AppState)
   return (
     <div class="resources-list">
-      <h1>Resources</h1>
+      <h3 class="screen-hidden">Resources</h3>
       <ul class="tile-list">
         {state.deployment_resources.value.map((resource) => (
           <li
@@ -20,18 +19,11 @@ const ResourcesList = () => {
             }}
           >
             <div class="padding-1">
-              <header>
-                <span class="title">
-                  {resource.name.includes("/")
-                    ? resource.name.split("/").pop().trim()
-                    : resource.name || "N/A"}
-                </span>
-              </header>
-              <div>
-              </div>
-              <footer>
-
-              </footer>
+              <span class="title">
+                {resource.name.includes("/")
+                  ? resource.name.split("/").pop().trim()
+                  : resource.name || "N/A"}
+              </span>
             </div>
           </li>
         ))}

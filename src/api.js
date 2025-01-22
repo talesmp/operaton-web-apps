@@ -232,15 +232,6 @@ export const get_deployment = (state) => {
 };
 
 /**
- * Fetches deployments
- * @returns {Promise<Array>} Raw deployment data
- */
-export const get_deployment_v2 = (state) => { 
-  return fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
-    .then((res) => res.json());
-};
-
-/**
  * Fetches resources for a deployment and triggers BPMN diagram fetch
  * @sideeffects Updates `state.deployment_resources`, `state.selected_resource`
  */

@@ -41,7 +41,7 @@ const createAppState = () => {
   const task_change_result = signal(null) // used for reloading the task
   const task_generated_form = signal(null)
   const task_deployed_form = signal(null)
-  const deployments = signal([])
+  const deployments = signal()
   const selected_deployment = signal(null)
   const deployment_resources = signal([])
   const selected_resource = signal(null)

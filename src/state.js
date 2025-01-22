@@ -47,6 +47,7 @@ const createAppState = () => {
   const selected_resource = signal(null)
   const selected_process_statistics = signal(null)
   const deployments_loaded = signal(null)
+  const bpmn_xml = signal(null)
   // admin
   // const admin_users = signal(null)
 
@@ -80,7 +81,8 @@ const createAppState = () => {
     deployment_resources,
     selected_resource,
     selected_process_statistics,
-    deployments_loaded
+    deployments_loaded,
+    bpmn_xml
   }
 }
 

@@ -1,42 +1,33 @@
-import { signal } from "@preact/signals";
-import ReactBpmn from 'react-bpmn'
-import { get_bpmn20xml } from "../../api";
+import ReactBpmn from 'react-bpmn';
+import { get_process_definition_xml } from "../../api";
+import { useEffect, useRef } from "preact/hooks";
 
-const bpmn20Xml = signal(null)
+export const BpmnViewer = ({ state, process_definition_id }) => {
+  const diagramRef = useRef(null);
 
-const BpmnViewer = ({ state, process_definition_id }) => {
-      get_bpmn20xml(state, process_definition_id).then((xml) => {
-        bpmn20Xml.value = xml;
-      })
+  useEffect(() => {
+    get_process_definition_xml(state, process_definition_id)
+      .catch((error) => console.error("Error fetching XML:", error))
+  }, [process_definition_id])
 
-return (
-    <div class="bpmn-viewer">
-        {bpmn20Xml.value ? (
-          <ReactBpmn
-            diagramXML={bpmn20Xml.value}
-            onLoading={() => console.log('Loading BPMN...')}
-            onShown={() => {
-              // remove bpmn.io logo and list elements
-              const diagramContainer = document.querySelector('.bpmn-viewer')
-              if (diagramContainer) {
-                const breadcrumbs = diagramContainer.querySelector('.bjs-breadcrumbs')
-                const poweredBy = diagramContainer.querySelector('.bjs-powered-by')
-                if (breadcrumbs) {
-                  breadcrumbs.remove()
-                }
-                if (poweredBy) {
-                  poweredBy.remove()
-                }
-              }
-            }}
-            onError={(error) => console.error('Error loading BPMN diagram:', error)}
-          />
-        ) : (
-          <p>Loading process diagram...</p>
-        )}
+  return (
+    <div class="bpmn-viewer" ref={diagramRef}>
+      {state.bpmn_xml.value ? (
+        <ReactBpmn
+          diagramXML={state.bpmn_xml.value}
+          onShown={() => {
+            if (diagramRef.current) {
+              const breadcrumbs = diagramRef.current.querySelector('.bjs-breadcrumbs');
+              const poweredBy = diagramRef.current.querySelector('.bjs-powered-by');
+              breadcrumbs?.remove();
+              poweredBy?.remove();
+            }
+          }}
+          onError={(error) => console.error('BPMN rendering error:', error)}
+        />
+      ) : (
+        <p role="status" aria-live="polite">Loading process diagram...</p>
+      )}
     </div>
-)
+  )
 }
-
-
-export {BpmnViewer}

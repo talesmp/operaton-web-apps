@@ -1,4 +1,3 @@
-import ReactBpmn from 'react-bpmn'
 import { get_deployment_instance_count, delete_deployment } from '../../api'
 import { useContext, useState } from 'preact/hooks'
 import * as Icons from '../../assets/icons'

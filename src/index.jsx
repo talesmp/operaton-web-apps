@@ -18,6 +18,7 @@ import './css/components.css'
 import './css/normalize.css'
 import './css/animation.css'
 import { Search } from './components/Search.jsx'
+import { Account } from "./pages/Account/index.jsx";
 
 'use strict'
 
@@ -39,7 +40,7 @@ export function App () {
           <Route path="/admin" component={AdminPage} />
           <Route path="/admin/:page_id" component={AdminPage} />
           <Route path="/admin/:page_id/:selection_id" component={AdminPage} />
-          <Route default component={NotFound} />
+          <Route path="/account" component={Account} />
         </Router>
         <Search />
       </LocationProvider>

@@ -1,0 +1,62 @@
+.account-container {
+    display: grid;
+    grid-template-columns: max-content 2fr;
+}
+
+.sidebar {
+    padding: var(--spacing-2);
+    border-right: 1px solid var(--border-color-2);
+}
+
+.content {
+    padding: var(--spacing-3);
+}
+
+.account-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.form-title {
+    margin: 0 0 1.5rem;
+    color: var(--color-primary);
+}
+
+.form-group {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.form-input {
+    padding: var(--spacing-1);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    max-width: 35vw;
+}
+
+.form-actions {
+    margin-top: var(--spacing-3);
+}
+
+.submit-button {
+    padding: var(--spacing-1) var(--spacing-2);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+    padding: var(--spacing-1) var(--spacing-2);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    background-color: var(--primary-color);
+}
+
+.active {
+    background-color: var(--color-primary-transparent);
+    border-radius: var(--border-radius);
+}

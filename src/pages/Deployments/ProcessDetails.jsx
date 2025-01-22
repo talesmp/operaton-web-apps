@@ -1,6 +1,5 @@
-import { get_deployment_instance_count, delete_deployment } from '../../api'
+import { get_deployment_instance_count, delete_deployment, get_deployment } from '../../api'
 import { useContext, useState } from 'preact/hooks'
-import * as Icons from '../../assets/icons'
 import { AppState } from '../../state'
 import { BpmnViewer } from './Bpmn-Viewer'
 
@@ -18,7 +17,12 @@ export const ProcessDetails = () => {
       skipCustomListeners,
       skipIoMappings,
     })
-    setShowModal(false)
+    .then(() => get_deployment(state))
+    .then((data) => (state.deployments.value = data))
+      .catch((error) => {
+        console.error("Deletion failed:", error);
+      })
+      .finally(() => setShowModal(false));
   }
 
   const openModal = () => {
@@ -187,7 +191,7 @@ export const ProcessDetails = () => {
           )}
         </>
       ) : (
-        <h1 class="info-box">Select a resource to view details.</h1>
+        <h1 class="info-box">No deployments found</h1>
       )}
     </div>
   )

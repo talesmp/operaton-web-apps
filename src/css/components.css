@@ -236,8 +236,81 @@
         &.hide {
           display: none;
         }
+      }
 
-        /* buttons for the generated form */
+      /* engine generated form, CSS classes given by the engine */
+
+      .task-form {
+        form {
+          column-width: auto;
+        }
+
+        .has-error {
+          display: none;
+        }
+
+        .input-group-btn {
+          display: none;
+        }
+
+        .form-fields {
+          display: flex;
+          flex-wrap: wrap;
+
+          .form-group {
+            width: 40%;
+          }
+        }
+
+        label {
+          margin-top: 1em;
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+          margin-left: var(--spacing-2);
+          width: auto;
+        }
+
+        input:not([type='checkbox']) {
+          width: 85%;
+        }
+
+        select {
+          -moz-box-sizing: border-box;
+          -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+          width: 90%;
+        }
+
+        .error {
+          color: var(--color-danger);
+          margin-top: var(--spacing-2);
+
+          &.hidden {
+            display: none;
+          }
+
+          &.show {
+            display: block;
+          }
+
+          .icon {
+            vertical-align: middle;
+            display: inline-block;
+            margin-right: var(--spacing-1);
+            height: 1.5rem;
+
+            svg {
+              width: 1.5rem;
+              height: 1.5rem;
+            }
+          }
+
+          .error-text {
+            vertical-align: middle;
+            display: inline-block;
+          }
+        }
 
         .form-buttons {
           width: 100%;
@@ -248,171 +321,98 @@
             margin-right: var(--spacing-1);
           }
         }
-      }
 
-      /* engine generated form, CSS classes given by the engine */
+        .col {
+          padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) 0;
 
-      .generated-form, .deployed-form {
-        form {
-          column-width: auto;
+          &.col-1 {
+            flex-basis: 6.25%;
+          }
 
-          .form-fields {
+          &.col-2 {
+            flex-basis: 12.5%;
+          }
+
+          &.col-3 {
+            flex-basis: 18.75%;
+          }
+
+          &.col-4 {
+            flex-basis: 25%;
+          }
+
+          &.col-5 {
+            flex-basis: 31.25%;
+          }
+
+          &.col-6 {
+            flex-basis: 37.5%;
+          }
+
+          &.col-7 {
+            flex-basis: 43.75%;
+          }
+
+          &.col-8 {
+            flex-basis: 50%;
+          }
+
+          &.col-9 {
+            flex-basis: 56.25%;
+          }
+
+          &.col-10 {
+            flex-basis: 62.5%;
+          }
+
+          &.col-11 {
+            flex-basis: 68.75%;
+          }
+
+          &.col-12 {
+            flex-basis: 75%;
+          }
+
+          &.col-13 {
+            flex-basis: 81.25%;
+          }
+
+          &.col-14 {
+            flex-basis: 87.5%;
+          }
+
+          &.col-15 {
+            flex-basis: 93.75%;
+          }
+
+          &.col-16 {
+            flex-basis: 100%;
+          }
+
+          input, select {
+            width: 98%;
+          }
+          input[type='checkbox'], input[type='radio'] {
+            width: auto;
+          }
+
+          .input-list {
             display: flex;
-            flex-wrap: wrap;
-
-            .form-group {
-              width: 40%;
-              margin-right: var(--spacing-3);
-              margin-top: var(--spacing-2);
-
-
-              input {
-                &:not([type='checkbox']) {
-                  width: 80%;
-                }
-
-                &[type="checkbox"] {
-                  margin-left: 0;
-                }
-              }
-
-              .input-group-btn {
-                display: none;
-              }
-
-              .has-error {
-                display: none;
-              }
-            }
+            flex-direction: row;
+            margin: var(--spacing-1) 0;
 
             label {
-              display: block;
-              font-size: var(--small-font-size);
-              font-weight: bold;
-              margin-bottom: var(--spacing-1);
+              font-size: var(--base-font-size);
+              font-weight: normal;
+              padding: 0;
+              margin: 0;
             }
 
-            .col {
-              padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) 0; /* TODO */
-
-              &.col-1 {
-                flex-basis: 6.25%;
-              }
-
-              &.col-2 {
-                flex-basis: 12.5%;
-              }
-
-              &.col-3 {
-                flex-basis: 18.75%;
-              }
-
-              &.col-4 {
-                flex-basis: 25%;
-              }
-
-              &.col-5 {
-                flex-basis: 31.25%;
-              }
-
-              &.col-6 {
-                flex-basis: 37.5%;
-              }
-
-              &.col-7 {
-                flex-basis: 43.75%;
-              }
-
-              &.col-8 {
-                flex-basis: 50%;
-              }
-
-              &.col-9 {
-                flex-basis: 56.25%;
-              }
-
-              &.col-10 {
-                flex-basis: 62.5%;
-              }
-
-              &.col-11 {
-                flex-basis: 68.75%;
-              }
-
-              &.col-12 {
-                flex-basis: 75%;
-              }
-
-              &.col-13 {
-                flex-basis: 81.25%;
-              }
-
-              &.col-14 {
-                flex-basis: 87.5%;
-              }
-
-              &.col-15 {
-                flex-basis: 93.75%;
-              }
-
-              &.col-16 {
-                flex-basis: 100%;
-              }
-
-              .input-list {
-                display: flex;
-                flex-direction: row;
-                margin: var(--spacing-1) 0;
-
-                label {
-                  font-size: var(--base-font-size);
-                  font-weight: normal;
-                  padding: 0;
-                  margin: 0;
-                }
-
-                input {
-                  display: inline-block;
-                  width: 18px;
-                  padding: 0;
-                  margin: 0 var(--spacing-1) 0 0;
-                }
-              }
-            }
-          }
-
-          .error {
-            color: var(--color-danger);
-            margin-top: var(--spacing-2);
-
-            &.hidden {
-              display: none;
-            }
-
-            &.show {
-              display: block;
-            }
-
-            .icon {
-              vertical-align: middle;
+            input {
               display: inline-block;
-              margin-right: var(--spacing-1);
-              height: 1.5rem;
-
-              svg {
-                width: 1.5rem;
-                height: 1.5rem;
-              }
+              padding: 0;
+              margin: 0 var(--spacing-1) 0 var(--spacing-2);
             }
-
-            .error-text {
-              vertical-align: middle;
-              display: inline-block;
-            }
-          }
-
-          .form-buttons {
-
           }
         }
       }

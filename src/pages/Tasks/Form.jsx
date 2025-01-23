@@ -51,7 +51,7 @@ const Form = () => {
           )
         } else if (state.task.value && state.task.value[refName]) {
           return (
-            <div id="deployed-form" class="deployed-form">
+            <div id="deployed-form" class="task-form">
               <form>
                 {deployed?.map(({ key, value }) =>
                   <DeployedFormRow key={key} components={value} />)}
@@ -62,7 +62,7 @@ const Form = () => {
         return (
           <>
             <div>(*) required field</div>
-            <div id="generated-form" class="generated-form">
+            <div id="generated-form" class="task-form">
               <form onSubmit={(e) => post_form(e, state, setError)}>
                 <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
 
@@ -252,6 +252,7 @@ const DeployedFormRow = (props) =>
 const DeployedFormComponent = (props) =>
   <div class={`col col-${props.component.layout.columns ? props.component.layout.columns : '16'}`}>
 
+
     {(() => {
       switch (props.component.type) {
         case 'spacer':
@@ -270,6 +271,7 @@ const DeployedFormComponent = (props) =>
           return <Input type={props.component.type} component={props.component} />
       }
     })()}
+
   </div>
 
 const Input = (props) => {
@@ -286,7 +288,7 @@ const Input = (props) => {
 
   return (
     <>
-      <label>{label}</label>
+      <label>{label}<br />
       <input type={type} name={props.component.key}
              required={props.component.validate && props.component.validate.required}
              min={props.component.validate ? props.component.validate.min : ''}
@@ -295,6 +297,7 @@ const Input = (props) => {
              pattern={props.component.validate ? props.component.validate.pattern : ''}
              step={props.component.validate ? props.component.validate.step : ''}
       />
+      </label>
     </>)
 }
 

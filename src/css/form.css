@@ -9,9 +9,14 @@ form > * {
     break-inside: avoid-column;
 }
 
+label {
+    display: block;
+    font-size: var(--small-font-size);
+    font-weight: bold;
+}
+
 label:not(:first-child) {
     margin-top: 1em;
-    display: block;
 }
 
 button, .button {
@@ -91,6 +96,7 @@ textarea {
     background: var(--background-1);
     font: var(--body-font-family);
     width: clamp(100%, 20ch, 30ch);
+    margin-top: var(--spacing-1);
 }
 
 :where(input, select, textarea):disabled {

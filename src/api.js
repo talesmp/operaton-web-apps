@@ -42,6 +42,19 @@ export const create_user = (state) =>
     .catch(response => response.json())
     .then(json => state.user_create_response.value = { success: false, ...json })
 
+    export const put_user_profile = (state, user_id, profile) =>
+      fetch(`${_url(state)}/user/${user_id}/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profile),
+      }).then(() => get_user_profile(state, state.user_profile.value.id))
+        .then(json => state.user_profile.value = json)
+        .catch(error => {
+          console.error('Update failed:', error)
+          throw error
+        })
 
 export const get_user_count = (state) =>
   fetch(`${_url(state)}/user`)

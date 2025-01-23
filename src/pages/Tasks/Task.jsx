@@ -14,7 +14,7 @@ const Task = () => {
   useSignalEffect(() => {
     if (state.task.value && initial) {
       initial = false
-    } else if (state.task.value) {
+    } else if (state.task.value && state.tasks.peek()) {
       update_task_list(state, state.task.value)
     }
   })
@@ -81,17 +81,15 @@ const ResetAssigneeBtn = () => {
 }
 
 const claim_task = (state, claim, selectedTask) => {
-  console.log("selected task: " + selectedTask.value.id)
   api.post_task_claim(state, claim, selectedTask.value.id)
 }
 
 const assign_task = (state, assignee, selectedTask) => {
-  api.post_task_assign(state, assignee, selectedTask.id)
+  api.post_task_assign(state, assignee, selectedTask.value.id)
 }
 
 // update the task list with a changed task, avoid reloading the task list
 const update_task_list = (state, task) => {
-  console.log("map")
   state.tasks.value = state.tasks.peek().map((item) => {
     if (item.id === task.id) {
       task.def_name = item.def_name

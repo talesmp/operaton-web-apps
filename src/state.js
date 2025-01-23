@@ -17,7 +17,15 @@ import { createContext } from 'preact'
  * @returns {Object} exposing all defined signals
  */
 const createAppState = () => {
-  const server = signal(localStorage.getItem("server") || JSON.parse(import.meta.env.VITE_BACKEND)[0].url)
+  let stored_server
+  if (localStorage.getItem("server")) {
+    stored_server = JSON.parse(localStorage.getItem("server"))
+  } else {
+    stored_server = JSON.parse(import.meta.env.VITE_BACKEND)[0]
+    localStorage.setItem("server", JSON.stringify(stored_server))
+  }
+
+  const server = signal(stored_server)
   const process_definitions = signal(null)
   const process_definition = signal(null)
   const process_definition_diagram = signal(null)

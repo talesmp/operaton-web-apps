@@ -11,11 +11,11 @@ const TasksPage = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
   const location = useLocation();
-  const server = state.server.value
+  const server = state.server.value.url
 
   // when the server is changed and a task is selected, we return to /tasks
   useSignalEffect(() => {
-    if (state.server.value !== server && location.path !== '/tasks') {
+    if (state.server.value.url !== server && location.path !== '/tasks') {
       location.route('/tasks', true)
     }
   })

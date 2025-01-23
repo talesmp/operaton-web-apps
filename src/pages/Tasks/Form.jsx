@@ -12,6 +12,9 @@ const Form = () => {
   const state = useContext(AppState)
   const refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
 
+  state.task_generated_form.value = null
+  state.task_deployed_form.value = null
+
   // no embedded form and no Camunda form, we have to look for generated form
   useSignalEffect(() => {
     if (state.task.value && !state.task_generated_form.value && !state.task.value.formKey && !state.task.value[refName]) {

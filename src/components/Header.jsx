@@ -6,9 +6,12 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
 
+const servers = JSON.parse(import.meta.env.VITE_BACKEND)
+
 const swap_server = (e, state) => {
-  state.server.value = e.target.value
-  localStorage.setItem('server', e.target.value)
+  const server = servers.find(s => s.url === e.target.value)
+  state.server.value = server
+  localStorage.setItem('server', JSON.stringify(server))
 }
 
 export function Header () {
@@ -51,9 +54,9 @@ export function Header () {
                 onChange={(e) => swap_server(e, state)}>
                 <option disabled>ℹ️ Choose a server to retrieve your processes
                 </option>
-                {JSON.parse(import.meta.env.VITE_BACKEND).map(server =>
+                {servers.map(server =>
                   <option key={server.url} value={server.url}
-                          selected={localStorage.getItem('server') === server.url}>
+                          selected={localStorage.getItem('server')?.url === server.url}>
                     {server.name} {server.c7_mode ? '(C7)' : ''}
                   </option>)}
               </select>

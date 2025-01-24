@@ -27,12 +27,17 @@
   text-decoration: none;
   display: block;
   background: none;
+  line-height: 1;
 }
 .tile-list li.selected {
   border-radius: var(--border-radius);
-  border: var(--border-width-2) solid var(--color-primary);
+  border-top-color: transparent;
+}
+.tile-list li.selected a {
+  background-color: var(--background-3);
+}
+.tile-list li.selected a:focus {
   background-color: var(--color-primary-transparent);
-  margin: calc(-1 * var(--border-width));
 }
 .tile-list li:first-child:not(.selected),
 .tile-list li.selected + li {
@@ -46,7 +51,7 @@
 .tile-list .title:first-child {
   margin-top: 0;
 }
-:where(.tile, .tile-list)  :where(header, footer) {
+:where(.tile, .tile-list) :where(header, footer) {
   display: flex;
   justify-content: space-between;
 }
@@ -427,29 +432,12 @@
 /* action bar */
 
 .action-bar {
-  border-radius: var(--border-radius);
   list-style: none;
   padding: 0;
   display: inline-flex;
   justify-content: start;
   flex-wrap: wrap;
   gap: var(--spacing-1);
-}
-
-.action-bar > li {
-  /*border-right: var(--border-width) solid var(--border-color);*/
-}
-
-.action-bar > li:last-child {
-  border-right: none;
-}
-
-.action-bar > li > button {
-  /*background-color: transparent;*/
-  border: none;
-  color: var(--text);
-  font-weight: normal;
-  padding: var(--spacing-1);
 }
 
 hr {
@@ -576,7 +564,7 @@ main#processes {
 .tabs > .tab-selection > a {
   border: var(--border);
   padding: var(--spacing-1);
-  padding-top: calc(var(--spacing-1) + var(--border-width-3) - var(--border-width)) ;
+  padding-top: calc(var(--spacing-1) + var(--border-width-3) - var(--border-width));
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   color: var(--text);
   text-decoration: none;
@@ -798,4 +786,39 @@ dialog#global-search {
 
 #admin-page > div {
   padding: var(--spacing-2);
+  overflow-y: auto;
+  /*height: calc(100% - 2 * var(--spacing-2));*/
+  width: calc(100% - var(--spacing-3));
+  flex: 1;
+  background-clip: padding-box;
+}
+
+/* breadcrumbs */
+
+.breadcrumbs {
+  display: inline-flex;
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+.breadcrumbs > * {
+  line-height: 1;
+  padding: .3em .5em .3em 0;
+  font-size: var(--small-font-size);
+  /*text-decoration: none;*/
+  color: var(--text-2);
+}
+.breadcrumbs > *:not(:first-child)::before {
+  content: "/";
+  margin-right: .5em;
+  color: var(--text-2);
+  font-weight: normal;
+}
+.breadcrumbs > *:last-child {
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  color: var(--text);
+  /*font-weight: 600;*/
+}
+.breadcrumbs a:visited {
+  color: var(--text-2);
 }

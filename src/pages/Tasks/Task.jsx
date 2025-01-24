@@ -24,19 +24,19 @@ const Task = () => {
       <menu class="action-bar">
         <li><ResetAssigneeBtn /></li>
         <li>
-          <button class="secondary"><Icons.users /> Set Group</button>
+          <button><Icons.users /> Set Group</button>
         </li>
         <li>
-          <button class="secondary"><Icons.calendar /> Set Follow Up Date</button>
+          <button><Icons.calendar /> Set Follow Up Date</button>
         </li>
         <li>
-          <button class="secondary"><Icons.bell /> Set Due Date</button>
+          <button><Icons.bell /> Set Due Date</button>
         </li>
         <li>
-          <button class="secondary"><Icons.chat_bubble_left /> Comment</button>
+          <button><Icons.chat_bubble_left /> Comment</button>
         </li>
         <li>
-          <button class="secondary"><Icons.play /> Start Process</button>
+          <button><Icons.play /> Start Process</button>
         </li>
       </menu>
 

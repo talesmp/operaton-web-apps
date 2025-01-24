@@ -2,13 +2,14 @@ import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
 import * as api from '../../api'
 import { AppState } from '../../state.js'
+import { Breadcrumbs } from '../../components/Breadcrumbs.jsx'
 
 const AdminPage = () => {
   const { params: { page_id } } = useRoute()
   const { route } = useLocation()
 
   if (page_id === undefined) {
-    route('admin/users')
+    route('/admin/users')
   }
 
   const is_selected = (page) => (page_id === page) ? 'selected' : ''
@@ -51,7 +52,10 @@ const UserAdminPage = () => {
 }
 
 const UserList = () =>
-  <div>
+  <div className="content fade-in">
+    <Breadcrumbs paths={[
+      {name: "Admin", route: "/admin"},
+      {name: "Users"}]} />
     <h2>Users</h2>
     <a href="/admin/users/new">Create New User</a>
     <table>
@@ -78,7 +82,6 @@ const UserList = () =>
     </table>
   </div>
 
-
 const UserDetails = (user_id) => {
   const
     state = useContext(AppState)
@@ -86,15 +89,60 @@ const UserDetails = (user_id) => {
   void api.get_user_profile(state, user_id.value)
   void api.get_user_groups(state, user_id.value)
 
-  return <div>
+  return <div class="content fade-in">
+    <Breadcrumbs paths={[
+      {name: "Admin", route: "/admin"},
+      {name: "Users", route: "/admin/users"},
+      {name: "Details"}]} />
+
     <h2>User Details</h2>
 
     <h3>Profile</h3>
+    <UserProfile />
     <h3>Password</h3>
+    <UserPassword />
     <h3>Groups</h3>
     <h3>Tenants</h3>
     <h3>Danger Zone</h3>
   </div>
+}
+
+const UserProfile = () => {
+  const
+    { user_profile } = useContext(AppState)
+
+  return <form>
+    <label for="first-name">First Name </label>
+    <input id="first-name" value={user_profile.value?.firstName ?? ''} />
+
+    <label for="last-name">Last Name</label>
+    <input id="last-name" value={user_profile.value?.lastName ?? ''} />
+
+    <label for="email">Email</label>
+    <input id="email" type="email" value={user_profile.value?.email ?? ''} />
+
+
+    <div class="button-group">
+      <button type="submit">Update Profile</button>
+    </div>
+  </form>
+}
+
+const UserPassword = () => {
+  const
+    { user_profile } = useContext(AppState)
+
+  return <form>
+    <label for="new-password">New Password</label>
+    <input id="new-password" type="password" placeholder="* * * * * * * * *" />
+
+    <label for="new-password-repeat">New Password (repeat)</label>
+    <input id="new-password-repeat" type="password" placeholder="* * * * * * * * *" />
+
+    <div class="button-group">
+      <button type="submit">Change Password</button>
+    </div>
+  </form>
 }
 
 const CreateUserPage = () => {

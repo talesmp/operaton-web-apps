@@ -27,12 +27,13 @@
 
     --background-1: #fff;
     --background-2: #f2f2f2;
+    --background-3: #dadada;
 
-    --border-color: #ddd;
-    --border-color-2: #bbb;
+    --border-color: #ccc;
+    --border-color-2: #aaa;
 
     --text: #000;
-    --text-2: #333;
+    --text-2: #555;
     --text-inverted: #fff;
 
     /* font */
@@ -55,7 +56,7 @@
 
     --border-radius: 0.3rem;
     --border-radius-2: 0.4rem;
-    --border-width: 0.1rem;
+    --border-width: 0.08rem;
     --border-width-2: 0.15rem;
     --border-width-3: 0.25rem;
 

@@ -16,9 +16,10 @@ const store_details_width = () => {
 }
 
 const ProcessesPage = () => {
-  const state = useContext(AppState)
-  const { params } = useRoute()
-  const details_width = signal(localStorage.getItem('details_width'))
+  const
+    state = useContext(AppState),
+    { params } = useRoute(),
+    details_width = signal(localStorage.getItem('details_width'))
 
   useEffect(() => {
     document.getElementById('selection').style.width = details_width.value
@@ -51,24 +52,22 @@ const ProcessesPage = () => {
 }
 
 const ProcessDiagram = () => {
-  const { process_definition_diagram } = useContext(AppState)
-  const { params } = useRoute()
+  const
+    { process_definition_diagram } = useContext(AppState),
+    { params } = useRoute(),
+    show_diagram =
+      process_definition_diagram.value !== null &&
+      params.definition_id !== undefined
 
-  const show_diagram =
-    process_definition_diagram.value !== null &&
-    params.definition_id !== undefined
-
-  return (
-    <div id="preview" class="fade-in">
-      {show_diagram
-        ? <ReactBpmn
-          diagramXML={process_definition_diagram.value.bpmn20Xml}
-          onLoading={null}
-          onShown={null}
-          onError={null} />
-        : 'Select Process Definition'}
-    </div>
-  )
+  return <div id="preview" class="fade-in">
+    {show_diagram
+      ? <ReactBpmn
+        diagramXML={process_definition_diagram.value.bpmn20Xml}
+        onLoading={null}
+        onShown={null}
+        onError={null} />
+      : 'Select Process Definition'}
+  </div>
 }
 
 const ProcessDefinitionSelection = () =>
@@ -94,8 +93,9 @@ const ProcessDefinitionSelection = () =>
   </div>
 
 const ProcessDefinitionDetails = () => {
-  const { process_definition } = useContext(AppState)
-  const { params } = useRoute()
+  const
+    { process_definition } = useContext(AppState),
+    { params } = useRoute()
 
   return (
     <div class="fade-in">
@@ -145,8 +145,9 @@ const ProcessDefinition =
     </tr>
 
 const Instances = () => {
-  const state = useContext(AppState)
-  const { params } = useRoute()
+  const
+    state = useContext(AppState),
+    { params } = useRoute()
 
   void api.get_process_instances(state, params.definition_id)
 
@@ -173,8 +174,9 @@ const InstanceTableRows = () =>
   )) ?? <p>...</p>
 
 const InstanceDetails = () => {
-  const state = useContext(AppState)
-  const { params: { selection_id, definition_id, panel } } = useRoute()
+  const
+    state = useContext(AppState),
+    { params: { selection_id, definition_id, panel } } = useRoute()
 
   void api.get_process_instance(state, selection_id)
 
@@ -216,11 +218,12 @@ const ProcessInstance = ({ id, startTime, state, businessKey }) => (
 )
 
 const InstanceVariables = () => {
-  const state = useContext(AppState)
-  const { params } = useRoute()
+  const
+    state = useContext(AppState),
+    { params } = useRoute(),
+    selection_exists = state.selection_values.value !== null
 
-  const selection_exists = state.selection_values.value !== null
-
+  // fixme: rm useSignalEffect
   useSignalEffect(() => {
     void api.get_process_instance_variables(state, params.selection_id)
   })
@@ -251,9 +254,11 @@ const InstanceVariables = () => {
 }
 
 const InstanceIncidents = () => {
-  const state = useContext(AppState)
-  const { params } = useRoute()
+  const
+    state = useContext(AppState),
+    { params } = useRoute()
 
+  // fixme: rm useSignalEffect
   useSignalEffect(() => {
     void api.get_process_instance_incidents(state, params.selection_id)
   })
@@ -309,9 +314,11 @@ const InstanceIncidents = () => {
 }
 
 const InstanceUserTasks = () => {
-  const state = useContext(AppState)
-  const { params } = useRoute()
+  const
+    state = useContext(AppState),
+    { params } = useRoute()
 
+  // fixme: rm useSignalEffect
   useSignalEffect(() => {
     void api.get_process_instance_tasks(state, params.selection_id)
   })
@@ -368,9 +375,11 @@ const InstanceUserTasks = () => {
 }
 
 const CalledProcessInstances = () => {
-  const state = useContext(AppState)
-  const { selection_id } = useRoute()
+  const
+    state = useContext(AppState),
+    { selection_id } = useRoute()
 
+  // fixme: rm useSignalEffect
   useSignalEffect(() =>
     void api.get_called_process_instances(state, selection_id)
   )
@@ -400,9 +409,11 @@ const CalledProcessInstances = () => {
 }
 
 const Incidents = () => {
-  const state = useContext(AppState)
-  const { definition_id } = useRoute()
+  const
+    state = useContext(AppState),
+    { definition_id } = useRoute()
 
+  // fixme: rm useSignalEffect
   useSignalEffect(() =>
     void api.get_process_incidents(state, definition_id)
   )
@@ -430,9 +441,11 @@ const Incidents = () => {
 }
 
 const CalledProcessDefinitions = () => {
-  const state = useContext(AppState)
-  const { definition_id } = useRoute()
+  const
+    state = useContext(AppState),
+    { definition_id } = useRoute()
 
+  // fixme: rm useSignalEffect
   useSignalEffect(() =>
     void api.get_called_process_definitions(state, definition_id)
   )
@@ -460,9 +473,11 @@ const CalledProcessDefinitions = () => {
 }
 
 const JobDefinitions = () => {
-  const state = useContext(AppState)
-  const { definition_id } = useRoute()
+  const
+    state = useContext(AppState),
+    { definition_id } = useRoute()
 
+  // fixme: rm useSignalEffect
   useSignalEffect(() =>
     void api.get_job_definitions(state, definition_id)
   )

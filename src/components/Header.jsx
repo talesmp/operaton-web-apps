@@ -23,6 +23,8 @@ export function Header () {
   useHotkeys('alt+0', () => route('/'))
   useHotkeys('alt+1', () => route('/tasks'))
   useHotkeys('alt+2', () => route('/processes'))
+  useHotkeys('alt+4', () => route('/deployments'))
+  useHotkeys('alt+7', () => route('/admin'))
 
   return <header>
     <nav id="secondary-navigation">
@@ -66,7 +68,6 @@ export function Header () {
       </menu>
     </nav>
     <nav id="primary-navigation" aria-label="Main">
-
       <menu>
         <menu>
           <li>

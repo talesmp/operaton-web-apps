@@ -1,125 +1,137 @@
 form {
-    column-width: 20rem;
+  display: grid;
+  grid-template-columns: 12em min(calc(100% - 2 * var(--spacing-1) - 12em), 30em);
+  align-items: center;
+  gap: var(--spacing-1);
+
+  container: formular / inline-size;
 }
 form:not(:first-child) {
-    margin-top: var(--spacing-2);
+  margin-top: var(--spacing-1);
 }
-
 form > * {
-    break-inside: avoid-column;
+  break-inside: avoid-column;
 }
 
 label {
-    display: block;
-    font-size: var(--small-font-size);
-    font-weight: bold;
-}
-
-label:not(:first-child) {
-    margin-top: 1em;
+  vertical-align: center;
 }
 
 button, .button {
-    border: var(--border-width-2) solid var(--color-primary-transparent);
-    /* border-width: 0; */
-    background-clip: padding-box;
-    background-color: var(--color-primary);
-    border-radius: var(--border-radius-2);
-    padding: var(--spacing-1) var(--spacing-2);
-    color: white;
-    font-weight: bold;
+  border: none;
 
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-1);
+  background: var(--background-2);
+  color: var(--text);
 
-    font-size: var(--small-font-size);
+  background-clip: padding-box;
+  border-radius: var(--border-radius-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  font-weight: 500;
+  line-height: 1;
 
-    &.secondary {
-        background: var(--background-2);
-        color: var(--color-primary);
-    }
-    &.neutral {
-        background: var(--background-1);
-        color: var(--text);
-        border: none;
-        font-weight: normal;
-        font-size: var(--base-font-size);
-    }
-    &.danger {
-        background: var(--background-1);
-        border-color: var(--color-danger-transparent);
-        color: var(--color-danger);
-    }
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+
+  font-size: var(--small-font-size);
+
+  &.neutral {
+    background: var(--background-1);
+    color: var(--text);
+    border: none;
+    font-weight: normal;
+    font-size: var(--base-font-size);
+  }
+  &.danger {
+    background: var(--background-1);
+    border-color: var(--color-danger-transparent);
+    color: var(--color-danger);
+  }
 }
 
 /* TODO: better name? */
 .input-wrapper {
-    display: flex;
-    flex-direction: column;
-    margin-top: 2rem;
-    gap: var(--spacing-1);
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  gap: var(--spacing-1);
 }
 
 .input-wrapper:first-child {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 /* TODO: may be style needs to be adjusted, error form validation */
 :where(input, select):user-invalid {
-    outline: var(--border-width-2) solid var(--color-danger);
+  outline: var(--border-width-2) solid var(--color-danger);
 }
 
 :where(button, select, input):hover {
-    cursor: pointer;
-    outline-style: dotted;
-    z-index: 999;
+  cursor: pointer;
+  outline-style: solid;
+  z-index: 999;
+  transition: 100ms all;
+}
+
+:where(a, button, input, select):focus {
+  outline: var(--border-width-2) solid var(--color-primary);
+  border-color: var(--color-primary);
+  border-radius: var(--border-radius);
 }
 
 :where(a, button, input, select):active {
-    outline: var(--border-width-2) dashed var(--color-primary);
+  outline: var(--border-width-2) dashed var(--color-primary);
+  transition: 100ms all;
 }
 
 .button-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1);
-    margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  grid-column: 1 / span 2;
+  justify-content: end;
 }
 
 input,
 select,
 textarea {
-    padding: var(--spacing-1);
-    border: var(--border);
-    border-radius: var(--border-radius);
-    background: var(--background-1);
-    font: var(--body-font-family);
-    width: clamp(100%, 20ch, 30ch);
-    color: var(--text);
-  margin-top: var(--spacing-1);
+  padding: var(--spacing-1);
+  border: var(--border);
+  border-radius: var(--border-radius);
+  background: var(--background-1);
+  font: var(--body-font-family);
+  color: var(--text);
+}
+input,
+textarea {
+  cursor: text !important;
+}
+
+input,
+select {
+  line-height: 1;
 }
 
 :where(input, select, textarea):disabled {
-    background: var(--background-2);
-    color: var(--text-2);
+  background: var(--background-2);
+  color: var(--text-2);
 }
 
 
 option {
-    font-size: var(--base-font-size);
+  font-size: var(--base-font-size);
 
-    &[disabled] {
-        color: var(--text-2);
-        font-size: var(--small-font-size);
-    }
+  &[disabled] {
+    color: var(--text-2);
+    font-size: var(--small-font-size);
+  }
 }
 
 .error {
-    color: var(--color-danger);
-    font-weight: 600;
-    /*background: var(--color-danger-transparent);*/
-    padding: var(--spacing-2);
-    border: .1em solid var(--color-danger);
-    border-radius: var(--border-radius-2);
+  color: var(--color-danger);
+  font-weight: 600;
+  /*background: var(--color-danger-transparent);*/
+  padding: var(--spacing-2);
+  border: .1em solid var(--color-danger);
+  border-radius: var(--border-radius-2);
 }

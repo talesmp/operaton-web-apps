@@ -36,6 +36,8 @@ const createAppState = () => {
   const user_create = signal({ profile: {}, credentials: { } })
   const user_create_response = signal()
   const user_profile = signal(null) // should be set after login
+  const user_profile_edit = signal(null)
+  const user_profile_edit_response = signal()
   const user_groups = signal(null) // should be set after login
   const tasks = signal(null)
   const selected_task = signal(null)
@@ -79,6 +81,8 @@ const createAppState = () => {
     user_create,
     user_create_response,
     user_profile,
+    user_profile_edit,
+    user_profile_edit_response,
     user_groups,
     users,
     deployments,

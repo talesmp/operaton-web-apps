@@ -31,6 +31,19 @@ const post = (url, body, state, signl) =>
     .catch(response => response.json())
     .then(json => signl.value = { success: false, ...json })
 
+export const update_user_profile = (state) =>
+  fetch(`${_url(state)}/user/${state.user_profile_edit.value.id}/profile`,
+    {
+      headers: headers_json,
+      method: 'PUT',
+      body: JSON.stringify(state.user_profile_edit.value)
+    })
+    .then(result => state.user_profile_edit_response.value = { success: true, ...result.json() })
+    .then(() => get_user_profile(state, state.user_profile_edit.value.id))
+    .catch(response => state.user_profile_edit_response.value = { success: false, ...response.json() })
+
+
+
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
 export const get_users = (state) => get('/user', state, state.users)
 export const create_user = (state) => post('/user/create', state.user_create.value, state, state.user_create_response)

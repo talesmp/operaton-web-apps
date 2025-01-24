@@ -17,7 +17,7 @@ label {
   vertical-align: center;
 }
 
-button, .button {
+button, .button, .button:visited {
   border: none;
 
   background: var(--background-2);

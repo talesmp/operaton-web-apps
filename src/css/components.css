@@ -848,3 +848,12 @@ dialog#global-search {
   height: 100%;
   min-height: 40vh;
 }
+
+/* account */
+#account-page {
+  display: flex;
+}
+
+#account-page > div {
+  padding: var(--spacing-2);
+}

@@ -6,9 +6,9 @@ import { Header } from './components/Header.jsx'
 
 import { Home } from "./pages/Home/index.jsx";
 import { TasksPage } from "./pages/Tasks/index.jsx";
-import { ProcessesPage } from "./pages/Processes/index.jsx";
-import { AdminPage } from "./pages/Admin/index.jsx";
-import { DeploymentsPage } from "./pages/Deployments/index.jsx";
+import { ProcessesPage } from "./pages/Processes.jsx";
+import { AdminPage } from "./pages/Admin.jsx";
+import { DeploymentsPage } from "./pages/Deployments.jsx";
 import { NotFound } from "./pages/_404.jsx";
 
 import './css/fonts.css'

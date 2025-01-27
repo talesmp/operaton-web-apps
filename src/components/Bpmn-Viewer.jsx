@@ -1,7 +1,7 @@
 import ReactBpmn from 'react-bpmn'
-import * as api from '../../api'
+import * as api from '../api.js'
 import { useContext } from 'preact/hooks'
-import { AppState } from '../../state.js'
+import { AppState } from '../state.js'
 
 export const BpmnViewer = ({ process_definition_id }) => {
   const

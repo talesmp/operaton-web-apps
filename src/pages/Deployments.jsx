@@ -1,11 +1,10 @@
-import './css/style.css'
-import * as api from '../../api'
+import * as api from '../api.js'
 import { useContext, useState } from 'preact/hooks'
-import { AppState } from '../../state.js'
+import { AppState } from '../state.js'
 import { useRoute } from 'preact-iso'
 import { useSignal } from '@preact/signals'
-import { delete_deployment, get_deployment, get_deployment_instance_count } from '../../api'
-import { BpmnViewer } from './Bpmn-Viewer.jsx'
+import { delete_deployment, get_deployment, get_deployment_instance_count } from '../api.js'
+import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
 const DeploymentsPage = () => {
   const state = useContext(AppState),
@@ -46,27 +45,25 @@ const DeploymentsList = () => {
     { params } = useRoute()
 
   return (
-    <div>
-      <div class="list-wrapper">
-        <h3 class="screen-hidden">Queried deployments</h3>
-        <ul class="list">
-          {state.deployments.value?.map((deployment) => (
-            <li
-              key={deployment.id}
-              class={params.deployment_id === deployment.id ? 'selected' : null}
-            >
-              <a href={`/deployments/${deployment.id}`}>
-                <div class="title">
-                  {deployment?.name || deployment?.id}
-                </div>
-                <footer>
-                  <time datetime={deployment.deploymentTime}>{new Date(deployment.deploymentTime).toLocaleDateString()}</time>
-                </footer>
-              </a>
-            </li>
-          )) ?? 'Loading...'}
-        </ul>
-      </div>
+    <div class="list-wrapper">
+      <h3 class="screen-hidden">Queried deployments</h3>
+      <ul class="list">
+        {state.deployments.value?.map((deployment) => (
+          <li
+            key={deployment.id}
+            class={params.deployment_id === deployment.id ? 'selected' : null}
+          >
+            <a href={`/deployments/${deployment.id}`}>
+              <div class="title">
+                {deployment?.name || deployment?.id}
+              </div>
+              <footer>
+                <time datetime={deployment.deploymentTime}>{new Date(deployment.deploymentTime).toLocaleDateString()}</time>
+              </footer>
+            </a>
+          </li>
+        )) ?? 'Loading...'}
+      </ul>
     </div>
   )
 }

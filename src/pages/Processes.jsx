@@ -1,11 +1,11 @@
 import { signal, useSignalEffect } from '@preact/signals'
 import { useContext, useEffect } from 'preact/hooks'
 import { useRoute } from 'preact-iso'
-import * as api from '../../api'
-import * as Icons from '../../assets/icons.jsx'
+import * as api from '../api.js'
+import * as Icons from '../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
-import { AppState } from '../../state.js'
-import { Accordion } from '../../components/Accordion.jsx'
+import { AppState } from '../state.js'
+import { Accordion } from '../components/Accordion.jsx'
 
 const store_details_width = () => {
   localStorage.setItem(

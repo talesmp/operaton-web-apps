@@ -7,6 +7,9 @@
 
 /* list */
 
+.list-container {
+  display: flex;
+}
 .list-wrapper { width: clamp(20ch, 20vw, 30ch); }
 .list {
   list-style: none;
@@ -14,7 +17,7 @@
   margin: var(--spacing-1) 0;
   overflow-y: auto;
   position: relative;
-  width: clamp(20ch, 20vw, 30ch);
+  width: calc(clamp(20ch, 20vw, 30ch) - var(--spacing-1) * 2);
 }
 .list li {
   border-top: var(--border-width) solid var(--border-color);
@@ -825,13 +828,14 @@ dialog#global-search {
 }
 
 /* deployments page */
-.deployments-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: var(--spacing-1);
+
+.process-details {
+  overflow-y: auto;
+  padding: var(--spacing-2);
+  flex: 1;
 }
 
-.deployments-item {
-  padding: var(--spacing-2);
-  background: var(--background-2);
+.bpmn-viewer .react-bpmn-diagram-container {
+  height: 100%;
+  min-height: 40vh;
 }

@@ -1,8 +1,8 @@
 import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
-import * as api from '../../api'
-import { AppState } from '../../state.js'
-import { Breadcrumbs } from '../../components/Breadcrumbs.jsx'
+import * as api from '../api.js'
+import { AppState } from '../state.js'
+import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 
 const AdminPage = () => {
   const { params: { page_id } } = useRoute()

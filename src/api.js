@@ -31,7 +31,6 @@ const post = (url, body, state, signl) =>
     .catch(response => response.json())
     .then(json => signl.value = { success: false, ...json })
 
-
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
 export const get_users = (state) => get('/user', state, state.users)
 export const create_user = (state) => post('/user/create', state.user_create.value, state, state.user_create_response)
@@ -55,7 +54,6 @@ export const get_task_deployed_form = (state, task_id) => get(`/task/${task_id}/
 export const claim_task = (state, task_id) => post(`/task/${task_id}/claim`, { userId: state.user_profile.value.id }, state, state.task_claim_result)
 export const unclaim_task = (state, task_id) => post(`/task/${task_id}/unclaim`, { userId: state.user_profile.value.id }, state, state.task_claim_result)
 export const assign_task = (state, assignee, task_id) => post(`/task/${task_id}/assignee`, { userId: assignee }, state, state.task_assign_result)
-
 
 /* return null or error message from server, in fact all validation should be done by HTML5 validation, but who knows ... */
 export const post_task_form = (state, task_id, data) => {
@@ -81,7 +79,6 @@ export const post_task_form = (state, task_id, data) => {
   return null
 }
 
-
 export const get_tasks = (state, sort_key = 'name', sort_order = 'asc') =>
   fetch(`${_url(state)}/task?sortBy=${sort_key}&sortOrder=${sort_order}`, { headers })
     .then((response) => response.json())
@@ -105,7 +102,6 @@ export const get_tasks = (state, sort_key = 'name', sort_order = 'asc') =>
         })
     })
 
-
 // API call to enhance the data of the task list, no need for signal here
 const get_task_process_definitions = (state, ids) =>
   fetch(`${_url(state)}/process-definition?processDefinitionIdIn=${ids}`, { headers })
@@ -121,35 +117,6 @@ const url_params = (definition_id) =>
     processDefinitionId: definition_id,
   }).toString()
 
-
-// deployment endpoint
-export const delete_deployment = (state, deployment_id, params = {}) => {
-  const queryParams = new URLSearchParams(params).toString();
-
-  fetch(`${_url(state)}/deployment/${deployment_id}?${queryParams}`, {
-    headers: headers_json,
-    method: 'DELETE',
-  })
-    .then((response) => {
-      if (response.ok) {
-        console.log(`Deployment ${deployment_id} deleted successfully.`);
-        get_process_definitions(state)
-      } else {
-        return response.json().then((json) => {
-          console.error(`Failed to delete deployment ${deployment_id}:`, json.message);
-          return json.message;
-        });
-      }
-    })
-    .catch((error) => {
-      console.error(`Error deleting deployment ${deployment_id}:`, error);
-    });
-
-  return null
-}
-
-
-
 // ######### DEPLOYMENTS API #########
 
 /**
@@ -159,15 +126,9 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
 export const get_deployment = (state) => {
   return fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
     .then((res) => res.json())
-    .then((data) => {
-      state.deployments.value = data;
-      if (data?.length > 0) {
-        state.selected_deployment.value = data[0];
-        get_deployment_resources(state, data[0].id);
-      }
-    })
-    .catch((error) => console.error("Error fetching deployments:", error));
-};
+    .then((data) => state.deployments.value = data)
+    .catch((error) => console.error('Error fetching deployments:', error))
+}
 
 /**
  * Fetches deployments
@@ -175,8 +136,8 @@ export const get_deployment = (state) => {
  */
 export const get_deployment_v2 = (state) => {
   return fetch(`${_url(state)}/deployment?sortBy=deploymentTime&sortOrder=desc`)
-    .then((res) => res.json());
-};
+    .then((res) => res.json())
+}
 
 /**
  * Fetches resources for a deployment and triggers BPMN diagram fetch
@@ -185,15 +146,9 @@ export const get_deployment_v2 = (state) => {
 export const get_deployment_resources = (state, deployment_id) => {
   return fetch(`${_url(state)}/deployment/${deployment_id}/resources`)
     .then((res) => res.json())
-    .then((data) => {
-      state.deployment_resources.value = data;
-      if (data?.length > 0) {
-        state.selected_resource.value = data[0];
-        get_process_definition_by_deployment_id(state, deployment_id, data[0].name);
-      }
-    })
-    .catch((error) => console.error("Error fetching resources:", error));
-};
+    .then((data) => state.deployment_resources.value = data)
+    .catch((error) => console.error('Error fetching resources:', error))
+}
 
 /**
  * Fetches BPMN 2.0 XML for a process definition
@@ -205,8 +160,8 @@ export const get_process_definition_xml = (state, process_definition_id) => {
   return fetch(`${_url(state)}/process-definition/${process_definition_id}/xml`)
     .then((response) => response.json())
     .then((json) => (state.bpmn_xml.value = json.bpmn20Xml))
-    .catch((error) => console.error("Error fetching BPMN XML:", error));
-};
+    .catch((error) => console.error('Error fetching BPMN XML:', error))
+}
 
 /**
  * Deletes a deployment and cleans up related state
@@ -216,26 +171,26 @@ export const get_process_definition_xml = (state, process_definition_id) => {
  * @sideeffects Resets deployment-related state values
  */
 export const delete_deployment = (state, deployment_id, params = {}) => {
-  const queryParams = new URLSearchParams(params).toString();
+  const queryParams = new URLSearchParams(params).toString()
 
   return fetch(`${_url(state)}/deployment/${deployment_id}?${queryParams}`, {
-    method: "DELETE",
+    method: 'DELETE',
   })
     .then((response) => {
       if (response.ok) {
-        get_deployment(state);
-        state.selected_deployment.value = null;
-        state.deployment_resources.value = [];
-        state.selected_resource.value = null;
-        state.selected_process_statistics.value = null;
+        get_deployment(state)
+        state.selected_deployment.value = null
+        state.deployment_resources.value = []
+        state.selected_resource.value = null
+        state.selected_process_statistics.value = null
       } else {
         response.json().then((json) => {
-          console.error(`Deletion failed: ${json.message}`);
-        });
+          console.error(`Deletion failed: ${json.message}`)
+        })
       }
     })
-    .catch((error) => console.error("Error deleting deployment:", error));
-};
+    .catch((error) => console.error('Error deleting deployment:', error))
+}
 
 /**
  * Counts running process instances for a deployment
@@ -245,22 +200,21 @@ export const delete_deployment = (state, deployment_id, params = {}) => {
  */
 export const get_deployment_instance_count = (state, deployment_id) => {
   return fetch(`${_url(state)}/process-instance/count`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({ deploymentId: deployment_id }),
   })
     .then((res) => {
-      if (!res.ok) throw new Error("Count fetch failed");
-      return res.json();
+      if (!res.ok) throw new Error('Count fetch failed')
+      return res.json()
     })
     .catch((error) => {
-      console.error("Error fetching instance count:", error);
-      return null;
-    });
-};
-
+      console.error('Error fetching instance count:', error)
+      return null
+    })
+}
 
 /**
  * Fetches statistics and all details for a process definition
@@ -274,14 +228,14 @@ export const get_process_definition_statistics = (state, process_definition_id) 
     .then((data) => {
       const filteredData = data.filter(
         (item) => item.definition.id === process_definition_id
-      );
-      state.selected_process_statistics.value = filteredData[0] || null;
+      )
+      state.selected_process_statistics.value = filteredData[0] || null
     })
     .catch((error) => {
-      console.error("Error fetching statistics:", error);
-      state.selected_process_statistics.value = null;
-    });
-};
+      console.error('Error fetching statistics:', error)
+      state.selected_process_statistics.value = null
+    })
+}
 
 /**
  * Fetches process definition by deployment ID and resource name
@@ -290,21 +244,12 @@ export const get_process_definition_statistics = (state, process_definition_id) 
  * @param {string} resource_name - Resource name
  * @sideeffects Triggers statistics fetch
  */
-export const get_process_definition_by_deployment_id = (
-  state,
-  deployment_id,
-  resource_name
-) => {
-  return fetch(
-    `${_url(state)}/process-definition?deploymentId=${deployment_id}&resourceName=${encodeURIComponent(
-      resource_name
-    )}`
-  )
+export const get_process_definition_by_deployment_id = (state, deployment_id, resource_name) =>
+  fetch(`${_url(state)}/process-definition?deploymentId=${deployment_id}&resourceName=${encodeURIComponent(resource_name)}`)
     .then((res) => res.json())
     .then((data) => {
       if (data?.length > 0) {
-        get_process_definition_statistics(state, data[0].id);
+        get_process_definition_statistics(state, data[0].id)
       }
     })
-    .catch((error) => console.error("Error fetching process definition:", error));
-};
+    .catch((error) => console.error('Error fetching process definition:', error))

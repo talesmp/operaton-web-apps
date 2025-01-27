@@ -5,9 +5,10 @@
   border-radius: var(--border-radius);
 }
 
-/* tile-list */
+/* list */
 
-.tile-list {
+.list-wrapper { width: clamp(20ch, 20vw, 30ch); }
+.list {
   list-style: none;
   padding: var(--spacing-1);
   margin: var(--spacing-1) 0;
@@ -15,12 +16,12 @@
   position: relative;
   width: clamp(20ch, 20vw, 30ch);
 }
-.tile-list li {
+.list li {
   border-top: var(--border-width) solid var(--border-color);
   font-size: var(--small-font-size);
   word-break: break-word;
 }
-.tile-list li a {
+.list li a {
   padding: var(--spacing-2);
   border-radius: var(--border-radius);
   color: var(--text);
@@ -29,29 +30,29 @@
   background: none;
   line-height: 1;
 }
-.tile-list li.selected {
+.list li.selected {
   border-radius: var(--border-radius);
   border-top-color: transparent;
 }
-.tile-list li.selected a {
+.list li.selected a {
   background-color: var(--background-3);
 }
-.tile-list li.selected a:focus {
+.list li.selected a:focus {
   background-color: var(--color-primary-transparent);
 }
-.tile-list li:first-child:not(.selected),
-.tile-list li.selected + li {
+.list li:first-child:not(.selected),
+.list li.selected + li {
   border-color: transparent;
 }
-.tile-list .title {
+.list .title {
   font-size: var(--h4-size);
   font-weight: normal;
   margin: var(--spacing-1) 0;
 }
-.tile-list .title:first-child {
+.list .title:first-child {
   margin-top: 0;
 }
-:where(.tile, .tile-list) :where(header, footer) {
+:where(.tile, .list) :where(header, footer) {
   display: flex;
   justify-content: space-between;
 }

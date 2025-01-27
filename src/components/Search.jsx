@@ -34,7 +34,6 @@ const SearchComponent = () => {
   const state = useContext(SearchState)
 
   const search = ({ target: { value } }) => {
-    console.log(value)
     void api.get_process_definition(state, value)
     void api.get_process_instance(state, value)
   }

@@ -8,6 +8,7 @@ import { Home } from "./pages/Home/index.jsx";
 import { TasksPage } from "./pages/Tasks/index.jsx";
 import { ProcessesPage } from "./pages/Processes/index.jsx";
 import { AdminPage } from "./pages/Admin/index.jsx";
+import { DeploymentsPage } from "./pages/Deployments/index.jsx";
 import { NotFound } from "./pages/_404.jsx";
 
 import './css/fonts.css'
@@ -36,6 +37,9 @@ export function App () {
           <Route path="/processes/:definition_id/:panel" component={ProcessesPage} />
           <Route path="/processes/:definition_id/:panel/:selection_id" component={ProcessesPage} />
           <Route path="/processes/:definition_id/:panel/:selection_id/:sub_panel" component={ProcessesPage} />
+          <Route path="/deployments" component={DeploymentsPage} />
+          <Route path="/deployments/:deployment_id" component={DeploymentsPage} />
+          <Route path="/deployments/:deployment_id/:resource_name" component={DeploymentsPage} />
           <Route path="/admin" component={AdminPage} />
           <Route path="/admin/:page_id" component={AdminPage} />
           <Route path="/admin/:page_id/:selection_id" component={AdminPage} />

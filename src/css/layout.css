@@ -217,3 +217,10 @@ header > nav menu a {
 .relative {
     position: relative;
 }
+
+.screen-hidden {
+    position: absolute;
+    left: -999vw;
+    height: 0;
+    width: 0;
+}

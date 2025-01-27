@@ -25,7 +25,6 @@ const ProcessesPage = () => {
     document.getElementById('selection').style.width = details_width.value
   }, [details_width.value])
 
-  void api.get_process_definitions(state)
 
   if (params.definition_id) {
     void api.get_process_definition(state, params.definition_id)
@@ -36,6 +35,7 @@ const ProcessesPage = () => {
     state.process_instances.value = null
     state.process_instance.value = null
     state.process_definition_diagram.value = null
+    void api.get_process_definitions(state)
   }
 
   return (
@@ -127,9 +127,6 @@ const ProcessDefinitionDetails = () => {
         accordion_name="process_definition_details"
         sections={process_definition_tabs}
         base_path={`/processes/${params.definition_id}`} />
-
-      {/*<Tabs base_url={`/processes/${params.definition_id}`}*/}
-      {/*      tabs={process_definition_tabs} />*/}
     </div>
   )
 }

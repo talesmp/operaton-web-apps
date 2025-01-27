@@ -73,7 +73,7 @@ const TaskList = () => {
       </div>
     </div>
 
-    <ul class="tile-list">
+    <ul class="list">
       {tasks.value?.map(task =>
         <TaskTile key={task.id} {...task} />)}
     </ul>

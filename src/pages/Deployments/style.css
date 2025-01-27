@@ -1,0 +1,16 @@
+.deployments-container {
+    display: grid;
+    grid-template-columns: 3fr 9fr; 
+    gap: var(--spacing-1);
+  }
+    
+  .deployments-details {
+    padding: var(--spacing-2);
+  }
+
+  .list-scrollable {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing-1);
+    height: 90vh;
+  }

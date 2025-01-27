@@ -52,6 +52,12 @@ const createAppState = () => {
   const task_assign_result = signal(null)
   const task_generated_form = signal(null)
   const task_deployed_form = signal(null)
+  const deployments = signal()
+  const selected_deployment = signal(null)
+  const deployment_resources = signal([])
+  const selected_resource = signal(null)
+  const selected_process_statistics = signal(null)
+  const bpmn_xml = signal(null)
   // admin
   // const admin_users = signal(null)
 
@@ -82,7 +88,13 @@ const createAppState = () => {
     user_create_response,
     user_profile,
     user_groups,
-    users
+    users,
+    deployments,
+    selected_deployment,
+    deployment_resources,
+    selected_resource,
+    selected_process_statistics,
+    bpmn_xml
   }
 }
 

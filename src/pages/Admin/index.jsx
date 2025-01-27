@@ -16,7 +16,7 @@ const AdminPage = () => {
 
   return <main id="admin-page">
     <nav>
-      <ul class="tile-list">
+      <ul class="list">
         <li class={is_selected('users')}><a href="/admin/users">Users</a></li>
         <li class={is_selected('groups')}><a href="/admin/groups">Groups</a></li>
         <li class={is_selected('tenants')}><a href="/admin/tenants">Tenants</a></li>

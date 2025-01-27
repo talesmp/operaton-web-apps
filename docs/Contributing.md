@@ -17,11 +17,11 @@ To the Operaton web apps aka. the front-end.
 
 ## Using the old web apps as an example
 
-You can access the old C7 web apps when starting the backend with the 
+You can access the old C7 (Camunda 7) web apps when starting the backend with the 
 docker-compose file:
 
 - Operaton: `localhost:8084`
-- Camunda 7: `localhost:8088`
+- C7: `localhost:8088`
 
 For both, the login information are:
 
@@ -36,6 +36,7 @@ This project uses:
     - [preact-iso](https://github.com/preactjs/preact-iso)
 - [react-bpmn](https://github.com/bpmn-io/react-bpmn)
 - [Vite](https://vite.dev/guide/)
+- [Operaton API (currently C7 docs)](https://docs.camunda.org/rest/camunda-bpm-platform/7.22/#)
 
 ## Directory Structure
 
@@ -47,7 +48,7 @@ Most important folders and files for getting started with development.
     - `components`: reusable Preact/JavaScript UI components
     - `css`: vanilla CSS for entire project (see below)
     - `helper`: reusable JavaScript code
-    - `pages`: a dedicated page/folder for every 'app'
+    - `pages`: a dedicated page for every 'app'
     - `api.js`: all fetch requests to the Operaton REST API
     - `index.js`: Preact main, routing definitions and global app state
     - `state.js`: Global app state definition

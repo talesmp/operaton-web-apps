@@ -54,8 +54,8 @@ const UserAdminPage = () => {
 const UserList = () =>
   <div className="content fade-in">
     <Breadcrumbs paths={[
-      {name: "Admin", route: "/admin"},
-      {name: "Users"}]} />
+      { name: 'Admin', route: '/admin' },
+      { name: 'Users' }]} />
     <h2>Users</h2>
     <a href="/admin/users/new">Create New User</a>
     <table>
@@ -91,9 +91,9 @@ const UserDetails = (user_id) => {
 
   return <div class="content fade-in">
     <Breadcrumbs paths={[
-      {name: "Admin", route: "/admin"},
-      {name: "Users", route: "/admin/users"},
-      {name: "Details"}]} />
+      { name: 'Admin', route: '/admin' },
+      { name: 'Users', route: '/admin/users' },
+      { name: 'Details' }]} />
 
     <h2>User Details</h2>
 
@@ -169,31 +169,24 @@ const CreateUserPage = () => {
         ? <p class="success">Successfully created new user.</p>
         : <p class="error">Error: {user_create_response.value?.message}</p> : null}
     <form onSubmit={on_submit}>
-      <label>
-        User ID <br />
-        <input type="text" onInput={(e) => set_p_value('id', e)} required />
-      </label>
-      <label>
-        Password <br />
-        <input type="password" onInput={(e) => set_c_value('password', e)} required />
-      </label>
-      <label>
-        Password (repeated) <br />
-        <input type="password" />
-      </label>
-      <label>
-        First Name <br />
-        <input type="text" onInput={(e) => set_p_value('firstName', e)} required />
-      </label>
-      <label>
-        Last Name <br />
-        <input type="text" onInput={(e) => set_p_value('lastName', e)} required />
-      </label>
-      <label>
-        Email <br />
-        <input type="email" onInput={(e) => set_p_value('email', e)} required />
-      </label>
-      <br />
+      <label for="user-id">User ID</label>
+      <input id="user-id" type="text" onInput={(e) => set_p_value('id', e)} required />
+
+      <label for="password1">Password</label>
+      <input id="password1" type="password" onInput={(e) => set_c_value('password', e)} required />
+
+      <label for="password2"> Password (repeated)</label>
+      <input id="password2" type="password" onInput={(e) => set_c_value('password', e)} />
+
+      <label for="first-name"> First Name</label>
+      <input id="first-name" type="text" onInput={(e) => set_p_value('firstName', e)} required />
+
+      <label for="last-name">Last Name</label>
+      <input id="last-name" type="text" onInput={(e) => set_p_value('lastName', e)} required />
+
+      <label for="email">Email</label>
+      <input id="email" type="email" onInput={(e) => set_p_value('email', e)} required />
+
       <div class="button-group">
         <button type="submit">Create New User</button>
         <a href="/admin/users" class="button secondary">Cancel</a>

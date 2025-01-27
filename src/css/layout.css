@@ -82,7 +82,7 @@ div#app {
                 border-bottom: var(--border);
                 flex-wrap: wrap;
 
-                > span {
+                > h1 {
                     padding: var(--spacing-1)
                 }
 

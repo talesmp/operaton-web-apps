@@ -28,9 +28,9 @@ export function Header () {
 
   return <header>
     <nav id="secondary-navigation">
-      <span id="logo">
+      <h1 id="logo">
         <a href="/">Operaton&nbsp;BPM</a>
-      </span>
+      </h1>
       <menu>
         <menu id="skip-links">
           <li><a href="#content">Skip to content</a></li>

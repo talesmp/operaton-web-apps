@@ -1,12 +1,12 @@
 export const Home = () => (
   <main class="p-3">
-    <h1>Welcome to Operaton!</h1>
+    <h2>Welcome to Operaton!</h2>
     <p>
       You can find general information on operaton on <a
       href="https://operaton.org">operaton.org</a>.
     </p>
 
-    <h2>Help</h2>
+    <h3>Help</h3>
     <p>
       If you are not sure how to use Operaton or its web apps, start by taking
       a look at our help pages:
@@ -16,10 +16,10 @@ export const Home = () => (
       <li><a href="http://operaton.org/getting-started">Getting Started</a></li>
     </ul>
 
-    <h2>Web Apps</h2>
+    <h3>Web Apps</h3>
     <p>You are currently using the integrated web apps of Operaton.</p>
 
-    <h2>Community</h2>
+    <h3>Community</h3>
     <p>
       To visit the community forum to discuss features and find help. If you
       like to contribute to the project, check out our public git
@@ -30,7 +30,7 @@ export const Home = () => (
       <li><a href="https://github.com/operaton/operaton">GitHub</a></li>
     </ul>
 
-    <h3>Reporting a bug</h3>
+    <h4>Reporting a bug</h4>
     <p>If you encountered an error while using Operaton, please create a ticket
       to let us know:</p>
     <ul>
@@ -41,7 +41,7 @@ export const Home = () => (
       </li>
     </ul>
 
-    <h3>Requesting features</h3>
+    <h4>Requesting features</h4>
     <p>
       If you miss some functionality while using Operaton, you can communicate
       this as well. Please keep in mind, that features which a very specific to

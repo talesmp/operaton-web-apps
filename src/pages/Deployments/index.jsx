@@ -200,7 +200,7 @@ const ProcessDetails = () => {
             </tbody>
           </table>
 
-          <BpmnViewer process_definition_id={state.selected_process_statistics.value?.definition.id} />
+          <BpmnViewer process_definition_id={state.selected_process_statistics.peek().definition.id} />
 
           {/* Delete Button */}
           <button onClick={openModal} class="delete-button">

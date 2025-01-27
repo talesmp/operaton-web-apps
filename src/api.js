@@ -159,7 +159,7 @@ export const get_deployment_resources = (state, deployment_id) => {
 export const get_process_definition_xml = (state, process_definition_id) => {
   return fetch(`${_url(state)}/process-definition/${process_definition_id}/xml`)
     .then((response) => response.json())
-    .then((json) => (state.bpmn_xml.value = json.bpmn20Xml))
+    .then((json) => (state.bpmn_xml.value = json))
     .catch((error) => console.error('Error fetching BPMN XML:', error))
 }
 

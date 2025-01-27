@@ -16,15 +16,14 @@ const BpmnDetails = () => {
   const
     state = useContext(AppState)
 
-    return <div class="bpmn-viewer">
-      {state.bpmn_xml.value ? (
-          <ReactBpmn
-            diagramXML={state.bpmn_xml.value}
-            onLoading={null}
-            onShown={null}
-            onError={null} />
-      ) : (
-        <p role="status" aria-live="polite">Loading process diagram...</p>
-      )}
-    </div>
+  return (<div class="bpmn-viewer">
+
+    {(state.bpmn_xml.value !== null)
+      ? <ReactBpmn
+        diagramXML={state.bpmn_xml.value.bpmn20Xml}
+        onLoading={null}
+        onShown={null}
+        onError={null} />
+      : <p role="status" aria-live="polite">Loading process diagram...</p>}
+  </div>)
 }

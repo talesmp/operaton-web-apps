@@ -1,17 +1,19 @@
 import * as api from '../api.js'
 import { useContext, useState } from 'preact/hooks'
 import { AppState } from '../state.js'
-import { useRoute } from 'preact-iso'
+import { useLocation, useRoute } from 'preact-iso'
 import { useSignal } from '@preact/signals'
 import { delete_deployment, get_deployment, get_deployment_instance_count } from '../api.js'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
 const DeploymentsPage = () => {
   const state = useContext(AppState),
-    { params } = useRoute()
+    { params } = useRoute(),
+    {  route } = useLocation()
 
   if (params.deployment_id === undefined || state.deployments.value === undefined) {
     void api.get_deployment(state)
+      .then(() => route(`/deployments/${state.deployments.value[0].id}`))
   }
   if (params.deployment_id) {
     void api.get_deployment_resources(state, params.deployment_id)

@@ -58,6 +58,10 @@ const
   bar = 2
 ```
 
+### Using the Operaton API
+
+Please have a look at [Using the API](Using-the-API.md) for detailed information.
+
 ### Templates
 
 #### View Component

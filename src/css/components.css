@@ -398,7 +398,15 @@
             flex-basis: 100%;
           }
 
-          input, select {
+          .task-text {
+            margin-top: var(--spacing-2);
+          }
+
+          input {
+            width: 91%;
+          }
+
+          select {
             width: 98%;
           }
           input[type='checkbox'], input[type='radio'] {

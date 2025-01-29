@@ -260,7 +260,7 @@ const DeployedFormComponent = (props) =>
         case 'separator':
           return <hr />
         case 'text':
-          return <span>{props.component.text}</span>
+          return <div class="task-text">{props.component.text}</div>
         case 'checklist':
           return <MultiInput component={props.component} />
         case 'radio':
@@ -276,14 +276,15 @@ const DeployedFormComponent = (props) =>
 
 const Input = (props) => {
   let type = props.type
-  const label = props.component.dateLabel ? props.component.dateLabel : props.component.label
+  const label = props.component.dateLabel ? props.component.dateLabel :
+    (props.component.timeLabel ? props.component.timeLabel : props.component.label)
 
   if (type === 'textfield') {
     type = 'text'
   }
 
   if (type === 'datetime') {
-    type = 'datetime-local'
+    type = props.component.subtype === 'datetime' ? 'datetime-local' : props.component.subtype
   }
 
   return (

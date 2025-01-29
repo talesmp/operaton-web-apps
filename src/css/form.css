@@ -84,12 +84,18 @@ button, .button, .button:visited {
   transition: 100ms all;
 }
 
+:where(button, select, input):disabled {
+  cursor: not-allowed;
+  outline-style: none;
+}
+
 .button-group {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-1);
   grid-column: 1 / span 2;
   justify-content: end;
+  align-items: center;
 }
 
 input,

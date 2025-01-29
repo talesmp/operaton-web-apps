@@ -8,10 +8,10 @@ import { Search } from './components/Search.jsx'
 import { Home } from './pages/Home.jsx'
 import { TasksPage } from './pages/Tasks.jsx'
 import { ProcessesPage } from './pages/Processes.jsx'
-import { AdminPage } from './pages/Admin.jsx";
-import { DeploymentsPage } from "./pages/Deployments.jsx'
+import { AdminPage } from './pages/Admin.jsx'
+import { DeploymentsPage } from './pages/Deployments.jsx'
 import { NotFound } from './pages/_404.jsx'
-import { AccountPage } from './pages/Account/index.jsx'
+import { AccountPage } from './pages/Account.jsx'
 
 import './css/fonts.css'
 import './css/form.css'

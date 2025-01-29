@@ -26,29 +26,34 @@ const post = (url, body, state, signl) =>
       method: 'POST',
       body: JSON.stringify(body)
     })
-    .then(response => response.ok ? response.ok : Promise.reject(response))
-    .then(result => signl.value = { success: true, ...result })
+    .then(response => response.ok ? (response.status === 204 ? 'No Content' : response.json()) : Promise.reject(response))
+    .then(result => signl.value = { success: true, response: result })
     .catch(response => response.json())
     .then(json => signl.value = { success: false, ...json })
 
-export const update_user_profile = (state) =>
-  fetch(`${_url(state)}/user/${state.user_profile_edit.value.id}/profile`,
+const put = (url, body, state, signl) =>
+  fetch(`${_url(state)}${url}`,
     {
       headers: headers_json,
       method: 'PUT',
-      body: JSON.stringify(state.user_profile_edit.value)
+      body: JSON.stringify(body)
     })
-    .then(result => state.user_profile_edit_response.value = { success: true, ...result.json() })
-    .then(() => get_user_profile(state, state.user_profile_edit.value.id))
-    .catch(response => state.user_profile_edit_response.value = { success: false, ...response.json() })
-
-
+    .then(response => response.ok ? (response.status === 204 ? 'No Content' : response.json()) : Promise.reject(response))
+    .then(result => signl.value = { success: true, response: result })
+    .catch(response => response.json())
+    .then(json => signl.value = { success: false, ...json })
 
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
+export const update_credentials = (state, user_name) => put(`/user/${user_name ?? 'demo'}/credentials`, state.user_credentials.value, state, state.user_credentials_response) // TODO remove `?? 'demo'` when we have working authentication
+export const unlock_user = (state, user_name) => post(`/user/${user_name ?? 'demo'}/unlock`, {}, state, state.user_unlock_response) // TODO remove `?? 'demo'` when we have working authentication
 export const get_users = (state) => get('/user', state, state.users)
 export const create_user = (state) => post('/user/create', state.user_create.value, state, state.user_create_response)
 export const get_user_count = (state) => get('/user', state, state.user_count)
-export const get_user_groups = (state, user_name) => post('/group', { member: user_name, firstResult: 0, maxResults: 50 }, state, state.user_groups)
+export const get_user_groups = (state, user_name) => post('/group', {
+  member: user_name ?? 'demo',
+  firstResult: 0,
+  maxResults: 50
+}, state, state.user_groups) // TODO remove `?? 'demo'` when we have working authentication
 export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.process_definitions)
 export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.process_definition)
 export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.process_instances)
@@ -266,3 +271,18 @@ export const get_process_definition_by_deployment_id = (state, deployment_id, re
       }
     })
     .catch((error) => console.error('Error fetching process definition:', error))
+
+/** Update the user profile and fetch the profile again
+ * @param {Object} state - Application state
+ * @sideeffects Triggers get_user_profile
+ */
+export const update_user_profile = (state) =>
+  fetch(`${_url(state)}/user/${state.user_profile_edit.value.id}/profile`,
+    {
+      headers: headers_json,
+      method: 'PUT',
+      body: JSON.stringify(state.user_profile_edit.value)
+    })
+    .then(result => state.user_profile_edit_response.value = { success: true, ...result.json() })
+    .then(() => get_user_profile(state, state.user_profile_edit.value.id))
+    .catch(response => state.user_profile_edit_response.value = { success: false, ...response.json() })

@@ -8,8 +8,8 @@ import { signal } from '@preact/signals'
 import { createContext } from 'preact'
 
 /**
- * Create the global app state by invoking the function in the root [index.jsx`]
- * (./src/index.jsx) by using `<AppState.Provider value={createAppState()}>`.
+ * Create the global app state by invoking the function in the root [Tasks.jsx`]
+ * (./src/Tasks.jsx) by using `<AppState.Provider value={createAppState()}>`.
  *
  * To add new entries to the state expand the list of definitions in a flat
  *
@@ -17,7 +17,7 @@ import { createContext } from 'preact'
  * @returns {Object} exposing all defined signals
  */
 const createAppState = () => {
-  const server = signal(get_server)
+  const server = signal(get_stored_server())
   const process_definitions = signal(null)
   const process_definition = signal(null)
   const process_definition_diagram = signal(null)
@@ -92,7 +92,7 @@ const createAppState = () => {
 
 const AppState = createContext(undefined)
 
-const get_server = () => {
+const get_stored_server = () => {
   if (localStorage.getItem("server")) {
     return JSON.parse(localStorage.getItem("server"))
   }
@@ -101,7 +101,6 @@ const get_server = () => {
   localStorage.setItem("server", JSON.stringify(stored_server))
 
   return stored_server
-
 }
 
 export { createAppState, AppState }

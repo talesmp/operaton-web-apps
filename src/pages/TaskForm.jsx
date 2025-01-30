@@ -1,11 +1,11 @@
 import { useState, useContext } from 'preact/hooks'
-import * as api from '../../api'
+import * as api from '../api.js'
 import DOMPurify from 'dompurify'
-import { AppState } from '../../state.js'
+import { AppState } from '../state.js'
 import { useSignalEffect } from '@preact/signals'
-import * as Icons from '../../assets/icons.jsx'
+import * as Icons from '../assets/icons.jsx'
 
-const Form = () => {
+const TaskForm = () => {
   const [generated, setGenerated] = useState('')
   const [deployed, setDeployed] = useState([])
   const [error, setError] = useState(null)
@@ -170,7 +170,7 @@ const post_form = (e, state, setError) => {
   e.preventDefault()
 }
 
-/* with "Save Form" we store the form data in the local storage, so the task can be completed in the future,
+/* with "Save TaskForm" we store the form data in the local storage, so the task can be completed in the future,
    no matter when, we reuse the JSON structure from the REST API POST call */
 const store_data = (state) => {
   localStorage.setItem(`task_form_${state.task.value?.id}`, JSON.stringify(build_form_data(true)))
@@ -338,4 +338,4 @@ const MultiInput = (props) => {
     </>)
 }
 
-export { Form }
+export { TaskForm }

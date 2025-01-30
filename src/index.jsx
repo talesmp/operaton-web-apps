@@ -5,7 +5,7 @@ import {AppState, createAppState} from "./state.js";
 import { Header } from './components/Header.jsx'
 
 import { Home } from "./pages/Home.jsx";
-import { TasksPage } from "./pages/Tasks/index.jsx";
+import { TasksPage } from "./pages/Tasks.jsx";
 import { ProcessesPage } from "./pages/Processes.jsx";
 import { AdminPage } from "./pages/Admin.jsx";
 import { DeploymentsPage } from "./pages/Deployments.jsx";

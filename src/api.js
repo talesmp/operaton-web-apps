@@ -14,31 +14,30 @@ headers.set('Authorization', `Basic ${window.btoa(unescape(encodeURIComponent('d
 let headers_json = headers
 headers_json.set('Content-Type', 'application/json')
 
+const response_data = (response) => {
+  const json = response.status === 204 ? 'No Content' : response.json()
+  return response.ok ? json : Promise.reject(response)
+}
+
 const get = (url, state, signal) =>
   fetch(`${_url(state)}${url}`)
     .then(response => response.json())
     .then(json => signal.value = json)
 
 const post = (url, body, state, signl) =>
-  fetch(`${_url(state)}${url}`,
-    {
-      headers: headers_json,
-      method: 'POST',
-      body: JSON.stringify(body)
-    })
-    .then(response => response.ok ? (response.status === 204 ? 'No Content' : response.json()) : Promise.reject(response))
-    .then(result => signl.value = { success: true, response: result })
-    .catch(response => response.json())
-    .then(json => signl.value = { success: false, ...json })
+  fetch_with_body('POST', url, body, state, signl)
 
 const put = (url, body, state, signl) =>
+  fetch_with_body('PUT', url, body, state, signl)
+
+const fetch_with_body = (method, url, body, state, signl) =>
   fetch(`${_url(state)}${url}`,
     {
       headers: headers_json,
       method: 'PUT',
       body: JSON.stringify(body)
     })
-    .then(response => response.ok ? (response.status === 204 ? 'No Content' : response.json()) : Promise.reject(response))
+    .then(response => response_data(response))
     .then(result => signl.value = { success: true, response: result })
     .catch(response => response.json())
     .then(json => signl.value = { success: false, ...json })

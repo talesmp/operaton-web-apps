@@ -895,4 +895,9 @@ dialog#global-search {
     .danger {
         color: var(--color-danger);
     }
+
+    dialog#delete-user-dialog {
+        max-width: 80ch;
+        width: 80ch;
+    }
 }

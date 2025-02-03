@@ -30,11 +30,14 @@ const post = (url, body, state, signl) =>
 const put = (url, body, state, signl) =>
   fetch_with_body('PUT', url, body, state, signl)
 
+const delete_ = (url, body, state, signl) =>
+  fetch_with_body('DELETE', url, body, state, signl)
+
 const fetch_with_body = (method, url, body, state, signl) =>
   fetch(`${_url(state)}${url}`,
     {
       headers: headers_json,
-      method: 'PUT',
+      method,
       body: JSON.stringify(body)
     })
     .then(response => response_data(response))
@@ -45,6 +48,7 @@ const fetch_with_body = (method, url, body, state, signl) =>
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
 export const update_credentials = (state, user_name) => put(`/user/${user_name ?? 'demo'}/credentials`, state.user_credentials.value, state, state.user_credentials_response) // TODO remove `?? 'demo'` when we have working authentication
 export const unlock_user = (state, user_name) => post(`/user/${user_name ?? 'demo'}/unlock`, {}, state, state.user_unlock_response) // TODO remove `?? 'demo'` when we have working authentication
+export const delete_user = (state, user_name) => delete_(`/user/${user_name ?? 'demo'}`, {}, state, state.user_delete_response) // TODO remove `?? 'demo'` when we have working authentication
 export const get_users = (state) => get('/user', state, state.users)
 export const create_user = (state) => post('/user/create', state.user_create.value, state, state.user_create_response)
 export const get_user_count = (state) => get('/user', state, state.user_count)
@@ -53,6 +57,20 @@ export const get_user_groups = (state, user_name) => post('/group', {
   firstResult: 0,
   maxResults: 50
 }, state, state.user_groups) // TODO remove `?? 'demo'` when we have working authentication
+export const get_groups = (state) => post('/group', {
+  firstResult: 0,
+  maxResults: 50,
+  sortBy: "id",
+  sortOrder: "asc"
+}, state, state.groups)
+export const add_group = (state, group_id, user_name) => put(`/group/${group_id}/members/${user_name ?? 'demo'}`, {
+  id: group_id,
+  userId: user_name ?? 'demo',
+}, state, state.add_group_reponse) // TODO remove `?? 'demo'` when we have working authentication
+export const remove_group = (state, group_id, user_name) => delete_(`/group/${group_id}/members/${user_name ?? 'demo'}`, {
+  id: group_id,
+  userId: user_name ?? 'demo',
+}, state, state.remove_group_response) // TODO remove `?? 'demo'` when we have working authentication
 export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.process_definitions)
 export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.process_definition)
 export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.process_instances)

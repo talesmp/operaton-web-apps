@@ -122,10 +122,14 @@ const AccountAccountPage = () => {
     void api.update_credentials(state, null)
   }
 
+  const close_delete_user_dialog = () => document.getElementById('delete-user-dialog').close()
+  const show_delete_user_dialog = () => document.getElementById('delete-user-dialog').showModal()
+
   const handle_delete_user = e => {
     e.preventDefault()
-    console.log('Delete User')
-    //TODO call delete api
+    api.delete_user(state)
+    //TODO close dialog
+    //TODO api.logout
   }
 
   const handle_unlock_user = e => {
@@ -170,7 +174,19 @@ const AccountAccountPage = () => {
     <div class="section">
       <h3>Delete User</h3>
       <p class="danger"><b>Warning:</b> deleting a user account cannot be undone.</p>
-      <button onClick={handle_delete_user}>Delete User</button>
+      <button onClick={show_delete_user_dialog}>Delete User</button>
+      <dialog id="delete-user-dialog" class="fade-in">
+        <h2>Please confirm</h2>
+        <p><b>Warning:</b> Authorizations that belong to this user are not deleted automatically when you delete the
+          user. Leftover authorizations are applied when creating a new user with the same id.
+          Please head over to the <b>Authorizations page</b> to delete related authorizations or delete them via API.
+        </p>
+        <p>Really delete user?</p>
+        <div class="button-group">
+          <button onClick={close_delete_user_dialog}>Cancel</button>
+          <button onClick={handle_delete_user}>Delete User</button>
+        </div>
+      </dialog>
     </div>
 
     <div class="section">
@@ -185,17 +201,37 @@ const AccountAccountPage = () => {
 
 const GroupAccountPage = () => {
   const state = useContext(AppState),
-    { user_groups } = state
+    { user_groups, groups } = state
 
   if (!user_groups.value) {
     void api.get_user_groups(state, null)
   }
 
+  const close_add_group_dialog = () => document.getElementById('add-group-dialog').close()
+  const show_add_group_dialog = () => {
+    void api.get_groups(state)
+    document.getElementById('add-group-dialog').showModal()
+  }
+
+  const handle_add_group = async (group_id) => {
+    await api.add_group(state, group_id)
+    user_groups.value = null;
+  }
+
+  const  handle_remove_group = async (group_id) => {
+    await api.remove_group(state, group_id)
+    user_groups.value = null;
+  }
+
+  const groups_without_user_groups = useComputed(() => {
+    return groups.value?.response.filter(group => !user_groups.value?.response.map(user_group => user_group.id).includes(group.id))
+  })
+
   return <div>
     <h2>Groups</h2>
     <h3>Edit Groups</h3>
 
-    <table>
+    {user_groups.value?.response.length > 0 ? <table>
       <thead>
       <tr>
         <th>Group ID</th>
@@ -205,20 +241,49 @@ const GroupAccountPage = () => {
       </tr>
       </thead>
       <tbody>
-      {user_groups.value?.response.map((group) => (
+      {user_groups.value.response.map((group) => (
         <tr key={group.id}>
           <td><a href={`/group/${group.id}`}>{group.id}</a></td>
           <td>{group.name}</td>
           <td>{group.type}</td>
-          <td><a>Remove</a></td>
+          <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
         </tr>
-      )) ?? <tr>
-        <td>No group assigned</td>
-      </tr>}
+      ))}
       </tbody>
     </table>
+      : <p>User is currently not a member of any group.</p>
+    }
     <br />
-    <button>Add to a group +</button>
+    <button onClick={show_add_group_dialog}>Add to a group +</button>
+    <dialog id="add-group-dialog" className="fade-in">
+      <h2>Select Groups</h2>
+      {groups_without_user_groups.value?.length > 0 ? <table>
+        <thead>
+        <tr>
+          <th>Group ID</th>
+          <th>Group Name</th>
+          <th>Group Type</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {groups_without_user_groups.value.map((group) => (
+          <tr key={group.id}>
+            <td><a href={`/group/${group.id}`}>{group.id}</a></td>
+            <td>{group.name}</td>
+            <td>{group.type}</td>
+            <td><a onClick={() => handle_add_group(group.id)}>Add</a></td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+        : <p>There are no additional groups available on this page to which the user can be added.</p>
+      }
+      <br />
+      <div className="button-group">
+        <button onClick={close_add_group_dialog}>Close</button>
+      </div>
+    </dialog>
   </div>
 }
 

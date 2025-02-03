@@ -41,7 +41,11 @@ const createAppState = () => {
   const user_credentials = signal({})
   const user_credentials_response = signal(null)
   const user_unlock_response = signal(null)
+  const user_delete_response = signal(null)
   const user_groups = signal(null) // should be set after login
+  const groups = signal(null)
+  const add_group_reponse = signal(null)
+  const remove_group_response = signal(null)
   const tasks = signal(null)
   const selected_task = signal(null)
   const task = signal(null)
@@ -89,7 +93,11 @@ const createAppState = () => {
     user_credentials,
     user_credentials_response,
     user_unlock_response,
+    user_delete_response,
     user_groups,
+    groups,
+    add_group_reponse,
+    remove_group_response,
     users,
     deployments,
     selected_deployment,

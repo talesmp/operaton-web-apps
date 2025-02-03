@@ -14,7 +14,8 @@ menu {
 }
 
 a, a:visited {
-    color: var(--color-primary)
+    color: var(--color-primary);
+    cursor: pointer;
 }
 
 table {

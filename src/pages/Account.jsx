@@ -29,7 +29,7 @@ const AccountPage = () => {
       profile: <ProfileAccountPage />,
       account: <AccountAccountPage />,
       groups: <GroupAccountPage />,
-      tenants: <p>Tenants Page</p>,
+      tenants: <TenantsAccountPage />,
     })[page_id] ?? <p>Select Page</p>}
 
   </main>
@@ -144,7 +144,6 @@ const AccountAccountPage = () => {
     close_delete_user_dialog = () => document.getElementById('delete-user-dialog').close(),
     show_delete_user_dialog = () => document.getElementById('delete-user-dialog').showModal()
 
-
   useSignalEffect(() => {
     return () => {
       user_credentials_response.value = undefined
@@ -177,7 +176,7 @@ const AccountAccountPage = () => {
       </form>
     </section>
 
-    <div>
+    <section>
       <h3>Delete User</h3>
       <p class="danger"><strong>Warning:</strong> deleting a user account cannot be undone.</p>
       <button onClick={show_delete_user_dialog}>Delete User</button>
@@ -193,7 +192,7 @@ const AccountAccountPage = () => {
           <button onClick={handle_delete_user}>Delete User</button>
         </div>
       </dialog>
-    </div>
+    </section>
 
     <section>
       <h3>Unlock User</h3>
@@ -208,62 +207,26 @@ const AccountAccountPage = () => {
 const GroupAccountPage = () => {
   const
     state = useContext(AppState),
-    { user_groups, groups } = state
+    { user_groups, groups } = state,
+    //computed local state
+    groups_without_user_groups = useComputed(() => groups.value?.response.filter(group => !user_groups.value?.response.map(user_group => user_group.id).includes(group.id))),
+    // dialog functions
+    close_add_group_dialog = () => document.getElementById('add-group-dialog').close(),
+    show_add_group_dialog = () => {
+      void api.get_groups(state)
+      document.getElementById('add-group-dialog').showModal()
+    },
+    // button handler
+    handle_add_group = (group_id) => api.add_group(state, group_id).then(() => api.get_user_groups(state, null)),
+    handle_remove_group = (group_id) => api.remove_group(state, group_id).then(() => api.get_user_groups(state, null))
 
   if (!user_groups.value) {
     void api.get_user_groups(state, null)
   }
 
-  const close_add_group_dialog = () => document.getElementById('add-group-dialog').close()
-  const show_add_group_dialog = () => {
-    void api.get_groups(state)
-    document.getElementById('add-group-dialog').showModal()
-  }
-
-  const handle_add_group = async (group_id) => {
-    await api.add_group(state, group_id)
-    user_groups.value = null;
-  }
-
-  const  handle_remove_group = async (group_id) => {
-    await api.remove_group(state, group_id)
-    user_groups.value = null;
-  }
-
-  const groups_without_user_groups = useComputed(() => {
-    return groups.value?.response.filter(group => !user_groups.value?.response.map(user_group => user_group.id).includes(group.id))
-  })
-
   return <div>
     <h2>Groups</h2>
-
     {user_groups.value?.response.length > 0 ? <table>
-      <thead>
-      <tr>
-        <th>Group ID</th>
-        <th>Group Name</th>
-        <th>Group Type</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      {user_groups.value.response.map((group) => (
-        <tr key={group.id}>
-          <td><a href={`/group/${group.id}`}>{group.id}</a></td>
-          <td>{group.name}</td>
-          <td>{group.type}</td>
-          <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
-        </tr>
-      ))}
-      </tbody>
-    </table>
-      : <p>User is currently not a member of any group.</p>
-    }
-    <br />
-    <button onClick={show_add_group_dialog}>Add to a group +</button>
-    <dialog id="add-group-dialog" className="fade-in">
-      <h2>Select Groups</h2>
-      {groups_without_user_groups.value?.length > 0 ? <table>
         <thead>
         <tr>
           <th>Group ID</th>
@@ -273,21 +236,121 @@ const GroupAccountPage = () => {
         </tr>
         </thead>
         <tbody>
-        {groups_without_user_groups.value.map((group) => (
+        {user_groups.value.response.map((group) => (
           <tr key={group.id}>
-            <td><a href={`/group/${group.id}`}>{group.id}</a></td>
+            <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
             <td>{group.name}</td>
             <td>{group.type}</td>
-            <td><a onClick={() => handle_add_group(group.id)}>Add</a></td>
+            <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
           </tr>
         ))}
         </tbody>
       </table>
+      : <p>User is currently not a member of any group.</p>
+    }
+    <br />
+    <button class="primary" onClick={show_add_group_dialog}>Add Group +</button>
+    <dialog id="add-group-dialog" className="fade-in">
+      <h2>Add Groups</h2>
+      {groups_without_user_groups.value?.length > 0 ? <table>
+          <thead>
+          <tr>
+            <th>Group ID</th>
+            <th>Group Name</th>
+            <th>Group Type</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          {groups_without_user_groups.value.map((group) => (
+            <tr key={group.id}>
+              <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
+              <td class="fill">{group.name}</td>
+              <td>{group.type}</td>
+              <td><a onClick={() => handle_add_group(group.id)}>Add</a></td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
         : <p>There are no additional groups available on this page to which the user can be added.</p>
       }
       <br />
       <div className="button-group">
         <button onClick={close_add_group_dialog}>Close</button>
+      </div>
+    </dialog>
+  </div>
+}
+
+const TenantsAccountPage = () => {
+  const
+    state = useContext(AppState),
+    { user_tenants, tenants } = state,
+    // computed local state
+    tenants_without_user_tenants = useComputed(() => tenants.value?.filter(tenant => !user_tenants.value?.map(user_tenant => user_tenant.id).includes(tenant.id))),
+    //dialog functions
+    close_add_tenant_dialog = () => document.getElementById('add-tenant-dialog').close(),
+    show_add_tenant_dialog = () => {
+      void api.get_tenants(state)
+      document.getElementById('add-tenant-dialog').showModal()
+    },
+    //button handlers
+    handle_add_tenant = (tenant_id) => api.add_tenant(state, tenant_id).then(() => api.get_user_tenants(state, null)),
+    handle_remove_tenant = (tenant_id) => api.remove_tenant(state, tenant_id).then(() => api.get_user_tenants(state, null))
+
+  if (!user_tenants.value) {
+    void api.get_user_tenants(state, null)
+  }
+
+  return <div>
+    <h2>Tenants</h2>
+    {user_tenants.value?.length > 0 ? <table>
+        <thead>
+        <tr>
+          <th>Tenant ID</th>
+          <th>Tenant Name</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {user_tenants.value.map((tenant) => (
+          <tr key={tenant.id}>
+            <td><a href={`/admin/tenants/${tenant.id}`}>{tenant.id}</a></td>
+            <td>{tenant.name}</td>
+            <td><a onClick={() => handle_remove_tenant(tenant.id)}>Remove</a></td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+      : <p>User is currently not a member of any tenants.</p>
+    }
+    <br />
+    <button class="primary" onClick={show_add_tenant_dialog}>Add Tenant +</button>
+    <dialog id="add-tenant-dialog" className="fade-in">
+      <h2>Add Tenants</h2>
+      {tenants_without_user_tenants.value?.length > 0 ? <table>
+          <thead>
+          <tr>
+            <th>Tenant ID</th>
+            <th>Tenant Name</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          {tenants_without_user_tenants.value.map((tenant) => (
+            <tr key={tenant.id}>
+              <td><a href={`/admin/tenants/${tenant.id}`}>{tenant.id}</a></td>
+              <td class="fill">{tenant.name}</td>
+              <td><a onClick={() => handle_add_tenant(tenant.id)}>Add</a></td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+        : <p>There are no additional tenants to which the user can be added.</p>
+      }
+      <br />
+      <div className="button-group">
+        <button onClick={close_add_tenant_dialog}>Close</button>
       </div>
     </dialog>
   </div>

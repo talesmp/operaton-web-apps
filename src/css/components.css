@@ -418,6 +418,7 @@
           input {
             width: 91%;
           }
+
           select {
             width: 98%;
           }
@@ -782,14 +783,7 @@ div.accordion {
 /* global search */
 
 dialog#global-search {
-  max-width: 80ch;
-  width: 80ch;
-  margin: auto;
   height: 80%;
-  border: var(--border);
-  border-radius: var(--border-radius-2);
-  box-shadow: 0 0 var(--spacing-2) #0002;
-
 }
 
 ::backdrop {
@@ -875,15 +869,11 @@ dialog#global-search {
 #account-page > div {
   padding: var(--spacing-2);
   overflow-y: auto;
-  /*height: calc(100% - 2 * var(--spacing-2));*/
   width: calc(100% - var(--spacing-3));
   flex: 1;
   background-clip: padding-box;
 }
 
-/* todo refactor into normalize.css */
-dialog#delete-user-dialog {
-  max-width: 80ch;
-  width: 80ch;
-  border-radius: var(--border-radius-2);
+#account-page dialog table td.fill {
+  width: 100%;
 }

@@ -82,3 +82,13 @@ aside {
 section:not(:first-child) {
     margin-top: var(--spacing-3);
 }
+
+dialog {
+    max-width: 80ch;
+    width: 80ch;
+    margin: auto;
+    max-height: 80%;
+    border: var(--border);
+    border-radius: var(--border-radius-2);
+    box-shadow: 0 0 var(--spacing-2) #0002;
+}

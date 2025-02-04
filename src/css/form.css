@@ -36,7 +36,7 @@ button, .button, .button:visited {
 
   font-size: var(--small-font-size);
 
-  &[type=submit] {
+  &[type=submit], &.primary {
     background: var(--color-primary);
     color: white;
   }

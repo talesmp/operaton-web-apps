@@ -17,7 +17,7 @@ headers_json.set('Content-Type', 'application/json')
 const response_data = (response) =>
   response.ok
     ? (response.status === 204)
-      ? new Promise(() => 'No Content')
+      ? Promise.resolve('No Content')
       : response.json()
     : Promise.reject(response)
 
@@ -62,8 +62,8 @@ export const get_user_groups = (state, user_name) => post('/group', {
 export const get_groups = (state) => post('/group', {
   firstResult: 0,
   maxResults: 50,
-  sortBy: "id",
-  sortOrder: "asc"
+  sortBy: 'id',
+  sortOrder: 'asc'
 }, state, state.groups)
 export const add_group = (state, group_id, user_name) => put(`/group/${group_id}/members/${user_name ?? 'demo'}`, {
   id: group_id,
@@ -73,6 +73,16 @@ export const remove_group = (state, group_id, user_name) => delete_(`/group/${gr
   id: group_id,
   userId: user_name ?? 'demo',
 }, state, state.remove_group_response) // TODO remove `?? 'demo'` when we have working authentication
+export const get_user_tenants = (state, user_name) => get(`/tenant?userMember=${user_name ?? 'demo'}&maxResult=50&firstResult=0`, state, state.user_tenants) // TODO remove `?? 'demo'` when we have working authentication
+export const get_tenants = (state) => get(`/tenant?firstResult=0&maxResults=20&sortBy=id&sortOrder=asc`, state, state.tenants)
+export const add_tenant = (state, tenant_id, user_name) => put(`/tenant/${tenant_id}/user-members/${user_name ?? 'demo'}`, {
+  id: tenant_id,
+  userId: user_name ?? 'demo',
+}, state, state.add_tenant_reponse) // TODO remove `?? 'demo'` when we have working authentication
+export const remove_tenant = (state, tenant_id, user_name) => delete_(`/tenant/${tenant_id}/user-members/${user_name ?? 'demo'}`, {
+  id: tenant_id,
+  userId: user_name ?? 'demo',
+}, state, state.remove_tenant_response) // TODO remove `?? 'demo'` when we have working authentication
 export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.process_definitions)
 export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.process_definition)
 export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.process_instances)

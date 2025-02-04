@@ -885,4 +885,5 @@ dialog#global-search {
 dialog#delete-user-dialog {
   max-width: 80ch;
   width: 80ch;
+  border-radius: var(--border-radius-2);
 }

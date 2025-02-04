@@ -177,7 +177,7 @@ const AccountAccountPage = () => {
       </form>
     </section>
 
-    <section>
+    <div>
       <h3>Delete User</h3>
       <p class="danger"><strong>Warning:</strong> deleting a user account cannot be undone.</p>
       <button onClick={show_delete_user_dialog}>Delete User</button>
@@ -191,7 +191,7 @@ const AccountAccountPage = () => {
         <div class="button-group">
           <button onClick={close_delete_user_dialog}>Cancel</button>
           <button onClick={handle_delete_user}>Delete User</button>
-        </section>
+        </div>
       </dialog>
     </div>
 

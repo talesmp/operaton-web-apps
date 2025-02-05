@@ -6,7 +6,6 @@
  * Please refer to the `docs/Coding Conventions.md` "JavaScript > api.js" to
  * learn how we organize the code in this file.
  */
-
 const _url = (state) => `${state.server.value.url}/engine-rest`
 
 let headers = new Headers()
@@ -14,17 +13,43 @@ headers.set('Authorization', `Basic ${window.btoa(unescape(encodeURIComponent('d
 let headers_json = headers
 headers_json.set('Content-Type', 'application/json')
 
+/* helpers */
+
+const _STATE = {
+  NOT_INITIALIZED: 'NOT_INITIALIZED',
+  LOADING: "LOADING",
+  SUCCESS: "SUCCESS",
+  ERROR: "ERROR"
+}
+
+export const RequestState = ({ signl, on_success }) =>
+  <>
+    {signl.value !== null ?
+      {
+        NOT_INITIALIZED: <p>No data requested</p>,
+        LOADING: <p>Loading...</p>,
+        SUCCESS: signl.value?.data ? on_success() : <p>No data</p>,
+        ERROR: <p>Error: {signl.value.error}</p>
+      }[signl.value.status]
+      : <p>Fetching...</p>
+    }
+  </>
+
+const get = (url, state, signl) => {
+  signl.value = { status: _STATE.LOADING }
+
+  return fetch(`${_url(state)}${url}`)
+    .then(response => response.ok ? response.json() : Promise.reject(response))
+    .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
+    .catch(error => signl.value = { status: _STATE.ERROR, error: error.json() })
+}
+
 const response_data = (response) =>
   response.ok
     ? (response.status === 204)
-      ? Promise.resolve('No Content')
+      ? new Promise(() => 'No Content')
       : response.json()
     : Promise.reject(response)
-
-const get = (url, state, signal) =>
-  fetch(`${_url(state)}${url}`)
-    .then(response => response.json())
-    .then(json => signal.value = json)
 
 const post = (url, body, state, signl) =>
   fetch_with_body('POST', url, body, state, signl)
@@ -35,17 +60,21 @@ const put = (url, body, state, signl) =>
 const delete_ = (url, body, state, signl) =>
   fetch_with_body('DELETE', url, body, state, signl)
 
-const fetch_with_body = (method, url, body, state, signl) =>
-  fetch(`${_url(state)}${url}`,
+const fetch_with_body = (method, url, body, state, signl) => {
+  signl.value = { status: _STATE.LOADING }
+
+  return fetch(`${_url(state)}${url}`,
     {
       headers: headers_json,
       method,
       body: JSON.stringify(body)
     })
     .then(response_data)
-    .then(result => signl.value = { success: true, response: result })
-    .catch(response => response.json())
-    .then(json => signl.value = { success: false, ...json })
+    .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
+    .catch(error => signl.value = { status: _STATE.ERROR, error: error.json() })
+}
+
+/* api calls */
 
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
 export const update_credentials = (state, user_name) => put(`/user/${user_name ?? 'demo'}/credentials`, state.user_credentials.value, state, state.user_credentials_response) // TODO remove `?? 'demo'` when we have working authentication
@@ -83,11 +112,11 @@ export const remove_tenant = (state, tenant_id, user_name) => delete_(`/tenant/$
   id: tenant_id,
   userId: user_name ?? 'demo',
 }, state, state.remove_tenant_response) // TODO remove `?? 'demo'` when we have working authentication
-export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.process_definitions)
-export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.process_definition)
-export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.process_instances)
+export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.api.process.definition.list)
+export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.api.process.definition.single)
+export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.api.process.instance.list)
+export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, state.api.process.instance.single)
 export const get_process_incidents = (state, definition_id) => get(`/history/incident?processDefinitionId=${definition_id}`, state, state.process_incidents)
-export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, state.process_instance)
 export const get_process_instance_variables = (state, instance_id) => get(`/process-instance/${instance_id}/variables`, state, state.selection_values)
 export const get_process_instance_incidents = (state, instance_id) => get(`/history/incident?processInstanceId=${instance_id}`, state, state.process_instance_incidents)
 export const get_process_instance_tasks = (state, instance_id) => get(`/task?processInstanceId=${instance_id}`, state, state.process_instance_tasks)

@@ -226,28 +226,29 @@ const GroupAccountPage = () => {
 
   return <div>
     <h2>Groups</h2>
-    {user_groups.value?.response.length > 0 ? <table>
-        <thead>
-        <tr>
-          <th>Group ID</th>
-          <th>Group Name</th>
-          <th>Group Type</th>
-          <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {user_groups.value.response.map((group) => (
-          <tr key={group.id}>
-            <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
-            <td>{group.name}</td>
-            <td>{group.type}</td>
-            <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
+    <api.RequestState
+      signl={user_groups}
+      on_success={() => user_groups.value?.data.length > 0 ? <table>
+          <thead>
+          <tr>
+            <th>Group ID</th>
+            <th>Group Name</th>
+            <th>Group Type</th>
+            <th>Action</th>
           </tr>
-        ))}
-        </tbody>
-      </table>
-      : <p>User is currently not a member of any group.</p>
-    }
+          </thead>
+          <tbody>
+          {user_groups.value.data.map((group) => (
+            <tr key={group.id}>
+              <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
+              <td>{group.name}</td>
+              <td>{group.type}</td>
+              <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+        : <p>User is currently not a member of any group.</p>} />
     <br />
     <button class="primary" onClick={show_add_group_dialog}>Add Group +</button>
     <dialog id="add-group-dialog" className="fade-in">

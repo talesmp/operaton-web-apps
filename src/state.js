@@ -33,10 +33,23 @@ const createAppState = () => {
   const job_definitions = signal(null)
   const users = signal(null)
   const user_count = signal(null)
-  const user_create = signal({ profile: {}, credentials: { } })
+  const user_create = signal({ profile: {}, credentials: {} })
   const user_create_response = signal()
   const user_profile = signal(null) // should be set after login
+  const user_profile_edit = signal(null)
+  const user_profile_edit_response = signal()
+  const user_credentials = signal({})
+  const user_credentials_response = signal(null)
+  const user_unlock_response = signal(null)
+  const user_delete_response = signal(null)
   const user_groups = signal(null) // should be set after login
+  const groups = signal(null)
+  const add_group_reponse = signal(null)
+  const remove_group_response = signal(null)
+  const user_tenants = signal(null)
+  const tenants = signal(null)
+  const add_tenant_reponse = signal(null)
+  const remove_tenant_response = signal(null)
   const tasks = signal(null)
   const selected_task = signal(null)
   const task = signal(null)
@@ -79,7 +92,20 @@ const createAppState = () => {
     user_create,
     user_create_response,
     user_profile,
+    user_profile_edit,
+    user_profile_edit_response,
+    user_credentials,
+    user_credentials_response,
+    user_unlock_response,
+    user_delete_response,
     user_groups,
+    groups,
+    add_group_reponse,
+    remove_group_response,
+    user_tenants,
+    tenants,
+    add_tenant_reponse,
+    remove_tenant_response,
     users,
     deployments,
     selected_deployment,
@@ -93,12 +119,12 @@ const createAppState = () => {
 const AppState = createContext(undefined)
 
 const get_stored_server = () => {
-  if (localStorage.getItem("server")) {
-    return JSON.parse(localStorage.getItem("server"))
+  if (localStorage.getItem('server')) {
+    return JSON.parse(localStorage.getItem('server'))
   }
 
   const stored_server = JSON.parse(import.meta.env.VITE_BACKEND)[0]
-  localStorage.setItem("server", JSON.stringify(stored_server))
+  localStorage.setItem('server', JSON.stringify(stored_server))
 
   return stored_server
 }

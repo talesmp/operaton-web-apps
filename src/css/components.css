@@ -10,7 +10,11 @@
 .list-container {
   display: flex;
 }
-.list-wrapper { width: clamp(20ch, 20vw, 30ch); }
+
+.list-wrapper {
+  width: clamp(20ch, 20vw, 30ch);
+}
+
 .list {
   list-style: none;
   padding: var(--spacing-1);
@@ -19,11 +23,13 @@
   position: relative;
   width: calc(clamp(20ch, 20vw, 30ch) - var(--spacing-1) * 2);
 }
+
 .list li {
   border-top: var(--border-width) solid var(--border-color);
   font-size: var(--small-font-size);
   word-break: break-word;
 }
+
 .list li a {
   padding: var(--spacing-2);
   border-radius: var(--border-radius);
@@ -33,28 +39,35 @@
   background: none;
   line-height: 1;
 }
+
 .list li.selected {
   border-radius: var(--border-radius);
   border-top-color: transparent;
 }
+
 .list li.selected a {
   background-color: var(--background-3);
 }
+
 .list li.selected a:focus {
   background-color: var(--color-primary-transparent);
 }
+
 .list li:first-child:not(.selected),
 .list li.selected + li {
   border-color: transparent;
 }
+
 .list .title {
   font-size: var(--h4-size);
   font-weight: normal;
   margin: var(--spacing-1) 0;
 }
+
 .list .title:first-child {
   margin-top: 0;
 }
+
 :where(.tile, .list) :where(header, footer) {
   display: flex;
   justify-content: space-between;
@@ -409,6 +422,7 @@
           select {
             width: 98%;
           }
+
           input[type='checkbox'], input[type='radio'] {
             width: auto;
           }
@@ -586,6 +600,7 @@ main#processes {
   position: relative;
   top: var(--border-width);
 }
+
 .tabs > .tab-selection > a::before {
   display: block;
   content: attr(title);
@@ -768,14 +783,7 @@ div.accordion {
 /* global search */
 
 dialog#global-search {
-  max-width: 80ch;
-  width: 80ch;
-  margin: auto;
   height: 80%;
-  border: var(--border);
-  border-radius: var(--border-radius-2);
-  box-shadow: 0 0 var(--spacing-2) #0002;
-
 }
 
 ::backdrop {
@@ -814,6 +822,7 @@ dialog#global-search {
   list-style: none;
   margin: 0;
 }
+
 .breadcrumbs > * {
   line-height: 1;
   padding: .3em .5em .3em 0;
@@ -821,17 +830,20 @@ dialog#global-search {
   /*text-decoration: none;*/
   color: var(--text-2);
 }
+
 .breadcrumbs > *:not(:first-child)::before {
   content: "/";
   margin-right: .5em;
   color: var(--text-2);
   font-weight: normal;
 }
+
 .breadcrumbs > *:last-child {
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
   color: var(--text);
   /*font-weight: 600;*/
 }
+
 .breadcrumbs a:visited {
   color: var(--text-2);
 }
@@ -847,4 +859,21 @@ dialog#global-search {
 .bpmn-viewer .react-bpmn-diagram-container {
   height: 100%;
   min-height: 40vh;
+}
+
+/* account */
+#account-page {
+  display: flex;
+}
+
+#account-page > div {
+  padding: var(--spacing-2);
+  overflow-y: auto;
+  width: calc(100% - var(--spacing-3));
+  flex: 1;
+  background-clip: padding-box;
+}
+
+#account-page dialog table td.fill {
+  width: 100%;
 }

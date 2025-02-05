@@ -14,7 +14,8 @@ menu {
 }
 
 a, a:visited {
-    color: var(--color-primary)
+    color: var(--color-primary);
+    cursor: pointer;
 }
 
 table {
@@ -76,4 +77,18 @@ aside {
     width: 16rem;
     min-height: 100%;
     border-right: var(--border-width) solid var(--border-color);
+}
+
+section:not(:first-child) {
+    margin-top: var(--spacing-3);
+}
+
+dialog {
+    max-width: 80ch;
+    width: 80ch;
+    margin: auto;
+    max-height: 80%;
+    border: var(--border);
+    border-radius: var(--border-radius-2);
+    box-shadow: 0 0 var(--spacing-2) #0002;
 }

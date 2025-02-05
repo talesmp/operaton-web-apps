@@ -1,15 +1,17 @@
-import {render} from "preact";
-import {LocationProvider, Router, Route} from "preact-iso";
-import {AppState, createAppState} from "./state.js";
+import { render } from 'preact'
+import { LocationProvider, Route, Router } from 'preact-iso'
+import { AppState, createAppState } from './state.js'
 
 import { Header } from './components/Header.jsx'
+import { Search } from './components/Search.jsx'
 
-import { Home } from "./pages/Home.jsx";
-import { TasksPage } from "./pages/Tasks.jsx";
-import { ProcessesPage } from "./pages/Processes.jsx";
-import { AdminPage } from "./pages/Admin.jsx";
-import { DeploymentsPage } from "./pages/Deployments.jsx";
-import { NotFound } from "./pages/_404.jsx";
+import { Home } from './pages/Home.jsx'
+import { TasksPage } from './pages/Tasks.jsx'
+import { ProcessesPage } from './pages/Processes.jsx'
+import { AdminPage } from './pages/Admin.jsx'
+import { DeploymentsPage } from './pages/Deployments.jsx'
+import { NotFound } from './pages/_404.jsx'
+import { AccountPage } from './pages/Account.jsx'
 
 import './css/fonts.css'
 import './css/form.css'
@@ -18,7 +20,6 @@ import './css/layout.css'
 import './css/components.css'
 import './css/normalize.css'
 import './css/animation.css'
-import { Search } from './components/Search.jsx'
 
 'use strict'
 
@@ -43,6 +44,9 @@ export function App () {
           <Route path="/admin" component={AdminPage} />
           <Route path="/admin/:page_id" component={AdminPage} />
           <Route path="/admin/:page_id/:selection_id" component={AdminPage} />
+          <Route path="/account" component={AccountPage} />
+          <Route path="/account/:page_id" component={AccountPage} />
+          <Route path="/account/:page_id/:selection_id" component={AccountPage} />
           <Route default component={NotFound} />
         </Router>
         <Search />

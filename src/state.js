@@ -68,6 +68,36 @@ const createAppState = () => {
 
   return {
     server,
+    api: {
+      user: {
+        count: user_count,
+        list: users,
+        create: {
+          request: user_create,
+          response: user_create_response,
+        },
+        profile: user_profile,
+        groups: user_groups
+      },
+      process: {
+        definition: {
+          single: process_definition,
+          list: process_definitions,
+          called: called_definitions,
+          diagram: process_definition_diagram
+
+        },
+        instance: {
+          called: called_process_instances,
+          single: process_instance,
+          list: process_instances
+        }
+      },
+      task: {
+
+      }
+    },
+
     called_definitions,
     called_process_instances,
     job_definitions,

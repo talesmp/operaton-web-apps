@@ -6,6 +6,7 @@ import * as Icons from '../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
+import { RequestState } from '../api.js'
 
 const store_details_width = () => {
   localStorage.setItem(
@@ -22,19 +23,25 @@ const ProcessesPage = () => {
     details_width = signal(localStorage.getItem('details_width'))
 
   useEffect(() => {
-    document.getElementById('selection').style.width = details_width.value
-  }, [details_width.value])
+    document.getElementById('selection').style.width = details_width.value.data
+  }, [details_width.value.data])
 
+  // && state.api.process.definition.single.value?.id !== params.definition_id
 
   if (params.definition_id) {
-    void api.get_process_definition(state, params.definition_id)
-    void api.get_diagram(state, params.definition_id)
+    if (state.api.process.definition.single.value === null) {
+      void api.get_process_definition(state, params.definition_id)
+      void api.get_diagram(state, params.definition_id)
+    } else if (state.api.process.definition.single.value?.data !== undefined && state.api.process.definition.single.value?.data.id !== params.definition_id) {
+      void api.get_process_definition(state, params.definition_id)
+      void api.get_diagram(state, params.definition_id)
+    }
   } else {
     // reset state
-    state.process_definition.value = null
-    state.process_instances.value = null
-    state.process_instance.value = null
-    state.process_definition_diagram.value = null
+    state.api.process.definition.single.value = null
+    state.api.process.definition.diagram.value = null
+    state.api.process.instance.list.value = null
+    state.api.process.instance.single.value = null
     void api.get_process_definitions(state)
   }
 
@@ -53,16 +60,16 @@ const ProcessesPage = () => {
 
 const ProcessDiagram = () => {
   const
-    { process_definition_diagram } = useContext(AppState),
+    { api: { process: { definition: { diagram } } } } = useContext(AppState),
     { params } = useRoute(),
     show_diagram =
-      process_definition_diagram.value !== null &&
+      diagram.value !== null &&
       params.definition_id !== undefined
 
   return <div id="preview" class="fade-in">
     {show_diagram
       ? <ReactBpmn
-        diagramXML={process_definition_diagram.value.bpmn20Xml}
+        diagramXML={diagram.value.data?.bpmn20Xml}
         onLoading={null}
         onShown={null}
         onError={null} />
@@ -86,7 +93,7 @@ const ProcessDefinitionSelection = () =>
       </tr>
       </thead>
       <tbody>
-      {useContext(AppState).process_definitions.value?.map(process =>
+      {useContext(AppState).api.process.definition.list.value?.data?.map(process =>
         <ProcessDefinition key={process.id} {...process} />)}
       </tbody>
     </table>
@@ -94,7 +101,7 @@ const ProcessDefinitionSelection = () =>
 
 const ProcessDefinitionDetails = () => {
   const
-    { process_definition } = useContext(AppState),
+    { api: { process: { definition } } } = useContext(AppState),
     { params } = useRoute()
 
   return (
@@ -106,21 +113,25 @@ const ProcessDefinitionDetails = () => {
           <Icons.arrow_left />
           <Icons.list />
         </a>
-        <div>
-          <h1>{process_definition.value?.name} &nbsp;</h1>
-          <dl>
-            <dt>Definition ID</dt>
-            <dd className="font-mono copy-on-click" onClick={copyToClipboard}>
-              {process_definition.value?.id ?? '-/-'}
-            </dd>
-            {process_definition.value?.tenantId ?
-              <>
-                <dt>Tenant ID</dt>
-                <dd>{process_definition.value?.tenantId ?? '-/-'}</dd>
-              </> : <></>
-            }
-          </dl>
-        </div>
+        <RequestState
+          signl={definition.single}
+          on_success={() => <div>
+            <h1>{definition.single.value?.data.name ?? ' '}</h1>
+            <dl>
+              <dt>Definition ID</dt>
+              <dd className="font-mono copy-on-click" onClick={copyToClipboard}>
+                {definition.single.value?.data.id ?? '-/-'}
+              </dd>
+              {definition.single.value?.data.tenantId ?
+                <>
+                  <dt>Tenant ID</dt>
+                  <dd>{definition.single?.value.data.tenantId ?? '-/-'}</dd>
+                </> : <></>
+              }
+            </dl>
+          </div>} />
+
+
       </div>
 
       <Accordion
@@ -146,7 +157,9 @@ const Instances = () => {
     state = useContext(AppState),
     { params } = useRoute()
 
-  void api.get_process_instances(state, params.definition_id)
+  if (!params.selection_id) {
+    void api.get_process_instances(state, params.definition_id)
+  }
 
   return !params?.selection_id
     ? (<table class="fade-in">
@@ -166,7 +179,7 @@ const Instances = () => {
 }
 
 const InstanceTableRows = () =>
-  useContext(AppState).process_instances.value?.map((instance) => (
+  useContext(AppState).process_instances.value.data?.map((instance) => (
     <ProcessInstance key={instance.id} {...instance} />
   )) ?? <p>...</p>
 
@@ -175,7 +188,11 @@ const InstanceDetails = () => {
     state = useContext(AppState),
     { params: { selection_id, definition_id, panel } } = useRoute()
 
-  void api.get_process_instance(state, selection_id)
+  if (selection_id) {
+    if (state.api.process.instance.single.value === null) {
+      void api.get_process_instance(state, selection_id)
+    }
+  }
 
   return (
     <div class="fade-in">
@@ -199,9 +216,9 @@ const InstanceDetails = () => {
 const InstanceDetailsDescription = () =>
   <dl>
     <dt>Instance ID</dt>
-    <dd>{useContext(AppState).process_instance.value?.id ?? '-/-'}</dd>
+    <dd>{useContext(AppState).process_instance.value.data?.id ?? '-/-'}</dd>
     <dt>Business Key</dt>
-    <dd>{useContext(AppState).process_instance.value?.businessKey ?? '-/-'}</dd>
+    <dd>{useContext(AppState).process_instance.value.data?.businessKey ?? '-/-'}</dd>
   </dl>
 
 const ProcessInstance = ({ id, startTime, state, businessKey }) => (
@@ -218,7 +235,10 @@ const InstanceVariables = () => {
   const
     state = useContext(AppState),
     { params } = useRoute(),
-    selection_exists = state.selection_values.value !== null
+    selection_exists =
+      state.selection_values.value !== null
+      && state.selection_values.value.data !== null
+      && state.selection_values.value.data !== undefined
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
@@ -237,7 +257,7 @@ const InstanceVariables = () => {
       </thead>
       <tbody>
       {selection_exists
-        ? Object.entries(state.selection_values.value).map(
+        ? Object.entries(state.selection_values.value.data).map(
           // eslint-disable-next-line react/jsx-key
           ([name, { type, value }]) => (<tr>
             <td>{name}</td>
@@ -277,7 +297,7 @@ const InstanceIncidents = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_instance_incidents.value?.map(
+      {state.process_instance_incidents.value?.data?.map(
         // eslint-disable-next-line react/jsx-key
         ({
           id,
@@ -337,7 +357,7 @@ const InstanceUserTasks = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_instance_tasks.value?.map(
+      {state.process_instance_tasks.value?.data?.map(
         // eslint-disable-next-line react/jsx-key
         ({
           id,
@@ -392,7 +412,7 @@ const CalledProcessInstances = () => {
       </tr>
       </thead>
       <tbody>
-      {state.called_process_instances.value?.map(instance =>
+      {state.called_process_instances.value?.data?.map(instance =>
         <tr key={instance.id}>
           <td>{instance.suspended ? 'Suspended' : 'Running'}</td>
           <td><a href={`/processes/${instance.id}`}>{instance.id}</a></td>
@@ -425,7 +445,7 @@ const Incidents = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_incidents.value?.map(incident =>
+      {state.process_incidents.value?.data?.map(incident =>
         <tr key={incident.id}>
           <td>{incident.incidentMessage}</td>
           <td>{incident.incidentType}</td>
@@ -457,7 +477,7 @@ const CalledProcessDefinitions = () => {
       </tr>
       </thead>
       <tbody>
-      {state.called_definitions.value?.map(definition =>
+      {state.called_definitions.value?.data?.map(definition =>
         <tr key={definition.id}>
           <td><a href={`/processes/${definition.id}`}>{definition.name}</a></td>
           <td>{definition.suspended ? 'Suspended' : 'Running'}</td>
@@ -493,7 +513,7 @@ const JobDefinitions = () => {
         </tr>
         </thead>
         <tbody>
-        {state.job_definitions.value?.map(definition =>
+        {state.job_definitions.value?.data?.map(definition =>
           <tr key={definition.id}>
             <td>{definition.suspended ? 'Suspended' : 'Active'}</td>
             <td>?</td>

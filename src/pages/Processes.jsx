@@ -1,12 +1,12 @@
 import { signal, useSignalEffect } from '@preact/signals'
 import { useContext, useEffect } from 'preact/hooks'
 import { useRoute } from 'preact-iso'
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 import * as Icons from '../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
-import { RequestState } from '../api.js'
+import { RequestState } from '../api.jsx'
 
 const store_details_width = () => {
   localStorage.setItem(
@@ -20,7 +20,7 @@ const ProcessesPage = () => {
   const
     state = useContext(AppState),
     { params } = useRoute(),
-    details_width = signal(localStorage.getItem('details_width'))
+    details_width = signal(localStorage.getItem('details_width') ?? 400)
 
   useEffect(() => {
     document.getElementById('selection').style.width = details_width.value.data
@@ -77,8 +77,11 @@ const ProcessDiagram = () => {
   </div>
 }
 
-const ProcessDefinitionSelection = () =>
-  <div class="fade-in">
+const ProcessDefinitionSelection = () => {
+  const
+    { api: { process: { definition } } } = useContext(AppState)
+
+  return <div class="fade-in">
     <h1>
       Process Definitions
     </h1>
@@ -93,11 +96,16 @@ const ProcessDefinitionSelection = () =>
       </tr>
       </thead>
       <tbody>
-      {useContext(AppState).api.process.definition.list.value?.data?.map(process =>
-        <ProcessDefinition key={process.id} {...process} />)}
+      <RequestState
+        signl={definition.list}
+        on_success={() =>
+          definition.list.value?.data?.map(process =>
+            <ProcessDefinition key={process.id} {...process} />)
+        } />
       </tbody>
     </table>
   </div>
+}
 
 const ProcessDefinitionDetails = () => {
   const

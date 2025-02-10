@@ -1,9 +1,9 @@
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 import { useContext, useState } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useLocation, useRoute } from 'preact-iso'
 import { useSignal } from '@preact/signals'
-import { delete_deployment, get_deployment, get_deployment_instance_count } from '../api.js'
+import { delete_deployment, get_deployment, get_deployment_instance_count } from '../api.jsx'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
 const DeploymentsPage = () => {

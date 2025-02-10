@@ -44,11 +44,11 @@ const createAppState = () => {
   const user_delete_response = signal(null)
   const user_groups = signal(null) // should be set after login
   const groups = signal(null)
-  const add_group_reponse = signal(null)
+  const add_group_response = signal(null)
   const remove_group_response = signal(null)
   const user_tenants = signal(null)
   const tenants = signal(null)
-  const add_tenant_reponse = signal(null)
+  const add_tenant_response = signal(null)
   const remove_tenant_response = signal(null)
   const tasks = signal(null)
   const selected_task = signal(null)
@@ -65,45 +65,44 @@ const createAppState = () => {
   const bpmn_xml = signal(null)
   // admin
   // const admin_users = signal(null)
+  const api = {
+    user: {
+      count: user_count,
+      list: users,
+      create: {
+        request: user_create,
+        response: user_create_response,
+      },
+      profile: user_profile,
+      groups: user_groups
+    },
+    process: {
+      definition: {
+        single: signal(null),
+        list: signal(null),
+        called: called_definitions,
+        diagram: process_definition_diagram
+
+      },
+      instance: {
+        called: called_process_instances,
+        single: process_instance,
+        list: process_instances
+      }
+    },
+    task: {}
+  }
 
   return {
     server,
-    api: {
-      user: {
-        count: user_count,
-        list: users,
-        create: {
-          request: user_create,
-          response: user_create_response,
-        },
-        profile: user_profile,
-        groups: user_groups
-      },
-      process: {
-        definition: {
-          single: process_definition,
-          list: process_definitions,
-          called: called_definitions,
-          diagram: process_definition_diagram
-
-        },
-        instance: {
-          called: called_process_instances,
-          single: process_instance,
-          list: process_instances
-        }
-      },
-      task: {
-
-      }
-    },
+    api,
 
     called_definitions,
     called_process_instances,
     job_definitions,
-    process_definition,
+    // process_definition,
     process_definition_diagram,
-    process_definitions,
+    // process_definitions,
     process_incidents,
     process_instance,
     process_instance_incidents,
@@ -130,11 +129,11 @@ const createAppState = () => {
     user_delete_response,
     user_groups,
     groups,
-    add_group_reponse,
+    add_group_response,
     remove_group_response,
     user_tenants,
     tenants,
-    add_tenant_reponse,
+    add_tenant_response,
     remove_tenant_response,
     users,
     deployments,

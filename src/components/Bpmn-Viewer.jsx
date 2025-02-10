@@ -1,5 +1,5 @@
 import ReactBpmn from 'react-bpmn'
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
 

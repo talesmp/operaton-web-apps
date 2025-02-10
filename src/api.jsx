@@ -41,7 +41,7 @@ const get = (url, state, signl) => {
   return fetch(`${_url(state)}${url}`)
     .then(response => response.ok ? response.json() : Promise.reject(response))
     .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
-    .catch(error => signl.value = { status: _STATE.ERROR, error: error.json() })
+    .catch(error => signl.value = { status: _STATE.ERROR, error })
 }
 
 const response_data = (response) =>

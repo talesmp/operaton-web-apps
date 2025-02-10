@@ -1,6 +1,6 @@
 import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 import { AppState } from '../state.js'
 import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 
@@ -27,7 +27,7 @@ const AdminPage = () => {
 
 
     {({
-      users: <UserAdminPage />,
+      users: <UserPage />,
       groups: <p>Groups Page</p>,
       tenants: <p>Tenants Page</p>,
       authorizations: <p>Authorizations Page</p>,
@@ -37,7 +37,7 @@ const AdminPage = () => {
   </main>
 }
 
-const UserAdminPage = () => {
+const UserPage = () => {
   const
     state = useContext(AppState),
     { params: { selection_id } } = useRoute()
@@ -45,7 +45,7 @@ const UserAdminPage = () => {
   selection_id === undefined ? void api.get_users(state) : null
 
   return (selection_id === 'new')
-    ? <CreateUserPage />
+    ? <UserCreate />
     : (selection_id === undefined)
       ? <UserList />
       : <UserDetails user_id={selection_id} />
@@ -68,7 +68,7 @@ const UserList = () =>
       </tr>
       </thead>
       <tbody>
-      {useContext(AppState).users.value?.map((user) => (
+      {useContext(AppState).users.value?.data.map((user) => (
         <tr key={user.id}>
           <td><a href={`/admin/users/${user.id}`}>{user.id}</a></td>
           <td>{user.firstName}</td>
@@ -102,35 +102,67 @@ const UserDetails = (user_id) => {
     <h3>Password</h3>
     <UserPassword />
     <h3>Groups</h3>
+    <UserGroups />
     <h3>Tenants</h3>
     <h3>Danger Zone</h3>
   </div>
 }
 
+const UserGroups = () => {
+  const { user_groups } = useContext(AppState)
+
+  return <api.RequestState
+    signl={user_groups}
+    on_success={() =>
+      <table>
+        <caption>User Groups</caption>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {user_groups.value.data.map(group => <tr key={group.id}>
+          <td>{group.id}</td>
+          <td>{group.name}</td>
+          <td>{group.type}</td>
+          <td>Remove from group</td>
+        </tr>)}
+        </tbody>
+      </table>
+    } />
+}
+
+
+
 const UserProfile = () => {
   const
     { user_profile } = useContext(AppState)
 
-  return <form>
-    <label for="first-name">First Name </label>
-    <input id="first-name" value={user_profile.value?.firstName ?? ''} />
+  return <>{user_profile.value?.data
+    ? <form>
+      <label for="first-name">First Name </label>
+      <input id="first-name" value={user_profile.value.data.firstName ?? ''} />
 
-    <label for="last-name">Last Name</label>
-    <input id="last-name" value={user_profile.value?.lastName ?? ''} />
+      <label for="last-name">Last Name</label>
+      <input id="last-name" value={user_profile.value.data.lastName ?? ''} />
 
-    <label for="email">Email</label>
-    <input id="email" type="email" value={user_profile.value?.email ?? ''} />
+      <label for="email">Email</label>
+      <input id="email" type="email" value={user_profile.value.data.email ?? ''} />
 
 
-    <div class="button-group">
-      <button type="submit">Update Profile</button>
-    </div>
-  </form>
+      <div class="button-group">
+        <button type="submit">Update Profile</button>
+      </div>
+    </form>
+    : <p>Loading...</p>
+  }</>
 }
 
 const UserPassword = () => {
-  const
-    { user_profile } = useContext(AppState)
 
   return <form>
     <label for="new-password">New Password</label>
@@ -145,7 +177,7 @@ const UserPassword = () => {
   </form>
 }
 
-const CreateUserPage = () => {
+const UserCreate = () => {
   // https://preactjs.com/guide/v10/forms/
   const
     state = useContext(AppState),

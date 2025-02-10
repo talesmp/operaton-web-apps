@@ -115,7 +115,7 @@ button[type=submit]:is(:focus, :active, :hover) {
 input,
 select,
 textarea {
-  padding: var(--spacing-1);
+  padding: .3em .7em;
   border: var(--border);
   border-radius: var(--border-radius);
   background: var(--background-1);

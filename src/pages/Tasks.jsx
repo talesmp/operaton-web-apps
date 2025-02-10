@@ -1,5 +1,5 @@
 import { useContext } from 'preact/hooks'
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 import * as formatter from '../helper/date_formatter.js'
 import * as Icons from '../assets/icons.jsx'
 import { AppState } from '../state.js'

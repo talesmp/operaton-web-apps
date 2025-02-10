@@ -1,5 +1,5 @@
 import * as Icons from '../assets/icons.jsx'
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 
 import { createContext } from 'preact'
 import { useContext } from 'preact/hooks'

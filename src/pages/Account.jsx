@@ -1,6 +1,6 @@
 import { useLocation, useRoute } from 'preact-iso'
 import { AppState } from '../state.js'
-import * as api from '../api.js'
+import * as api from '../api.jsx'
 import { useContext } from 'preact/hooks'
 import { useComputed, useSignal, useSignalEffect } from '@preact/signals'
 

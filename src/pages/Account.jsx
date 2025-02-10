@@ -1,6 +1,7 @@
 import { useLocation, useRoute } from 'preact-iso'
 import { AppState } from '../state.js'
 import * as api from '../api.jsx'
+import { _STATE } from '../api.jsx'
 import { useContext } from 'preact/hooks'
 import { useComputed, useSignal, useSignalEffect } from '@preact/signals'
 
@@ -41,10 +42,13 @@ const ProfileAccountPage = () => {
     state = useContext(AppState)
 
   if (!state.user_profile.value) {
-    void api.get_user_profile(state, null)
+    void api.get_user_profile(state)
   }
-
-  return (selection_id === 'edit') ? <ProfileEditPage /> : <ProfileDetails />
+  return <api.RequestState
+    signl={state.user_profile}
+    on_success={() => selection_id === 'edit' ? <ProfileEditPage /> : <ProfileDetails />
+    }
+  />
 }
 
 const ProfileEditPage = () => {
@@ -52,13 +56,13 @@ const ProfileEditPage = () => {
     state = useContext(AppState),
     { user_profile, user_profile_edit, user_profile_edit_response } = state
 
-  user_profile_edit.value = { ...user_profile.value }
+  user_profile_edit.value = { ...user_profile.value.data }
 
   const set_value = (k, v) => user_profile_edit.value[k] = v.currentTarget.value
 
   const on_submit = e => {
     e.preventDefault()
-    user_profile_edit_response.value = api.update_user_profile(state)
+    api.update_user_profile(state).then(() => api.get_user_profile(state))
   }
 
   useSignalEffect(() => {
@@ -67,22 +71,23 @@ const ProfileEditPage = () => {
 
   return <div>
     <h2>Edit Profile</h2>
-    {(user_profile_edit_response.value?.success === false)
+    {user_profile_edit_response.value?.status}
+    {(user_profile_edit_response.value?.status === _STATE.ERROR)
       ? <p className="error">Error: {user_profile_edit_response.value?.message}</p>
-      : user_profile_edit_response.value?.success
+      : user_profile_edit_response.value?.status === _STATE.SUCCESS
         ? <p className="success">Successfully updated user.</p>
         : null}
     <form onSubmit={on_submit}>
       <label for="first-name">First Name</label>
-      <input id="first-name" type="text" value={user_profile_edit.value?.firstName}
+      <input id="first-name" type="text" value={user_profile_edit.value.firstName}
              onInput={(e) => set_value('firstName', e)} required />
 
       <label for="last-name">Last Name</label>
-      <input id="last-name" type="text" value={user_profile_edit.value?.lastName}
+      <input id="last-name" type="text" value={user_profile_edit.value.lastName}
              onInput={(e) => set_value('lastName', e)} required />
 
       <label for="email">Email</label>
-      <input id="email" type="email" value={user_profile_edit.value?.email}
+      <input id="email" type="email" value={user_profile_edit.value.email}
              onInput={(e) => set_value('email', e)} required />
 
       <div class="button-group">
@@ -102,11 +107,11 @@ const ProfileDetails = () => {
     <h2>Profile</h2>
     <dl>
       <dt>First Name</dt>
-      <dd>{user_profile.value?.firstName}</dd>
+      <dd>{user_profile.value.data.firstName}</dd>
       <dt>Last Name</dt>
-      <dd>{user_profile.value?.lastName}</dd>
+      <dd>{user_profile.value.data.lastName}</dd>
       <dt>Email</dt>
-      <dd>{user_profile.value?.email}</dd>
+      <dd>{user_profile.value.data.email}</dd>
     </dl>
     <a href="/account/profile/edit" class="button">Edit profile</a>
   </div>
@@ -133,7 +138,7 @@ const AccountAccountPage = () => {
     handle_delete_user = e => {
       e.preventDefault()
       console.log('Delete User')
-      api.delete_user(state)
+      api.delete_user(state).then(() => api.user_logout(state))
       //TODO close dialog
       //TODO api.logout
     },
@@ -169,8 +174,9 @@ const AccountAccountPage = () => {
 
         <div className="button-group">
           {show_repeated_pw_hint.value && <div class="danger">Passwords must match.</div>}
-          {user_credentials_response.value?.success && <div>Password successfully changed.</div>}
-          {user_credentials_response.value?.success === false && <div class="danger">Failed to change password!</div>}
+          {user_credentials_response.value?.status === _STATE.SUCCESS && <div>Password successfully changed.</div>}
+          {user_credentials_response.value?.status === _STATE.ERROR &&
+            <div class="danger">Failed to change password!</div>}
           <button type="submit" disabled={is_change_pw_button_disabled.value}>Change Password</button>
         </div>
       </form>
@@ -209,7 +215,7 @@ const GroupAccountPage = () => {
     state = useContext(AppState),
     { user_groups, groups } = state,
     //computed local state
-    groups_without_user_groups = useComputed(() => groups.value?.response.filter(group => !user_groups.value?.response.map(user_group => user_group.id).includes(group.id))),
+    groups_without_user_groups = useComputed(() => groups.value?.data?.filter(group => !user_groups.value?.data?.map(user_group => user_group.id).includes(group.id))),
     // dialog functions
     close_add_group_dialog = () => document.getElementById('add-group-dialog').close(),
     show_add_group_dialog = () => {
@@ -288,7 +294,7 @@ const TenantsAccountPage = () => {
     state = useContext(AppState),
     { user_tenants, tenants } = state,
     // computed local state
-    tenants_without_user_tenants = useComputed(() => tenants.value?.filter(tenant => !user_tenants.value?.map(user_tenant => user_tenant.id).includes(tenant.id))),
+    tenants_without_user_tenants = useComputed(() => tenants.value?.data?.filter(tenant => !user_tenants.value?.data?.map(user_tenant => user_tenant.id).includes(tenant.id))),
     //dialog functions
     close_add_tenant_dialog = () => document.getElementById('add-tenant-dialog').close(),
     show_add_tenant_dialog = () => {
@@ -305,7 +311,7 @@ const TenantsAccountPage = () => {
 
   return <div>
     <h2>Tenants</h2>
-    {user_tenants.value?.length > 0 ? <table>
+    {user_tenants.value?.data?.length > 0 ? <table>
         <thead>
         <tr>
           <th>Tenant ID</th>
@@ -314,7 +320,7 @@ const TenantsAccountPage = () => {
         </tr>
         </thead>
         <tbody>
-        {user_tenants.value.map((tenant) => (
+        {user_tenants.value.data.map((tenant) => (
           <tr key={tenant.id}>
             <td><a href={`/admin/tenants/${tenant.id}`}>{tenant.id}</a></td>
             <td>{tenant.name}</td>

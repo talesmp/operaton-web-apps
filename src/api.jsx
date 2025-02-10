@@ -15,7 +15,7 @@ headers_json.set('Content-Type', 'application/json')
 
 /* helpers */
 
-const _STATE = {
+export const _STATE = {
   NOT_INITIALIZED: 'NOT_INITIALIZED',
   LOADING: "LOADING",
   SUCCESS: "SUCCESS",
@@ -47,7 +47,7 @@ const get = (url, state, signl) => {
 const response_data = (response) =>
   response.ok
     ? (response.status === 204)
-      ? new Promise(() => 'No Content')
+      ? Promise.resolve('No Content')
       : response.json()
     : Promise.reject(response)
 
@@ -77,6 +77,7 @@ const fetch_with_body = (method, url, body, state, signl) => {
 /* api calls */
 
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
+export const update_user_profile = (state, user_name) => put(`/user/${user_name ?? 'demo'}/profile`, state.user_profile_edit, state, state.user_profile_edit_response) // TODO remove `?? 'demo'` when we have working authentication
 export const update_credentials = (state, user_name) => put(`/user/${user_name ?? 'demo'}/credentials`, state.user_credentials.value, state, state.user_credentials_response) // TODO remove `?? 'demo'` when we have working authentication
 export const unlock_user = (state, user_name) => post(`/user/${user_name ?? 'demo'}/unlock`, {}, state, state.user_unlock_response) // TODO remove `?? 'demo'` when we have working authentication
 export const delete_user = (state, user_name) => delete_(`/user/${user_name ?? 'demo'}`, {}, state, state.user_delete_response) // TODO remove `?? 'demo'` when we have working authentication
@@ -97,7 +98,7 @@ export const get_groups = (state) => post('/group', {
 export const add_group = (state, group_id, user_name) => put(`/group/${group_id}/members/${user_name ?? 'demo'}`, {
   id: group_id,
   userId: user_name ?? 'demo',
-}, state, state.add_group_reponse) // TODO remove `?? 'demo'` when we have working authentication
+}, state, state.add_group_response) // TODO remove `?? 'demo'` when we have working authentication
 export const remove_group = (state, group_id, user_name) => delete_(`/group/${group_id}/members/${user_name ?? 'demo'}`, {
   id: group_id,
   userId: user_name ?? 'demo',
@@ -107,7 +108,7 @@ export const get_tenants = (state) => get(`/tenant?firstResult=0&maxResults=20&s
 export const add_tenant = (state, tenant_id, user_name) => put(`/tenant/${tenant_id}/user-members/${user_name ?? 'demo'}`, {
   id: tenant_id,
   userId: user_name ?? 'demo',
-}, state, state.add_tenant_reponse) // TODO remove `?? 'demo'` when we have working authentication
+}, state, state.add_tenant_response) // TODO remove `?? 'demo'` when we have working authentication
 export const remove_tenant = (state, tenant_id, user_name) => delete_(`/tenant/${tenant_id}/user-members/${user_name ?? 'demo'}`, {
   id: tenant_id,
   userId: user_name ?? 'demo',
@@ -330,17 +331,20 @@ export const get_process_definition_by_deployment_id = (state, deployment_id, re
     })
     .catch((error) => console.error('Error fetching process definition:', error))
 
-/** Update the user profile and fetch the profile again
+/**
+ * Logout current user
  * @param {Object} state - Application state
- * @sideeffects Triggers get_user_profile
  */
-export const update_user_profile = (state) =>
-  fetch(`${_url(state)}/user/${state.user_profile_edit.value.id}/profile`,
-    {
-      headers: headers_json,
-      method: 'PUT',
-      body: JSON.stringify(state.user_profile_edit.value)
-    })
-    .then(result => state.user_profile_edit_response.value = { success: true, ...result.json() })
-    .then(() => get_user_profile(state, state.user_profile_edit.value.id))
-    .catch(response => state.user_profile_edit_response.value = { success: false, ...response.json() })
+export const user_logout = (state) => fetch(`${state.server.value.url}/operaton/api/admin/auth/user/default/logout`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+  .then(() => {
+    state.user_logout_response = { status: _STATE.SUCCESS }
+  })
+  .catch((error) => {
+    state.user_logout_response = { status: _STATE.ERROR }
+    console.error('Logout Failed!', error)
+  })

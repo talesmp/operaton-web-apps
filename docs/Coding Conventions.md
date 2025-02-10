@@ -177,12 +177,12 @@ const CreateUserPage = () => {
 }
 ```
 
-### api.js
+### api.jsx
 
 Each endpoint has an identical structure:
 
 ```js
-// api.js
+// api.jsx
 
 export const get_process_definitions = (state) =>
   fetch(`${_url(state)}/process-definition/statistics`)

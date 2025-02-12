@@ -866,7 +866,8 @@ dialog#global-search {
   display: flex;
 }
 
-#account-page > div {
+#account-page > section {
+  margin: 0;
   padding: var(--spacing-2);
   overflow-y: auto;
   width: calc(100% - var(--spacing-3));

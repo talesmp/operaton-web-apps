@@ -78,7 +78,12 @@ const createAppState = () => {
         response: user_create_response,
       },
       profile: user_profile,
-      groups: user_groups
+      group: {
+        list: signal(null)
+      }
+    },
+    group: {
+      list: signal(null)
     },
     process: {
       definition: {

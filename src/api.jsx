@@ -22,14 +22,22 @@ export const _STATE = {
   ERROR: "ERROR"
 }
 
-export const RequestState = ({ signl, on_success }) =>
+/**
+ * Displays the result (SUCCESS, ERROR) of an api request and all other states (LOADING, NOT_INITIALIZED, NULL)
+ *
+ * @param signl {Preact.Signal} the state signal where the result is stored
+ * @param on_success {function: JSXInternal.Element} the element that is shown when the result state is SUCCESS
+ * @param on_error {function: JSXInternal.Element} (optional) the element that is shown when the result state is ERROR
+ * @returns {JSXInternal.Element}
+ */
+export const RequestState = ({ signl, on_success, on_error = null }) =>
   <>
     {(signl.value !== null) ?
       {
         NOT_INITIALIZED: <p>No data requested</p>,
         LOADING: <p>Loading...</p>,
         SUCCESS: signl.value?.data ? on_success() : <p>No data</p>,
-        ERROR: <p>Error: {signl.value.error}</p>
+        ERROR: on_error ? on_error : <p>Error: {signl.value !== undefined ? signl.value.error : "No error message."}</p>
       }[signl.value.status]
       : <p>Fetching...</p>
     }
@@ -89,13 +97,13 @@ export const get_user_groups = (state, user_name) => post('/group', {
   member: user_name ?? 'demo',
   firstResult: 0,
   maxResults: 50
-}, state, state.user_groups) // TODO remove `?? 'demo'` when we have working authentication
+}, state, state.api.user.group.list) // TODO remove `?? 'demo'` when we have working authentication
 export const get_groups = (state) => post('/group', {
   firstResult: 0,
   maxResults: 50,
   sortBy: 'id',
   sortOrder: 'asc'
-}, state, state.groups)
+}, state, state.api.group.list)
 export const add_group = (state, group_id, user_name) => put(`/group/${group_id}/members/${user_name ?? 'demo'}`, {
   id: group_id,
   userId: user_name ?? 'demo',

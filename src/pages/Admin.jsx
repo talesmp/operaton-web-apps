@@ -4,6 +4,7 @@ import * as api from '../api.jsx'
 import { AppState } from '../state.js'
 import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 import { RequestState } from '../api.jsx'
+import { useComputed } from '@preact/signals'
 
 const AdminPage = () => {
   const
@@ -34,7 +35,7 @@ const AdminPage = () => {
 
     {({
       users: <UserPage />,
-      groups: <p>Groups Page</p>,
+      groups: <GroupsPage />,
       tenants: <p>Tenants Page</p>,
       authorizations: <p>Authorizations Page</p>,
       system: <SystemPage />,
@@ -43,13 +44,101 @@ const AdminPage = () => {
   </main>
 }
 
+const GroupsPage = () => {
+  const
+    state = useContext(AppState),
+    { api: { group: { list: groups } } } = state,
+    //computed local state
+    groups_without_user_groups = useComputed(() => groups.value?.data?.filter(group => !groups.value?.data?.map(user_group => user_group.id).includes(group.id))),
+    // dialog functions
+    close_add_group_dialog = () => document.getElementById('add-group-dialog').close(),
+    show_add_group_dialog = () => {
+      void api.get_groups(state)
+      document.getElementById('add-group-dialog').showModal()
+    },
+    // button handler
+    handle_add_group = (group_id) => api.add_group(state, group_id).then(() => api.get_user_groups(state, null)),
+    handle_remove_group = (group_id) => api.remove_group(state, group_id).then(() => api.get_user_groups(state, null))
+
+  if (!groups.value) {
+    void api.get_groups(state, null)
+  }
+
+  return <div>
+    <Breadcrumbs paths={[
+      { name: 'Admin', route: '/admin' },
+      { name: 'Groups' }]} />
+    <h2>Groups</h2>
+    <RequestState
+      signl={groups}
+      on_success={() => groups.value !== null ? <table class="fade-in">
+          <thead>
+          <tr>
+            <th>Group ID</th>
+            <th>Group Name</th>
+            <th>Group Type</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          {groups.value.data.map((group) => (
+            <tr key={group.id}>
+              <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
+              <td>{group.name}</td>
+              <td>{group.type}</td>
+              <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+        : <p>User is currently not a member of any group.</p>} />
+    <br />
+    <button class="primary" onClick={show_add_group_dialog}>Add Group +</button>
+    <dialog id="add-group-dialog" className="fade-in">
+      <h2>Add Groups</h2>
+      {groups_without_user_groups.value?.length > 0 ? <table>
+          <thead>
+          <tr>
+            <th>Group ID</th>
+            <th>Group Name</th>
+            <th>Group Type</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          {groups_without_user_groups.value.map((group) => (
+            <tr key={group.id}>
+              <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
+              <td class="fill">{group.name}</td>
+              <td>{group.type}</td>
+              <td><a onClick={() => handle_add_group(group.id)}>Add</a></td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+        : <p>There are no additional groups available on this page to which the user can be added.</p>
+      }
+      <br />
+      <div className="button-group">
+        <button onClick={close_add_group_dialog}>Close</button>
+      </div>
+    </dialog>
+  </div>
+}
+
 const SystemPage = () => {
   const { api: { engine: { telemetry } } } = useContext(AppState)
 
-  return <RequestState
-    signl={telemetry}
-    on_success={() => <pre>{telemetry.value !== undefined ? JSON.stringify(telemetry.value?.data, null, 2) : ''} </pre>}
-  />
+  return <div>
+    <Breadcrumbs paths={[
+      { name: 'Admin', route: '/admin' },
+      { name: 'System' }]} />
+    <h2>System</h2>
+    <RequestState
+      signl={telemetry}
+      on_success={() => <pre class="fade-in">{telemetry.value !== undefined ? JSON.stringify(telemetry.value?.data, null, 2) : ''} </pre>}
+    />
+  </div>
 }
 
 // const JsonToText = (json) => {
@@ -73,13 +162,13 @@ const UserPage = () => {
 const UserList = () => {
   const { api: { user: { list: users } } } = useContext(AppState)
 
-  return <div className="content fade-in">
+  return <div className="content">
     <Breadcrumbs paths={[
       { name: 'Admin', route: '/admin' },
       { name: 'Users' }]} />
     <h2>Users</h2>
     <a href="/admin/users/new">Create New User</a>
-    <table>
+    <table class="fade-in">
       <thead>
       <tr>
         <th>ID</th>
@@ -135,7 +224,7 @@ const UserDetails = (user_id) => {
 const UserGroups = () => {
   const { user_groups } = useContext(AppState)
 
-  return <api.RequestState
+  return <RequestState
     signl={user_groups}
     on_success={() =>
       <table>

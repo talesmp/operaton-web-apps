@@ -3,6 +3,7 @@ import { useRoute, useLocation } from 'preact-iso'
 import * as api from '../api.jsx'
 import { AppState } from '../state.js'
 import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
+import { RequestState } from '../api.jsx'
 
 const AdminPage = () => {
   const { params: { page_id } } = useRoute()
@@ -51,8 +52,10 @@ const UserPage = () => {
       : <UserDetails user_id={selection_id} />
 }
 
-const UserList = () =>
-  <div className="content fade-in">
+const UserList = () => {
+  const {api: { user: { list: users }} } = useContext(AppState)
+
+  return <div className="content fade-in">
     <Breadcrumbs paths={[
       { name: 'Admin', route: '/admin' },
       { name: 'Users' }]} />
@@ -68,19 +71,22 @@ const UserList = () =>
       </tr>
       </thead>
       <tbody>
-      {useContext(AppState).users.value?.data.map((user) => (
-        <tr key={user.id}>
-          <td><a href={`/admin/users/${user.id}`}>{user.id}</a></td>
-          <td>{user.firstName}</td>
-          <td>{user.lastName}</td>
-          <td>{user.email}</td>
-        </tr>
-      )) ?? <tr>
-        <td>No Users found</td>
-      </tr>}
+      <RequestState
+        signl={users}
+        on_success={() => users.value?.data.map((user) => (
+          <tr key={user.id}>
+            <td><a href={`/admin/users/${user.id}`}>{user.id}</a></td>
+            <td>{user.firstName}</td>
+            <td>{user.lastName}</td>
+            <td>{user.email}</td>
+          </tr>
+        )) ?? <tr>
+          <td>No Users found</td>
+        </tr>} />
       </tbody>
     </table>
   </div>
+}
 
 const UserDetails = (user_id) => {
   const
@@ -135,8 +141,6 @@ const UserGroups = () => {
       </table>
     } />
 }
-
-
 
 const UserProfile = () => {
   const

@@ -44,12 +44,13 @@ const createAppState = () => {
   const user_delete_response = signal(null)
   const user_groups = signal(null) // should be set after login
   const groups = signal(null)
-  const add_group_response = signal(null)
-  const remove_group_response = signal(null)
+  const add_group_response = signal({})
+  const remove_group_response = signal({})
   const user_tenants = signal(null)
   const tenants = signal(null)
-  const add_tenant_response = signal(null)
-  const remove_tenant_response = signal(null)
+  const add_tenant_response = signal({})
+  const remove_tenant_response = signal({})
+  const user_logout_response = signal({})
   const tasks = signal(null)
   const selected_task = signal(null)
   const task = signal(null)
@@ -136,6 +137,7 @@ const createAppState = () => {
     add_tenant_response,
     remove_tenant_response,
     users,
+    user_logout_response,
     deployments,
     selected_deployment,
     deployment_resources,

@@ -46,8 +46,6 @@ const AdminPage = () => {
 const SystemPage = () => {
   const { api: { engine: { telemetry } } } = useContext(AppState)
 
-  console.log(telemetry.value)
-
   return <RequestState
     signl={telemetry}
     on_success={() => <pre>{telemetry.value !== undefined ? JSON.stringify(telemetry.value?.data, null, 2) : ''} </pre>}

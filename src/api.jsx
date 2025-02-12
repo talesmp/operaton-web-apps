@@ -24,7 +24,7 @@ export const _STATE = {
 
 export const RequestState = ({ signl, on_success }) =>
   <>
-    {signl.value !== null ?
+    {(signl.value !== null) ?
       {
         NOT_INITIALIZED: <p>No data requested</p>,
         LOADING: <p>Loading...</p>,
@@ -76,6 +76,7 @@ const fetch_with_body = (method, url, body, state, signl) => {
 
 /* api calls */
 
+export const get_telemetry_data = (state) => get("/engine/default/telemetry/data", state, state.api.engine.telemetry)
 export const get_user_profile = (state, user_name) => get(`/user/${user_name ?? 'demo'}/profile`, state, state.user_profile) // TODO remove `?? 'demo'` when we have working authentication
 export const update_user_profile = (state, user_name) => put(`/user/${user_name ?? 'demo'}/profile`, state.user_profile_edit, state, state.user_profile_edit_response) // TODO remove `?? 'demo'` when we have working authentication
 export const update_credentials = (state, user_name) => put(`/user/${user_name ?? 'demo'}/credentials`, state.user_credentials.value, state, state.user_credentials_response) // TODO remove `?? 'demo'` when we have working authentication

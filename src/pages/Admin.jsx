@@ -6,11 +6,16 @@ import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 import { RequestState } from '../api.jsx'
 
 const AdminPage = () => {
-  const { params: { page_id } } = useRoute()
-  const { route } = useLocation()
+  const
+    { params: { page_id } } = useRoute(),
+    { route } = useLocation(),
+    state = useContext(AppState)
 
   if (page_id === undefined) {
     route('/admin/users')
+  }
+  if (page_id === 'system') {
+    void api.get_telemetry_data(state)
   }
 
   const is_selected = (page) => (page_id === page) ? 'selected' : ''
@@ -32,11 +37,26 @@ const AdminPage = () => {
       groups: <p>Groups Page</p>,
       tenants: <p>Tenants Page</p>,
       authorizations: <p>Authorizations Page</p>,
-      system: <p>System Page</p>,
+      system: <SystemPage />,
     })[page_id] ?? <p>Select Page</p>}
 
   </main>
 }
+
+const SystemPage = () => {
+  const { api: { engine: { telemetry } } } = useContext(AppState)
+
+  console.log(telemetry.value)
+
+  return <RequestState
+    signl={telemetry}
+    on_success={() => <pre>{telemetry.value !== undefined ? JSON.stringify(telemetry.value?.data, null, 2) : ''} </pre>}
+  />
+}
+
+// const JsonToText = (json) => {
+//   return
+// }
 
 const UserPage = () => {
   const
@@ -53,7 +73,7 @@ const UserPage = () => {
 }
 
 const UserList = () => {
-  const {api: { user: { list: users }} } = useContext(AppState)
+  const { api: { user: { list: users } } } = useContext(AppState)
 
   return <div className="content fade-in">
     <Breadcrumbs paths={[

@@ -67,6 +67,9 @@ const createAppState = () => {
   // admin
   // const admin_users = signal(null)
   const api = {
+    engine: {
+      telemetry: signal(null)
+    },
     user: {
       count: user_count,
       list: users,

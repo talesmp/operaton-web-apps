@@ -2,7 +2,7 @@ import { useContext, useState } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useLocation, useRoute } from 'preact-iso'
 import { useSignal } from '@preact/signals'
-import {  } from '../api.jsx'
+import { get_decision_definitions } from '../api.jsx'
 
 
 const DecisionsPage = () => {
@@ -10,6 +10,10 @@ const DecisionsPage = () => {
     { params } = useRoute(),
     {  route } = useLocation()
 
+    if (state.api.decision.definition.list.value === null) {
+        void get_decision_definitions(state)
+          .then(() => console.log(state))
+      }
 
   return (
     <main class="fade-in list-container">
@@ -29,17 +33,17 @@ const DecisionsList = () => {
     <div class="list-wrapper">
       <h3 class="screen-hidden">Queried decisions</h3>
       <ul class="list">
-        {state.decisions.value?.map((decision) => (
+        {state.api.decision.definition.list.value.data?.map((decision) => (
           <li
             key={decision.id}
-            class={params.deployment_id === decision.id ? 'selected' : null}
+            class={params.decision_id === decision.id ? 'selected' : null}
           >
-            <a href={`/deployments/${decision.id}`}>
+            <a href={`/decisions/${decision.id}`}>
               <div class="title">
                 {decision?.name || decision?.id}
               </div>
               <footer>
-                <time datetime={decision.deploymentTime}>{new Date(decision.deploymentTime).toLocaleDateString()}</time>
+                 <h5>footer machen</h5>
               </footer>
             </a>
           </li>

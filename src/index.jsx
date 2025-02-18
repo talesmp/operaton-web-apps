@@ -10,6 +10,7 @@ import { TasksPage } from './pages/Tasks.jsx'
 import { ProcessesPage } from './pages/Processes.jsx'
 import { AdminPage } from './pages/Admin.jsx'
 import { DeploymentsPage } from './pages/Deployments.jsx'
+import { DecisionsPage } from './pages/Decisions.jsx'
 import { NotFound } from './pages/_404.jsx'
 import { AccountPage } from './pages/Account.jsx'
 
@@ -20,7 +21,6 @@ import './css/layout.css'
 import './css/components.css'
 import './css/normalize.css'
 import './css/animation.css'
-import { DecisionsPage } from './pages/Decisions.jsx'
 
 'use strict'
 

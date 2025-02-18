@@ -25,7 +25,7 @@ export const _STATE = {
 /**
  * Displays the result (SUCCESS, ERROR) of an api request and all other states (LOADING, NOT_INITIALIZED, NULL)
  *
- * @param signl {Preact.Signal} the state signal where the result is stored
+ * @param signal {Preact.Signal} the state signal where the result is stored
  * @param on_success {function: JSXInternal.Element} the element that is shown when the result state is SUCCESS
  * @param on_error {function: JSXInternal.Element} (optional) the element that is shown when the result state is ERROR
  * @returns {JSXInternal.Element}
@@ -124,6 +124,7 @@ export const remove_tenant = (state, tenant_id, user_name) => delete_(`/tenant/$
 }, state, state.remove_tenant_response) // TODO remove `?? 'demo'` when we have working authentication
 export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.api.process.definition.list)
 export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.api.process.definition.single)
+export const get_decision_definitions = (state) => get('/decision-definition', state, state.api.decision.definition.list)
 export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.api.process.instance.list)
 export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, state.api.process.instance.single)
 export const get_process_incidents = (state, definition_id) => get(`/history/incident?processDefinitionId=${definition_id}`, state, state.process_incidents)

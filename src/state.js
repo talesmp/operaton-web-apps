@@ -64,6 +64,7 @@ const createAppState = () => {
   const selected_resource = signal(null)
   const selected_process_statistics = signal(null)
   const bpmn_xml = signal(null)
+  const decision_definitions = signal(null)
   // admin
   // const admin_users = signal(null)
   const api = {
@@ -91,12 +92,17 @@ const createAppState = () => {
         list: signal(null),
         called: called_definitions,
         diagram: process_definition_diagram
-
       },
       instance: {
         called: called_process_instances,
         single: process_instance,
         list: process_instances
+      }
+    },
+    decision: {
+      definition: {
+        single: signal(null),
+        list: decision_definitions,
       }
     },
     task: {}
@@ -151,7 +157,8 @@ const createAppState = () => {
     deployment_resources,
     selected_resource,
     selected_process_statistics,
-    bpmn_xml
+    bpmn_xml,
+    decision_definitions
   }
 }
 

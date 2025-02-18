@@ -82,7 +82,7 @@ export function Header () {
               Processes
             </a>
           </li>
-          <li><a href="/">Decisions</a></li>
+          <li><a href="/decisions">Decisions</a></li>
         </menu>
         <menu>
           <li><a href="/deployments"

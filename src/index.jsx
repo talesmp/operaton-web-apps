@@ -20,6 +20,7 @@ import './css/layout.css'
 import './css/components.css'
 import './css/normalize.css'
 import './css/animation.css'
+import { DecisionsPage } from './pages/Decisions.jsx'
 
 'use strict'
 
@@ -41,6 +42,7 @@ export function App () {
           <Route path="/deployments" component={DeploymentsPage} />
           <Route path="/deployments/:deployment_id" component={DeploymentsPage} />
           <Route path="/deployments/:deployment_id/:resource_name" component={DeploymentsPage} />
+          <Route path='/decisions' component={DecisionsPage}/>
           <Route path="/admin" component={AdminPage} />
           <Route path="/admin/:page_id" component={AdminPage} />
           <Route path="/admin/:page_id/:selection_id" component={AdminPage} />

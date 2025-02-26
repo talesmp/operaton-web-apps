@@ -258,8 +258,8 @@ const InstanceVariables = () => {
       <thead>
       <tr>
         <th>Name</th>
-        <th>Value</th>
         <th>Type</th>
+        <th>Value</th>
         <th>Actions</th>
       </tr>
       </thead>

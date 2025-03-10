@@ -49,7 +49,7 @@ Most important folders and files for getting started with development.
     - `css`: vanilla CSS for entire project (see below)
     - `helper`: reusable JavaScript code
     - `pages`: a dedicated page for every 'app'
-    - `api.jsx`: all fetch requests to the Operaton REST API
+    - `engine_rest.jsx`: all fetch requests to the Operaton REST API
     - `index.js`: Preact main, routing definitions and global app state
     - `state.js`: Global app state definition
 - `.env*`: Environment variables

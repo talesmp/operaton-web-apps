@@ -1,5 +1,5 @@
 import ReactBpmn from 'react-bpmn'
-import * as api from '../api.jsx'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
 
@@ -7,7 +7,7 @@ export const BpmnViewer = ({ process_definition_id }) => {
   const
     state = useContext(AppState)
 
-  void api.get_process_definition_xml(state, process_definition_id)
+  void engine_rest.process_definition.diagram(state, process_definition_id)
 
   return <BpmnDetails />
 }
@@ -17,13 +17,13 @@ const BpmnDetails = () => {
     state = useContext(AppState)
 
   return (<div class="bpmn-viewer">
-
-    {(state.bpmn_xml.value !== null)
-      ? <ReactBpmn
-        diagramXML={state.bpmn_xml.value.bpmn20Xml}
-        onLoading={null}
-        onShown={null}
-        onError={null} />
-      : <p role="status" aria-live="polite">Loading process diagram...</p>}
+    <RequestState
+      signl={state.api.process.definition.diagram}
+      on_success={() =>
+        <ReactBpmn
+          diagramXML={state.api.process.definition.diagram.value.data.bpmn20Xml}
+          onLoading={null}
+          onShown={null}
+          onError={null} />} />
   </div>)
 }

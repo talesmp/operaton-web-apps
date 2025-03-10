@@ -1,12 +1,11 @@
 import { signal, useSignalEffect } from '@preact/signals'
 import { useContext, useEffect } from 'preact/hooks'
 import { useRoute } from 'preact-iso'
-import * as api from '../api.jsx'
+import engine_rest, { RequestState }  from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
-import { RequestState } from '../api.jsx'
 
 const store_details_width = () => {
   localStorage.setItem(
@@ -29,20 +28,21 @@ const ProcessesPage = () => {
   // && state.api.process.definition.single.value?.id !== params.definition_id
 
   if (params.definition_id) {
-    if (state.api.process.definition.single.value === null) {
-      void api.get_process_definition(state, params.definition_id)
-      void api.get_diagram(state, params.definition_id)
-    } else if (state.api.process.definition.single.value?.data !== undefined && state.api.process.definition.single.value?.data.id !== params.definition_id) {
-      void api.get_process_definition(state, params.definition_id)
-      void api.get_diagram(state, params.definition_id)
+    if (state.api.process.definition.one.value === null) {
+      void engine_rest.process_definition.one(state, params.definition_id)
+      void engine_rest.process_definition.diagram(state, params.definition_id)
+    } else if (state.api.process.definition.one.value?.data !== undefined && state.api.process.definition.one.value?.data.id !== params.definition_id) {
+      void engine_rest.process_definition.one(state, params.definition_id)
+      void engine_rest.process_definition.diagram(state, params.definition_id)
     }
   } else {
     // reset state
-    state.api.process.definition.single.value = null
+    console.log(state)
+    state.api.process.definition.one.value = null
     state.api.process.definition.diagram.value = null
     state.api.process.instance.list.value = null
-    state.api.process.instance.single.value = null
-    void api.get_process_definitions(state)
+    // state.api.process.instance.one.value = null
+    void engine_rest.process_definition.list(state)
   }
 
   return (
@@ -109,7 +109,7 @@ const ProcessDefinitionSelection = () => {
 
 const ProcessDefinitionDetails = () => {
   const
-    { api: { process: { definition } } } = useContext(AppState),
+    { api: { process: { definition: { one: process_definition } } } } = useContext(AppState),
     { params } = useRoute()
 
   return (
@@ -122,18 +122,18 @@ const ProcessDefinitionDetails = () => {
           <Icons.list />
         </a>
         <RequestState
-          signl={definition.single}
+          signl={process_definition}
           on_success={() => <div>
-            <h1>{definition.single.value?.data.name ?? ' '}</h1>
+            <h1>{process_definition.value?.data.name ?? ' '}</h1>
             <dl>
               <dt>Definition ID</dt>
               <dd className="font-mono copy-on-click" onClick={copyToClipboard}>
-                {definition.single.value?.data.id ?? '-/-'}
+                {process_definition.value?.data.id ?? '-/-'}
               </dd>
-              {definition.single.value?.data.tenantId ?
+              {process_definition.value?.data.tenantId ?
                 <>
                   <dt>Tenant ID</dt>
-                  <dd>{definition.single?.value.data.tenantId ?? '-/-'}</dd>
+                  <dd>{process_definition?.value.data.tenantId ?? '-/-'}</dd>
                 </> : <></>
               }
             </dl>
@@ -166,7 +166,7 @@ const Instances = () => {
     { params } = useRoute()
 
   if (!params.selection_id) {
-    void api.get_process_instances(state, params.definition_id)
+    void engine_rest.history.process_instances(state, params.definition_id)
   }
 
   return !params?.selection_id
@@ -187,7 +187,7 @@ const Instances = () => {
 }
 
 const InstanceTableRows = () =>
-  useContext(AppState).process_instances.value.data?.map((instance) => (
+  useContext(AppState).api.process.instance.list.value.data?.map((instance) => (
     <ProcessInstance key={instance.id} {...instance} />
   )) ?? <p>...</p>
 
@@ -197,8 +197,8 @@ const InstanceDetails = () => {
     { params: { selection_id, definition_id, panel } } = useRoute()
 
   if (selection_id) {
-    if (state.api.process.instance.single.value === null) {
-      void api.get_process_instance(state, selection_id)
+    if (state.api.process.instance.one === undefined || state.api.process.instance.one.value === null) {
+      void engine_rest.process_instance.one(state, selection_id)
     }
   }
 
@@ -224,9 +224,9 @@ const InstanceDetails = () => {
 const InstanceDetailsDescription = () =>
   <dl>
     <dt>Instance ID</dt>
-    <dd>{useContext(AppState).process_instance.value.data?.id ?? '-/-'}</dd>
+    <dd>{useContext(AppState).api.process.instance.one.value.data?.id ?? '-/-'}</dd>
     <dt>Business Key</dt>
-    <dd>{useContext(AppState).process_instance.value.data?.businessKey ?? '-/-'}</dd>
+    <dd>{useContext(AppState).api.process.instance.one.value.data?.businessKey ?? '-/-'}</dd>
   </dl>
 
 const ProcessInstance = ({ id, startTime, state, businessKey }) => (
@@ -244,13 +244,13 @@ const InstanceVariables = () => {
     state = useContext(AppState),
     { params } = useRoute(),
     selection_exists =
-      state.selection_values.value !== null
-      && state.selection_values.value.data !== null
-      && state.selection_values.value.data !== undefined
+      state.api.process.instance.variables.value !== null
+      && state.api.process.instance.variables.value.data !== null
+      && state.api.process.instance.variables.value.data !== undefined
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void api.get_process_instance_variables(state, params.selection_id)
+    void engine_rest.process_instance.variables(state, params.selection_id)
   })
 
   return (
@@ -265,7 +265,7 @@ const InstanceVariables = () => {
       </thead>
       <tbody>
       {selection_exists
-        ? Object.entries(state.selection_values.value.data).map(
+        ? Object.entries(state.api.process.instance.variables.value.data).map(
           // eslint-disable-next-line react/jsx-key
           ([name, { type, value }]) => (<tr>
             <td>{name}</td>
@@ -285,7 +285,7 @@ const InstanceIncidents = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void api.get_process_instance_incidents(state, params.selection_id)
+    void engine_rest.history.incident.by_process_instance(state, params.selection_id)
   })
 
   return (
@@ -305,7 +305,7 @@ const InstanceIncidents = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_instance_incidents.value?.data?.map(
+      {state.api.history.incident.by_process_definition.value?.data?.map(
         // eslint-disable-next-line react/jsx-key
         ({
           id,
@@ -345,7 +345,7 @@ const InstanceUserTasks = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void api.get_process_instance_tasks(state, params.selection_id)
+    void engine_rest.task.by_process_instance(state, params.selection_id)
   })
 
   return (
@@ -365,7 +365,7 @@ const InstanceUserTasks = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_instance_tasks.value?.data?.map(
+      {state.api.task.by_process_instance.value?.data?.map(
         // eslint-disable-next-line react/jsx-key
         ({
           id,
@@ -406,7 +406,7 @@ const CalledProcessInstances = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_called_process_instances(state, selection_id)
+    void engine_rest.process_instance.called(state, selection_id)
   )
 
   return (
@@ -420,7 +420,7 @@ const CalledProcessInstances = () => {
       </tr>
       </thead>
       <tbody>
-      {state.called_process_instances.value?.data?.map(instance =>
+      {state.api.process.instance.called.value?.data?.map(instance =>
         <tr key={instance.id}>
           <td>{instance.suspended ? 'Suspended' : 'Running'}</td>
           <td><a href={`/processes/${instance.id}`}>{instance.id}</a></td>
@@ -440,7 +440,7 @@ const Incidents = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_process_incidents(state, definition_id)
+    void engine_rest.history.incident.by_process_definition(state, definition_id)
   )
 
   return (
@@ -453,7 +453,7 @@ const Incidents = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_incidents.value?.data?.map(incident =>
+      {state.api.history.incident.by_process_definition.value?.data?.map(incident =>
         <tr key={incident.id}>
           <td>{incident.incidentMessage}</td>
           <td>{incident.incidentType}</td>
@@ -472,7 +472,7 @@ const CalledProcessDefinitions = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_called_process_definitions(state, definition_id)
+    void engine_rest.process_definition.called(state, definition_id)
   )
 
   return (
@@ -485,7 +485,7 @@ const CalledProcessDefinitions = () => {
       </tr>
       </thead>
       <tbody>
-      {state.called_definitions.value?.data?.map(definition =>
+      {state.api.process.definition.called.value?.data?.map(definition =>
         <tr key={definition.id}>
           <td><a href={`/processes/${definition.id}`}>{definition.name}</a></td>
           <td>{definition.suspended ? 'Suspended' : 'Running'}</td>
@@ -504,7 +504,7 @@ const JobDefinitions = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_job_definitions(state, definition_id)
+    void engine_rest.job_definition.all.by_process_definition(state, definition_id)
   )
 
   return (
@@ -521,7 +521,7 @@ const JobDefinitions = () => {
         </tr>
         </thead>
         <tbody>
-        {state.job_definitions.value?.data?.map(definition =>
+        {state.api.job_definition.all.by_process_definition.value?.data?.map(definition =>
           <tr key={definition.id}>
             <td>{definition.suspended ? 'Suspended' : 'Active'}</td>
             <td>?</td>

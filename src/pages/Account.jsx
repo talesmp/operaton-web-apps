@@ -1,7 +1,7 @@
 import { useLocation, useRoute } from 'preact-iso'
 import { AppState } from '../state.js'
-import * as api from '../api.jsx'
-import { _STATE, RequestState } from '../api.jsx'
+import * as api from '../api/engine_rest.jsx'
+import { RequestState } from '../api/engine_rest.jsx'
 import { useContext } from 'preact/hooks'
 import { useComputed, useSignal, useSignalEffect } from '@preact/signals'
 
@@ -178,8 +178,9 @@ const AccountAccountPage = () => {
 
       <div className="button-group">
         {show_repeated_pw_hint.value && <div class="danger">Passwords must match.</div>}
-        {user_credentials_response.value?.status === _STATE.SUCCESS && <div>Password successfully changed.</div>}
-        {user_credentials_response.value?.status === _STATE.ERROR &&
+        {/* fixme: don't use _STATE ! */}
+        {/*{user_credentials_response.value?.status === _STATE.SUCCESS && <div>Password successfully changed.</div>}*/}
+        {/*{user_credentials_response.value?.status === _STATE.ERROR &&*/}
           <div class="danger">Failed to change password!</div>}
         <button type="submit" disabled={is_change_pw_button_disabled.value}>Change Password</button>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useContext } from 'preact/hooks'
-import * as api from '../api.jsx'
+import * as api from '../api/engine_rest.jsx'
 import DOMPurify from 'dompurify'
 import { AppState } from '../state.js'
 import { useSignalEffect } from '@preact/signals'

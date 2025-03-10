@@ -18,66 +18,18 @@ import { createContext } from 'preact'
  */
 const createAppState = () => {
   const server = signal(get_stored_server())
-  const process_definitions = signal(null)
-  const process_definition = signal(null)
-  const process_definition_diagram = signal(null)
-  const selected_process_definition_id = signal(null)
-  const process_instances = signal(null)
-  const process_instance = signal(null)
-  const process_instance_incidents = signal(null)
-  const process_incidents = signal(null)
-  const process_instance_tasks = signal(null)
-  const called_process_instances = signal(null)
-  const selection_values = signal(null)
-  const called_definitions = signal(null)
-  const job_definitions = signal(null)
-  const users = signal(null)
-  const user_count = signal(null)
-  const user_create = signal({ profile: {}, credentials: {} })
-  const user_create_response = signal()
-  const user_profile = signal(null) // should be set after login
-  const user_profile_edit = signal(null)
-  const user_profile_edit_response = signal()
-  const user_credentials = signal({})
-  const user_credentials_response = signal(null)
-  const user_unlock_response = signal(null)
-  const user_delete_response = signal(null)
-  const user_groups = signal(null) // should be set after login
-  const groups = signal(null)
-  const add_group_response = signal({})
-  const remove_group_response = signal({})
-  const user_tenants = signal(null)
-  const tenants = signal(null)
-  const add_tenant_response = signal({})
-  const remove_tenant_response = signal({})
-  const user_logout_response = signal({})
-  const tasks = signal(null)
-  const selected_task = signal(null)
-  const task = signal(null)
-  const task_claim_result = signal(null)
-  const task_assign_result = signal(null)
-  const task_generated_form = signal(null)
-  const task_deployed_form = signal(null)
-  const deployments = signal()
-  const selected_deployment = signal(null)
-  const deployment_resources = signal([])
-  const selected_resource = signal(null)
-  const selected_process_statistics = signal(null)
-  const bpmn_xml = signal(null)
-  // admin
-  // const admin_users = signal(null)
+  // TODO remove 'demo' when we have working authentication
+  const auth = { user: { id: signal('demo') } }
+
   const api = {
     engine: {
       telemetry: signal(null)
     },
     user: {
-      count: user_count,
-      list: users,
-      create: {
-        request: user_create,
-        response: user_create_response,
-      },
-      profile: user_profile,
+      count: signal(null),
+      list: signal(null),
+      create: signal(null),
+      profile: signal(null),
       group: {
         list: signal(null)
       }
@@ -85,73 +37,51 @@ const createAppState = () => {
     group: {
       list: signal(null)
     },
+    tenant: {
+      list: signal(null),
+      by_member: signal(null)
+    },
     process: {
       definition: {
-        single: signal(null),
+        one: signal(null),
         list: signal(null),
-        called: called_definitions,
-        diagram: process_definition_diagram
-
+        called: signal(null),
+        diagram: signal(null),
       },
       instance: {
-        called: called_process_instances,
-        single: process_instance,
-        list: process_instances
+        called: signal(null),
+        one: signal(null),
+        list: signal(null),
+        count: signal(null),
+        variables: signal(null),
       }
     },
-    task: {}
+    task: {
+      by_process_instance: signal(null)
+    },
+    deployment: {
+      one: signal(null),
+      all: signal(null),
+      resource: signal(null),
+      delete: signal(null)
+    },
+    history: {
+      incident: {
+        by_process_definition: signal(null),
+        by_process_instance: signal(null)
+      }
+    },
+    job_definition: {
+      all: {
+        by_process_definition: signal(null)
+      }
+    }
   }
 
   return {
     server,
+    auth,
     api,
-
-    called_definitions,
-    called_process_instances,
-    job_definitions,
-    // process_definition,
-    process_definition_diagram,
-    // process_definitions,
-    process_incidents,
-    process_instance,
-    process_instance_incidents,
-    process_instance_tasks,
-    process_instances,
-    selected_process_definition_id,
-    selected_task,
-    selection_values,
-    task,
-    task_claim_result,
-    task_assign_result,
-    tasks,
-    task_generated_form,
-    task_deployed_form,
-    user_count,
-    user_create,
-    user_create_response,
-    user_profile,
-    user_profile_edit,
-    user_profile_edit_response,
-    user_credentials,
-    user_credentials_response,
-    user_unlock_response,
-    user_delete_response,
-    user_groups,
-    groups,
-    add_group_response,
-    remove_group_response,
-    user_tenants,
-    tenants,
-    add_tenant_response,
-    remove_tenant_response,
-    users,
-    user_logout_response,
-    deployments,
-    selected_deployment,
-    deployment_resources,
-    selected_resource,
-    selected_process_statistics,
-    bpmn_xml
   }
 }
 

@@ -72,28 +72,28 @@ API call:
 
 const Instances = () => {
   const
-    state = useContext(AppState),
-    { params } = useRoute()
+          state = useContext(AppState),
+          { params } = useRoute()
 
-  // call the api, access its result in a child component
-  void api.get_process_instances(state, params.definition_id)
+  // call the core, access its result in a child component
+  void engine_rest.get_process_instances(state, params.definition_id)
 
   // use the conditional (ternary) operator inside JSX code blocks
   return !params?.selection_id
-    ? (<table class="fade-in">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Start Time</th>
-          <th>State</th>
-          <th>Business Key</th>
-        </tr>
-      </thead>
-      <tbody>
-        <InstanceTableRows />
-      </tbody>
-    </table>)
-    : (<InstanceDetails />)
+          ? (<table class="fade-in">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Start Time</th>
+                <th>State</th>
+                <th>Business Key</th>
+              </tr>
+            </thead>
+            <tbody>
+              <InstanceTableRows/>
+            </tbody>
+          </table>)
+          : (<InstanceDetails/>)
 }
 
 ```
@@ -129,8 +129,8 @@ Forms:
 const CreateUserPage = () => {
   // https://preactjs.com/guide/v10/forms/
   const
-    state = useContext(AppState),
-    { user_create, user_create_response } = state
+          state = useContext(AppState),
+          { user_create, user_create_response } = state
 
   const set_value = (k1, k2, v) => user_create.value[k1][k2] = v.currentTarget.value
   const set_p_value = (k, v) => set_value('profile', k, v)
@@ -139,7 +139,7 @@ const CreateUserPage = () => {
   const on_submit = e => {
     e.preventDefault()
     console.log(user_create.value)
-    user_create_response.value = api.create_user(state)
+    user_create_response.value = engine_rest.create_user(state)
     // e.currentTarget.reset(); // Clear the inputs to prepare for the next submission
   }
 
@@ -151,22 +151,22 @@ const CreateUserPage = () => {
                     : <p class="error">Error: {user_create_response.value?.message}</p> : null}
     <form onSubmit={on_submit}>
       <label for="user-id">User ID</label>
-      <input id="user-id" type="text" onInput={(e) => set_p_value('id', e)} required />
+      <input id="user-id" type="text" onInput={(e) => set_p_value('id', e)} required/>
 
       <label for="password1">Password</label>
-      <input id="password1" type="password" onInput={(e) => set_c_value('password', e)} required />
+      <input id="password1" type="password" onInput={(e) => set_c_value('password', e)} required/>
 
-      <label for="password2"> Password (repeated)</label>
-      <input id="password2" type="password" onInput={(e) => set_c_value('password', e)} />
+      <label for="password2">Password (repeated)</label>
+      <input id="password2" type="password" onInput={(e) => set_c_value('password', e)}/>
 
-      <label for="first-name"> First Name</label>
-      <input id="first-name" type="text" onInput={(e) => set_p_value('firstName', e)} required />
+      <label for="first-name">First Name</label>
+      <input id="first-name" type="text" onInput={(e) => set_p_value('firstName', e)} required/>
 
       <label for="last-name">Last Name</label>
-      <input id="last-name" type="text" onInput={(e) => set_p_value('lastName', e)} required />
+      <input id="last-name" type="text" onInput={(e) => set_p_value('lastName', e)} required/>
 
       <label for="email">Email</label>
-      <input id="email" type="email" onInput={(e) => set_p_value('email', e)} required />
+      <input id="email" type="email" onInput={(e) => set_p_value('email', e)} required/>
 
       <div class="button-group">
         <button type="submit">Create New User</button>
@@ -177,12 +177,12 @@ const CreateUserPage = () => {
 }
 ```
 
-### api.jsx
+### engine_rest.jsx
 
 Each endpoint has an identical structure:
 
 ```js
-// api.jsx
+// engine_rest.jsx
 
 export const get_process_definitions = (state) =>
   fetch(`${_url(state)}/process-definition/statistics`)

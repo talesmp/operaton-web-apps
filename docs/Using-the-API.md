@@ -1,6 +1,6 @@
 # Using the API
 
-The Operaton API is defined in [`/src/api.jsx`](../src/api.jsx). For detailed documentation
+The Operaton API is defined in [`/src/engine_rest.jsx`](../src/api/engine_rest.jsx). For detailed documentation
 on the shown functions below, have a look at the docstrings inside the file.
 
 We want to adhere to a common pattern when extending and using the API.
@@ -73,7 +73,7 @@ When calling the `RequestState` component, the following code may look like the 
 const UserGroups = () => {
   const { user_groups } = useContext(AppState)
 
-  return <api.RequestState
+  return <core.RequestState
     signl={user_groups}
     on_success={() =>
       <table>

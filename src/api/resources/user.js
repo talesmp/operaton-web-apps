@@ -28,11 +28,11 @@ const update_user_profile = (state, user_name) =>
 
 const update_credentials = (state, user_name) =>
   // TODO remove `?? 'demo'` when we have working authentication
-  PUT(`/user/${user_name ?? 'demo'}/credentials`, state.user_credentials.value, state, state.user_credentials_response)
+  PUT(`/user/${user_name ?? 'demo'}/credentials`, state.api.user.credentials.value.data, state, state.api.user.credentials)
 
 const unlock_user = (state, user_name) =>
   // TODO remove `?? 'demo'` when we have working authentication
-  POST(`/user/${user_name ?? 'demo'}/unlock`, {}, state, state.user_unlock_response)
+  POST(`/user/${user_name ?? 'demo'}/unlock`, {}, state, state.api.user.unlock)
 
 const user =
   {
@@ -44,9 +44,7 @@ const user =
       get: get_user_profile,
       update: update_user_profile,
     },
-    credentials: {
-      update: update_credentials
-    },
+    credentials_update: update_credentials,
     unlock: unlock_user,
   }
 

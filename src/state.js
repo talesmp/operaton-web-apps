@@ -4,7 +4,7 @@
  * Global app state using Preact signals.
  */
 
-import { signal } from '@preact/signals'
+import { signal, useSignal } from '@preact/signals'
 import { createContext } from 'preact'
 
 /**
@@ -21,6 +21,12 @@ const createAppState = () => {
   // TODO remove 'demo' when we have working authentication
   const auth = { user: { id: signal('demo') } }
 
+  const deployments_page = {
+    selected_resource: signal(null),
+    selected_deployment: signal(null),
+    selected_process_statistics: signal(null),
+  }
+
   const api = {
     engine: {
       telemetry: signal(null)
@@ -32,7 +38,9 @@ const createAppState = () => {
       profile: signal(null),
       group: {
         list: signal(null)
-      }
+      },
+      credentials: signal(null),
+      unlock: signal(null),
     },
     group: {
       list: signal(null)
@@ -82,6 +90,7 @@ const createAppState = () => {
     server,
     auth,
     api,
+    deployments_page
   }
 }
 

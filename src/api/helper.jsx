@@ -36,13 +36,13 @@ export const RequestState = ({ signl, on_success, on_error = null, on_nothing = 
     {(signl.value !== null)
       ? {
         NOT_INITIALIZED: <p>No data requested</p>,
-        LOADING: <p>Loading...</p>,
+        LOADING: <p class="fade-in-delayed">Loading...</p>,
         SUCCESS: signl.value?.data ? on_success() : <p>No data</p>,
         ERROR: on_error ? on_error : <p class="error"><strong>Error:</strong> {signl.value.error !== undefined ? signl.value.error.message : 'No error message.'}</p>
       }[signl.value.status]
       : on_nothing
         ? on_nothing()
-        : <p>Fetching...</p>
+        : <p class="fade-in-delayed">Fetching...</p>
     }
   </>
 

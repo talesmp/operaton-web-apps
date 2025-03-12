@@ -1,35 +1,46 @@
-import { useContext, useState } from 'preact/hooks'
+import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useLocation, useRoute } from 'preact-iso'
-import { useSignal } from '@preact/signals'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
 const DeploymentsPage = () => {
   const state = useContext(AppState),
-    { params } = useRoute(),
-    { route } = useLocation()
+    { deployments_page: { selected_resource, selected_deployment, selected_process_statistics } } = state,
+    { params: { deployment_id, resource_name } } = useRoute(),
+    { route } = useLocation(),
+    // state cases
+    no_deployments_loaded = state.api.deployment.all.value === null || state.api.deployment.all.value === undefined,
+    no_resources_loaded = state.api.deployment.resource.value === null && deployment_id
 
-  if (params.deployment_id === undefined || state.api.deployment.all.value === undefined) {
+
+  if (no_deployments_loaded) {
     void engine_rest.deployment.all(state)
-      .then(() => route(`/deployments/${state.api.deployment.all.value.data[0].id}`))
-  }
-  if (params.deployment_id) {
-    void engine_rest.deployment.resource(state, params.deployment_id)
       .then(() => {
-        if (params.resource_name) {
-          state.selected_resource.value = state.api.deployment.resource.value.data.find((res) => res.id === params.resource_name)
+        if (deployment_id === undefined) {
+          route(`/deployments/${state.api.deployment.all.value.data[0].id}`)
         }
       })
-  } else {
-    // reset state
-    // todo fix me with new state api signals
-    state.selected_process_statistics.value = null
-    state.selected_deployment.value = null
   }
-  if (params.resource_name && state.selected_resource.value !== null) {
-    void engine_rest.process_definition.by_deployment_id(state, params.deployment_id, params.resource_name)
-    void engine_rest.process_instance.count(state, params.deployment_id)
+
+  if (no_resources_loaded) {
+    void engine_rest.deployment.resource(state, deployment_id)
+      .then(() => {
+          selected_resource.value = state.api.deployment.resource.value.data.find((res) => res.id === resource_name)
+        }
+      )
+  }
+
+  // else {
+  //   // reset state
+  //   // todo fix me with new state api signals
+  //   selected_process_statistics.value = null
+  //   selected_deployment.value = null
+  // }
+
+  if (resource_name && selected_resource.value !== null) {
+    void engine_rest.process_definition.by_deployment_id(state, deployment_id, resource_name)
+    void engine_rest.process_instance.count(state, deployment_id)
   }
 
   return (
@@ -45,7 +56,23 @@ const DeploymentsPage = () => {
 const DeploymentsList = () => {
   const
     state = useContext(AppState),
-    { params } = useRoute()
+    { deployments_page: { selected_resource, selected_deployment, selected_process_statistics } } = state,
+    { params } = useRoute(),
+    reset_state = (deployment_id) => {
+      void engine_rest.deployment.resource(state, deployment_id)
+        .then(() => {
+            selected_resource.value = state.api.deployment.resource.value.data.find((res) => res.id === params.resource_name)
+          }
+        )
+
+      // state.api.deployment.all.value = null
+      // state.api.deployment.resource.value = null
+      state.api.process.definition.one.value = null
+      state.api.process.instance.count.value = null
+      selected_resource.value = null
+      selected_deployment.value = null
+      selected_process_statistics.value = null
+    }
 
   return (
     <div class="list-wrapper">
@@ -59,7 +86,7 @@ const DeploymentsList = () => {
                 key={deployment.id}
                 class={params.deployment_id === deployment.id ? 'selected' : null}
               >
-                <a href={`/deployments/${deployment.id}`}>
+                <a href={`/deployments/${deployment.id}`} onClick={() => reset_state(deployment.id)}>
                   <div class="title">
                     {deployment?.name || deployment?.id}
                   </div>
@@ -115,83 +142,84 @@ const ProcessDetails = () => {
           instance: { count: instance_count }
         }
       }
-    } = state,
-    show_modal = useSignal(false),
-    cascade = useState(false),
-    skip_custom_listeners = useState(true),
-    skip_io_mappings = useState(true),
-    { params } = useRoute(),
-    handleDelete = () => {
-      delete_deployment(state, state.selected_deployment.value.id, {
-        cascade: cascade.value,
-        skipCustomListeners: skip_custom_listeners.value,
-        skipIoMappings: skip_io_mappings.value,
-      })
-        .then(() => get_deployment(state))
-        .then((data) => (state.deployments.value = data))
-        .catch((error) => {
-          console.error('Deletion failed:', error)
-        })
-        .finally(() => show_modal.value = false)
-      // .then((response) => {
-      //   if (response.ok) {
-      //     get_deployment(state)
-      //     state.selected_deployment.value = null
-      //     state.deployment_resources.value = []
-      //     state.selected_resource.value = null
-      //     state.selected_process_statistics.value = null
-      //   } else {
-      //     response.json().then((json) => {
-      //       console.error(`Deletion failed: ${json.message}`)
-      //     })
-      //   }
-      // })
-    },
-    openModal = () => {
-      // if (state.selected_deployment.value) {
-      //   get_deployment_instance_count(state, state.selected_deployment.value.id)
-      //     .then((data) => {
-      //       instance_count.value = data.count || 0
-      //     })
-      //     .catch((error) => {
-      //       console.error('Error fetching instance count:', error)
-      //       instance_count.value = 0
-      //     })
-      // }
-      show_modal.value = true
-    }
-
-  console.log(process_definition.value?.data)
+    } = state
+  // show_modal = useSignal(false),
+  // cascade = useState(false),
+  // skip_custom_listeners = useState(true),
+  // skip_io_mappings = useState(true),
+  // { params } = useRoute(),
+  // handleDelete = () => {
+  //   delete_deployment(state, state.selected_deployment.value.id, {
+  //     cascade: cascade.value,
+  //     skipCustomListeners: skip_custom_listeners.value,
+  //     skipIoMappings: skip_io_mappings.value,
+  //   })
+  //     .then(() => get_deployment(state))
+  //     .then((data) => (state.deployments.value = data))
+  //     .catch((error) => {
+  //       console.error('Deletion failed:', error)
+  //     })
+  //     .finally(() => show_modal.value = false)
+  //   // .then((response) => {
+  //   //   if (response.ok) {
+  //   //     get_deployment(state)
+  //   //     state.selected_deployment.value = null
+  //   //     state.deployment_resources.value = []
+  //   //     state.selected_resource.value = null
+  //   //     state.selected_process_statistics.value = null
+  //   //   } else {
+  //   //     response.json().then((json) => {
+  //   //       console.error(`Deletion failed: ${json.message}`)
+  //   //     })
+  //   //   }
+  //   // })
+  // },
+  // openModal = () => {
+  //   // if (state.selected_deployment.value) {
+  //   //   get_deployment_instance_count(state, state.selected_deployment.value.id)
+  //   //     .then((data) => {
+  //   //       instance_count.value = data.count || 0
+  //   //     })
+  //   //     .catch((error) => {
+  //   //       console.error('Error fetching instance count:', error)
+  //   //       instance_count.value = 0
+  //   //     })
+  //   // }
+  //   show_modal.value = true
+  // }
 
   return <div class="process-details">
     <RequestState
       signl={process_definition}
       on_nothing={() => <p className="info-box">No resource selected</p>}
       on_success={() => <>
-        <h3>{process_definition.value?.data[0].name || 'N/A - Process name is not defined'}</h3>
-        <p class={process_definition.value?.data[0].suspended ? 'status-suspended' : 'status-active'}>
-          {process_definition.value?.data[0].suspended ? 'Suspended' : 'Active'}
-        </p>
+        {process_definition.value?.data.length > 0
+          ? <><h3>{process_definition.value?.data[0].name || 'N/A - Process name is not defined'}</h3>
+            <p class={process_definition.value?.data[0].suspended ? 'status-suspended' : 'status-active'}>
+              {process_definition.value?.data[0].suspended ? 'Suspended' : 'Active'}
+            </p>
 
-        <dl>
-          <dt>Name</dt>
-          <dd>{process_definition.value?.data[0].name || "?"}</dd>
-          <dt>Key</dt>
-          <dd>{process_definition.value?.data[0].key || "?"}</dd>
-          <dt>Instance Count</dt>
-          <dd>
-            <RequestState
-              signl={instance_count}
-              on_success={() => instance_count.value?.data.count}
-            />
-          </dd>
-        </dl>
+            <dl>
+              <dt>Name</dt>
+              <dd>{process_definition.value?.data[0].name || '?'}</dd>
+              <dt>Key</dt>
+              <dd>{process_definition.value?.data[0].key || '?'}</dd>
+              <dt>Instance Count</dt>
+              <dd>
+                <RequestState
+                  signl={instance_count}
+                  on_success={() => instance_count.value?.data.count}
+                />
+              </dd>
+            </dl>
 
-        <BpmnViewer process_definition_id={process_definition.value.data[0].id} />
+            <BpmnViewer process_definition_id={process_definition.value.data[0].id} />
 
-        <button onClick={openModal} class="delete-button">
-          Delete Deployment
-        </button>
+            {/*<button onClick={openModal} class="delete-button">*/}
+            {/*  Delete Deployment*/}
+            {/*</button>*/}
+          </>
+          : <p>Empty response</p>}
       </>
       } />
   </div>

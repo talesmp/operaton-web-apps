@@ -52,6 +52,7 @@ export const get_diagram = (state, process_definition_id) =>
  */
 export const get_process_definition_by_deployment_id = (state, deployment_id, resource_name) =>
   GET(`/process-definition?deploymentId=${deployment_id}&resourceName=${encodeURIComponent(resource_name)}`, state, state.api.process.definition.one)
+
     // .then(() => state.api.process.definition.one = state.api.process.definition.one[0])
 
 const process_definition = {

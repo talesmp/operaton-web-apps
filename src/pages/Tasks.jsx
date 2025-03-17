@@ -7,13 +7,14 @@ import { useRoute, useLocation } from 'preact-iso'
 import { useSignalEffect } from '@preact/signals'
 import { Tabs } from '../components/Tabs.jsx'
 import { TaskForm } from './TaskForm.jsx'
+import { SimpleProcessList } from './HelloWorld.jsx' // Import the toggle component
 
 const TasksPage = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
   const location = useLocation();
   const server = state.server.value.url
-
+  console.log(state)
   // when the server is changed and a task is selected, we return to /tasks
   useSignalEffect(() => {
     if (state.server.value.url !== server && location.path !== '/tasks') {
@@ -136,7 +137,7 @@ const Task = () => {
           <button><Icons.chat_bubble_left /> Comment</button>
         </li>
         <li>
-          <button><Icons.play /> Start Process</button>
+          <SimpleProcessList />
         </li>
       </menu>
 

@@ -6,7 +6,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 import { RequestState } from '../api.jsx'
 import { useComputed } from '@preact/signals'
 
-const AdminPage = () => {
+const AdminPage = () => {dd
   const
     { params: { page_id } } = useRoute(),
     { route } = useLocation(),

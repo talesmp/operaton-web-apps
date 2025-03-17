@@ -551,6 +551,13 @@ h1 > span.selected {
 
 main#processes {
 
+  #left-side {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+  }
+
   #selection {
     overflow-y: auto;
     padding: var(--spacing-2);
@@ -559,6 +566,35 @@ main#processes {
     max-width: calc(100vw - 30ch - 2 * var(--spacing-2));
     overflow-x: clip;
     box-sizing: content-box;
+    flex: 1;
+  }
+
+
+  #history-mode-indicator {
+    padding: var(--spacing-1);
+    text-align: center;
+    font-weight: bold;
+    background: var(--background-2);
+    border-top: var(--border);
+
+    &.on {
+      background: var(--color-primary);
+      border-top: none;
+
+      button {
+        color: white;
+      }
+
+      button:hover {
+        border-color: white;
+      }
+
+    }
+
+    button {
+      background: transparent;
+      margin: 0;
+    }
   }
 
   #preview {

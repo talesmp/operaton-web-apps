@@ -26,6 +26,7 @@ const createAppState = () => {
     selected_deployment: signal(null),
     selected_process_statistics: signal(null),
   }
+  const history_mode = signal(false)
 
   const api = {
     engine: {
@@ -90,7 +91,8 @@ const createAppState = () => {
     server,
     auth,
     api,
-    deployments_page
+    deployments_page,
+    history_mode,
   }
 }
 

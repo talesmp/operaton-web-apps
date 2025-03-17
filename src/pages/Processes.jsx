@@ -1,7 +1,7 @@
 import { signal, useSignalEffect } from '@preact/signals'
 import { useContext, useEffect } from 'preact/hooks'
-import { useRoute } from 'preact-iso'
-import engine_rest, { RequestState }  from '../api/engine_rest.jsx'
+import { useLocation, useRoute } from 'preact-iso'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
 import { AppState } from '../state.js'
@@ -15,43 +15,104 @@ const store_details_width = () => {
   )
 }
 
+/**
+ * Keep the `?history=true` query params of the URL alive as long as the history
+ * mode is active.
+ *
+ * @param query Provide the result of `useRoute().query`
+ * @returns {string} Either returns `?history=true` when history mode is active or an empty string when not.
+ */
+const keep_history_query = (query) => {
+  if (query.history) {
+    return '?history=true'
+  }
+  return ''
+}
+
 const ProcessesPage = () => {
   const
     state = useContext(AppState),
-    { params } = useRoute(),
-    details_width = signal(localStorage.getItem('details_width') ?? 400)
+    { params, query, path } = useRoute(),
+    { route } = useLocation(),
+    details_width = signal(localStorage.getItem('details_width') ?? 400),
+    enable_history_mode = () => {
+      route(`${path}?history=true`)
+      state.history_mode.value = true},
+    disable_history_mode = () => {
+      route(`${path}`)
+      state.history_mode.value = false
+    },
+    // condition naming for deciding on fetching data from backend
+    definition_selected = params.definition_id,
+    history_mode_disabled = !state.history_mode.value,
+    no_definition_loaded = state.api.process.definition.one.value === null,
+    loaded_definition_not_matching_url_param =
+      state.api.process.definition.one.value?.data !== undefined &&
+      state.api.process.definition.one.value?.data.id !== params.definition_id
+
+  if (query.history) {
+    enable_history_mode()
+  }
+
+  console.log(state.history_mode.value)
 
   useEffect(() => {
     document.getElementById('selection').style.width = details_width.value.data
   }, [details_width.value.data])
 
-  // && state.api.process.definition.single.value?.id !== params.definition_id
+  if (definition_selected) {
+    if (history_mode_disabled) {
+      if (no_definition_loaded) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      } else if (loaded_definition_not_matching_url_param) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      }
+    } else {
+      void engine_rest.history.process_instance.all(state, params.definition_id)
 
-  if (params.definition_id) {
-    if (state.api.process.definition.one.value === null) {
-      void engine_rest.process_definition.one(state, params.definition_id)
-      void engine_rest.process_definition.diagram(state, params.definition_id)
-    } else if (state.api.process.definition.one.value?.data !== undefined && state.api.process.definition.one.value?.data.id !== params.definition_id) {
-      void engine_rest.process_definition.one(state, params.definition_id)
-      void engine_rest.process_definition.diagram(state, params.definition_id)
+      if (no_definition_loaded) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      } else if (loaded_definition_not_matching_url_param) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      }
     }
   } else {
     // reset state
-    console.log(state)
     state.api.process.definition.one.value = null
     state.api.process.definition.diagram.value = null
     state.api.process.instance.list.value = null
-    // state.api.process.instance.one.value = null
+
     void engine_rest.process_definition.list(state)
   }
 
   return (
     <main id="processes"
           class="split-layout">
-      <div id="selection" onMouseUp={store_details_width}>
-        {!params?.definition_id
-          ? <ProcessDefinitionSelection />
-          : <ProcessDefinitionDetails />}
+      <div id="left-side">
+        <div id="selection" onMouseUp={store_details_width}>
+
+
+          {!params?.definition_id
+            ? <ProcessDefinitionSelection />
+            : <ProcessDefinitionDetails />}
+
+
+        </div>
+
+        <div id="history-mode-indicator" class={state.history_mode.value ? "on" : "off"}>
+          {state.history_mode.value ?
+            <button onClick={disable_history_mode}>
+              History Mode Active
+            </button>
+            :
+            <button onClick={enable_history_mode}>
+              Enable History Mode
+            </button>}
+        </div>
       </div>
       <ProcessDiagram />
     </main>
@@ -109,7 +170,8 @@ const ProcessDefinitionSelection = () => {
 
 const ProcessDefinitionDetails = () => {
   const
-    { api: { process: { definition: { one: process_definition } } } } = useContext(AppState),
+    { api: { process: { definition: { one: process_definition } } } } =
+      useContext(AppState),
     { params } = useRoute()
 
   return (
@@ -138,8 +200,6 @@ const ProcessDefinitionDetails = () => {
               }
             </dl>
           </div>} />
-
-
       </div>
 
       <Accordion
@@ -153,7 +213,7 @@ const ProcessDefinitionDetails = () => {
 const ProcessDefinition =
   ({ definition: { id, name, key }, instances, incidents }) =>
     <tr>
-      <td><a href={`/processes/${id}/instances`}>{name}</a></td>
+      <td><a href={`/processes/${id}/instances${keep_history_query(useRoute().query)}`}>{name}</a></td>
       <td>{key}</td>
       <td>{instances}</td>
       <td>{incidents.length}</td>
@@ -166,8 +226,10 @@ const Instances = () => {
     { params } = useRoute()
 
   if (!params.selection_id) {
-    void engine_rest.history.process_instances(state, params.definition_id)
+    void engine_rest.history.process_instance.all(state, params.definition_id)
   }
+
+  console.log(state.history_mode.value)
 
   return !params?.selection_id
     ? (<table class="fade-in">
@@ -198,7 +260,11 @@ const InstanceDetails = () => {
 
   if (selection_id) {
     if (state.api.process.instance.one === undefined || state.api.process.instance.one.value === null) {
-      void engine_rest.process_instance.one(state, selection_id)
+      if (!state.history_mode.value) {
+        void engine_rest.process_instance.one(state, selection_id)
+      } else {
+        void engine_rest.history.process_instance.one(state, selection_id)
+      }
     }
   }
 
@@ -232,7 +298,7 @@ const InstanceDetailsDescription = () =>
 const ProcessInstance = ({ id, startTime, state, businessKey }) => (
   <tr>
     <td class="font-mono"><a
-      href={`./instances/${id}/vars`}> {id.substring(0, 8)}</a></td>
+      href={`./instances/${id}/vars${keep_history_query(useRoute().query)}`}> {id.substring(0, 8)}</a></td>
     <td>{new Date(Date.parse(startTime)).toLocaleString()}</td>
     <td>{state}</td>
     <td>{businessKey}</td>

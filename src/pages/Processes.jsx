@@ -7,13 +7,15 @@ import ReactBpmn from 'react-bpmn'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
 
-const store_details_width = () => {
+/**
+ * Save custom split view width to localstorage
+ */
+const store_details_width = () =>
   localStorage.setItem(
     'details_width',
     window.getComputedStyle(document.getElementById('selection'), null)
       .getPropertyValue('width')
   )
-}
 
 /**
  * Keep the `?history=true` query params of the URL alive as long as the history
@@ -37,7 +39,8 @@ const ProcessesPage = () => {
     details_width = signal(localStorage.getItem('details_width') ?? 400),
     enable_history_mode = () => {
       route(`${path}?history=true`)
-      state.history_mode.value = true},
+      state.history_mode.value = true
+    },
     disable_history_mode = () => {
       route(`${path}`)
       state.history_mode.value = false
@@ -103,7 +106,7 @@ const ProcessesPage = () => {
 
         </div>
 
-        <div id="history-mode-indicator" class={state.history_mode.value ? "on" : "off"}>
+        <div id="history-mode-indicator" class={state.history_mode.value ? 'on' : 'off'}>
           {state.history_mode.value ?
             <button onClick={disable_history_mode}>
               History Mode Active
@@ -178,7 +181,7 @@ const ProcessDefinitionDetails = () => {
     <div class="fade-in">
       <div class="row gap-2">
         <a className="tabs-back"
-           href={`/processes`}
+           href={`/processes${keep_history_query(useRoute().query)}`}
            title="Change Definition">
           <Icons.arrow_left />
           <Icons.list />
@@ -205,7 +208,7 @@ const ProcessDefinitionDetails = () => {
       <Accordion
         accordion_name="process_definition_details"
         sections={process_definition_tabs}
-        base_path={`/processes/${params.definition_id}`} />
+        base_path={`/processes/${params.definition_id}${keep_history_query(useRoute().query)}`} />
     </div>
   )
 }
@@ -272,7 +275,7 @@ const InstanceDetails = () => {
     <div class="fade-in">
       <div class="row gap-2">
         <BackToListBtn
-          url={`/processes/${definition_id}/instances`}
+          url={`/processes/${definition_id}/instances${keep_history_query(useRoute().query)}`}
           title="Change Instance"
           className="bg-1" />
         <InstanceDetailsDescription />
@@ -282,7 +285,7 @@ const InstanceDetails = () => {
         sections={process_instance_tabs}
         accordion_name="instance_details_accordion"
         param_name="sub_panel"
-        base_path={`/processes/${definition_id}/${panel}/${selection_id}`} />
+        base_path={`/processes/${definition_id}/${panel}/${selection_id}${keep_history_query(useRoute().query)}`} />
     </div>
   )
 }
@@ -489,7 +492,7 @@ const CalledProcessInstances = () => {
       {state.api.process.instance.called.value?.data?.map(instance =>
         <tr key={instance.id}>
           <td>{instance.suspended ? 'Suspended' : 'Running'}</td>
-          <td><a href={`/processes/${instance.id}`}>{instance.id}</a></td>
+          <td><a href={`/processes/${instance.id}${keep_history_query(useRoute().query)}`}>{instance.id}</a></td>
           <td>{instance.definitionId}</td>
           <td>{instance.definitionId}</td>
         </tr>
@@ -553,7 +556,7 @@ const CalledProcessDefinitions = () => {
       <tbody>
       {state.api.process.definition.called.value?.data?.map(definition =>
         <tr key={definition.id}>
-          <td><a href={`/processes/${definition.id}`}>{definition.name}</a></td>
+          <td><a href={`/processes/${definition.id}${keep_history_query(useRoute().query)}`}>{definition.name}</a></td>
           <td>{definition.suspended ? 'Suspended' : 'Running'}</td>
           <td>{definition.calledFromActivityIds.map(a => `${a}, `)}</td>
         </tr>
@@ -642,7 +645,7 @@ const process_definition_tabs = [
   }]
 
 const UUIDLink = ({ uuid = '?', path }) =>
-  <a href={path}>{uuid.substring(0, 8)}</a>
+  <a href={`${path}${keep_history_query(useRoute().query)}`}>{uuid.substring(0, 8)}</a>
 
 const process_instance_tabs = [
   {

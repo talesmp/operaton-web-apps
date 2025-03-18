@@ -471,7 +471,7 @@ const InstanceUserTasks = () => {
 const CalledProcessInstances = () => {
   const
     state = useContext(AppState),
-    { selection_id } = useRoute()
+    { selection_id, query } = useRoute()
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
@@ -492,7 +492,7 @@ const CalledProcessInstances = () => {
       {state.api.process.instance.called.value?.data?.map(instance =>
         <tr key={instance.id}>
           <td>{instance.suspended ? 'Suspended' : 'Running'}</td>
-          <td><a href={`/processes/${instance.id}${keep_history_query(useRoute().query)}`}>{instance.id}</a></td>
+          <td><a href={`/processes/${instance.id}${keep_history_query(query)}`}>{instance.id}</a></td>
           <td>{instance.definitionId}</td>
           <td>{instance.definitionId}</td>
         </tr>
@@ -537,7 +537,7 @@ const Incidents = () => {
 const CalledProcessDefinitions = () => {
   const
     state = useContext(AppState),
-    { definition_id } = useRoute()
+    { definition_id, query } = useRoute()
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
@@ -556,7 +556,7 @@ const CalledProcessDefinitions = () => {
       <tbody>
       {state.api.process.definition.called.value?.data?.map(definition =>
         <tr key={definition.id}>
-          <td><a href={`/processes/${definition.id}${keep_history_query(useRoute().query)}`}>{definition.name}</a></td>
+          <td><a href={`/processes/${definition.id}${keep_history_query(query)}`}>{definition.name}</a></td>
           <td>{definition.suspended ? 'Suspended' : 'Running'}</td>
           <td>{definition.calledFromActivityIds.map(a => `${a}, `)}</td>
         </tr>

@@ -99,7 +99,7 @@ export function Header () {
 
       <menu>
         <li>
-          <button class="neutral" onClick={showSearch}>
+          <button id="go-to" class="neutral" onClick={showSearch}>
             <Icons.search /> Go To
             {/*<small class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>*/}
           </button>

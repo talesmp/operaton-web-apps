@@ -78,7 +78,7 @@ const createAppState = () => {
       incident: {
         by_process_definition: signal(null),
         by_process_instance: signal(null)
-      }
+      },
     },
     job_definition: {
       all: {

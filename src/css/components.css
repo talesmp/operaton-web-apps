@@ -739,6 +739,7 @@ div.accordion {
       align-items: center;
       gap: var(--spacing-1);
       padding: var(--spacing-1);
+      cursor: default;
     }
 
     summary::before {
@@ -913,4 +914,11 @@ dialog#global-search {
 
 #account-page dialog table td.fill {
   width: 100%;
+}
+
+#go-to {
+  font-family: monospace;
+  text-transform: uppercase;
+  font-size: .8em;
+  letter-spacing: .1em;
 }

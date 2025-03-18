@@ -49,6 +49,8 @@ const ProcessesPage = () => {
     definition_selected = params.definition_id,
     history_mode_disabled = !state.history_mode.value,
     no_definition_loaded = state.api.process.definition.one.value === null,
+
+    /** @namespace state.api.process.definition.one.value.data **/
     loaded_definition_not_matching_url_param =
       state.api.process.definition.one.value?.data !== undefined &&
       state.api.process.definition.one.value?.data.id !== params.definition_id
@@ -57,8 +59,7 @@ const ProcessesPage = () => {
     enable_history_mode()
   }
 
-  console.log(state.history_mode.value)
-
+  /** @namespace details_width.value.data **/
   useEffect(() => {
     document.getElementById('selection').style.width = details_width.value.data
   }, [details_width.value.data])
@@ -130,6 +131,7 @@ const ProcessDiagram = () => {
       diagram.value !== null &&
       params.definition_id !== undefined
 
+  /** @namespace diagram.value.data.bpmn20Xml **/
   return <div id="preview" class="fade-in">
     {show_diagram
       ? <ReactBpmn
@@ -153,6 +155,7 @@ const ProcessDefinitionSelection = () => {
       <thead>
       <tr>
         <th>Name</th>
+        <th>Version</th>
         <th>Key</th>
         <th>Instances</th>
         <th>Incidents</th>
@@ -177,6 +180,7 @@ const ProcessDefinitionDetails = () => {
       useContext(AppState),
     { params } = useRoute()
 
+  /** @namespace process_definition.value.data.tenantId **/
   return (
     <div class="fade-in">
       <div class="row gap-2">
@@ -214,9 +218,10 @@ const ProcessDefinitionDetails = () => {
 }
 
 const ProcessDefinition =
-  ({ definition: { id, name, key }, instances, incidents }) =>
+  ({ definition: { id, name, key, version }, instances, incidents }) =>
     <tr>
       <td><a href={`/processes/${id}/instances${keep_history_query(useRoute().query)}`}>{name}</a></td>
+      <td>{version}</td>
       <td>{key}</td>
       <td>{instances}</td>
       <td>{incidents.length}</td>
@@ -229,7 +234,11 @@ const Instances = () => {
     { params } = useRoute()
 
   if (!params.selection_id) {
-    void engine_rest.history.process_instance.all(state, params.definition_id)
+    if (!state.history_mode.value) {
+      void engine_rest.history.process_instance.all_unfinished(state, params.definition_id)
+    } else {
+      void engine_rest.history.process_instance.all(state, params.definition_id)
+    }
   }
 
   console.log(state.history_mode.value)
@@ -291,6 +300,7 @@ const InstanceDetails = () => {
 }
 
 const InstanceDetailsDescription = () =>
+
   <dl>
     <dt>Instance ID</dt>
     <dd>{useContext(AppState).api.process.instance.one.value.data?.id ?? '-/-'}</dd>
@@ -319,7 +329,12 @@ const InstanceVariables = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void engine_rest.process_instance.variables(state, params.selection_id)
+    if (!state.history_mode.value) {
+      void engine_rest.process_instance.variables(state, params.selection_id)
+    } else {
+      void
+        engine_rest.history.variable_instance.by_process_instance(state, params.selection_id)
+    }
   })
 
   return (
@@ -334,13 +349,21 @@ const InstanceVariables = () => {
       </thead>
       <tbody>
       {selection_exists
-        ? Object.entries(state.api.process.instance.variables.value.data).map(
-          // eslint-disable-next-line react/jsx-key
-          ([name, { type, value }]) => (<tr>
-            <td>{name}</td>
-            <td>{type}</td>
-            <td>{value}</td>
-          </tr>))
+        ? !state.history_mode.value
+          ? Object.entries(state.api.process.instance.variables.value.data).map(
+            // eslint-disable-next-line react/jsx-key
+            ([name, { type, value }]) => (<tr>
+              <td>{name}</td>
+              <td>{type}</td>
+              <td>{value}</td>
+            </tr>))
+          : state.api.process.instance.variables.value.data.map(
+            // eslint-disable-next-line react/jsx-key
+            ({ name, type, value }) => (<tr>
+              <td>{name}</td>
+              <td>{type}</td>
+              <td>{value}</td>
+            </tr>))
         : 'Loading ...'}
       </tbody>
     </table>
@@ -357,6 +380,7 @@ const InstanceIncidents = () => {
     void engine_rest.history.incident.by_process_instance(state, params.selection_id)
   })
 
+  /** @namespace state.api.history.incident.by_process_definition.value.data **/
   return (
     <table>
       <thead>
@@ -417,6 +441,7 @@ const InstanceUserTasks = () => {
     void engine_rest.task.by_process_instance(state, params.selection_id)
   })
 
+  /** @namespace state.api.task.by_process_instance.value.data **/
   return (
     <table>
       <thead>
@@ -478,6 +503,8 @@ const CalledProcessInstances = () => {
     void engine_rest.process_instance.called(state, selection_id)
   )
 
+  /** @namespace state.api.process.instance.called.value.data **/
+  /** @namespace instance.definitionId **/
   return (
     <table>
       <thead>
@@ -512,6 +539,8 @@ const Incidents = () => {
     void engine_rest.history.incident.by_process_definition(state, definition_id)
   )
 
+  /** @namespace instance.incidentMessage **/
+  /** @namespace instance.incidentType **/
   return (
     <table>
       <thead>
@@ -544,6 +573,7 @@ const CalledProcessDefinitions = () => {
     void engine_rest.process_definition.called(state, definition_id)
   )
 
+  /** @namespace definition.calledFromActivityIds **/
   return (
     <table>
       <thead>
@@ -576,6 +606,10 @@ const JobDefinitions = () => {
     void engine_rest.job_definition.all.by_process_definition(state, definition_id)
   )
 
+  /** @namespace state.api.job_definition.all.by_process_definition.value.data **/
+  /** @namespace definition.jobType **/
+  /** @namespace definition.jobConfiguration **/
+  /** @namespace definition.overridingJobPriority **/
   return (
     <div class="relative">
       <table>

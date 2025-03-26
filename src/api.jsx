@@ -124,7 +124,11 @@ export const remove_tenant = (state, tenant_id, user_name) => delete_(`/tenant/$
 }, state, state.remove_tenant_response) // TODO remove `?? 'demo'` when we have working authentication
 export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.api.process.definition.list)
 export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.api.process.definition.single)
-export const get_process_definition_for_start_button = (state, id) => get(`/process-definition/${id}`, state, state.api.process.definition.single)
+
+export const get_process_definition_for_start_button = (state) => get(`/process-definition?latest=true&active=true&startableInTasklist=true&startablePermissionCheck=true&firstResult=0&maxResults=15`, state, state.api.process.definition.list)
+export const get_startForm = (state, processId) => get(`/process-definition/${processId}/startForm`, state, state.api.process.definition.single)
+export const start_process_without_form_field = (state, id,) => post(`/process-definition/${id}/submit-form`, {}, state, state.api.process.definition.single);
+
 export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.api.process.instance.list)
 export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, state.api.process.instance.single)
 export const get_process_incidents = (state, definition_id) => get(`/history/incident?processDefinitionId=${definition_id}`, state, state.process_incidents)

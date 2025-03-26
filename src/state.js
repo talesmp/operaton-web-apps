@@ -64,6 +64,14 @@ const createAppState = () => {
   const selected_resource = signal(null)
   const selected_process_statistics = signal(null)
   const bpmn_xml = signal(null)
+
+  const show_processes = signal(false); 
+  const process_list = signal([]);
+  const search_term = signal('');
+  const showConfirmation = signal(false);  
+  const processToStart = signal(null);
+  //const process_start_error_message = signal("");
+
   // admin
   // const admin_users = signal(null)
   const api = {
@@ -151,7 +159,14 @@ const createAppState = () => {
     deployment_resources,
     selected_resource,
     selected_process_statistics,
-    bpmn_xml
+    bpmn_xml,
+
+    show_processes,
+    process_list,
+    search_term,
+    showConfirmation,
+    processToStart,
+    //process_start_error_message
   }
 }
 

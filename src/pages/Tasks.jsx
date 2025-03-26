@@ -7,7 +7,7 @@ import { useRoute, useLocation } from 'preact-iso'
 import { useSignalEffect } from '@preact/signals'
 import { Tabs } from '../components/Tabs.jsx'
 import { TaskForm } from './TaskForm.jsx'
-import { SimpleProcessList } from './HelloWorld.jsx' // Import the toggle component
+import { StartProcessList } from './StartProcessList.jsx' // Import the toggle component
 
 const TasksPage = () => {
   const state = useContext(AppState)
@@ -137,7 +137,7 @@ const Task = () => {
           <button><Icons.chat_bubble_left /> Comment</button>
         </li>
         <li>
-          <SimpleProcessList />
+          <StartProcessList />
         </li>
       </menu>
 

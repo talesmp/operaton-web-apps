@@ -1,6 +1,6 @@
 # Operaton BPM Web Apps
 
-The accompanying web apps for the Operaton BPM system.
+The accompanying web apps for the [Operaton](https://github.com/operaton/operaton) an open-source BPMN system.
 
 ![operaton process page](/docs/screenshots/operaton-processes-page.png)
 
@@ -10,14 +10,16 @@ You require the following software to run the app
 
 - [Preact & Vite Setup](https://preactjs.com/guide/v10/getting-started#create-a-vite-powered-preact-app)
   - An up-to-date version of `node.js` 
-- An Operaton API for the backend to consume ([example](https://github.com/javahippie/operaton-spring-boot-example))
+- An Operaton API for the backend to consume
+  - With Docker Compose run `docker compose up -d`
+  - Or with Maven ([example](https://github.com/javahippie/operaton-spring-boot-example))
 - Create a `.env.development.local` file in the root of this project and configure your backend as shown [here](./docs/Environment%20Variables.md)
 
 ## Running the app
 
--   `npm run dev` - Starts a dev server at http://localhost:5173/
--   `npm run build` - Builds for production, emitting to `dist/`
--   `npm run preview` - Starts a server at http://localhost:4173/ to test production build locally
+- `npm run dev` - Starts a dev server at http://localhost:5173/
+- `npm run build` - Builds for production, emitting to `dist/`
+- `npm run preview` - Starts a server at http://localhost:4173/ to test production build locally
 
 ## Documentation
 

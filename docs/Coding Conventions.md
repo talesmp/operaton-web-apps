@@ -240,6 +240,11 @@ export const get_process_instances = (state, definition_id) =>
 
 ## CSS
 
+There is currently no proper document to give an overview of the CSS in this project.
+
+If you add CSS you can just dump it in an additional new file and when merging the 
+PR it will get cleaned up by the maintainers. 
+
 - Split code in multiple files
 - Prefer classless styling to classes
 - Prefer cascading styles with few additional classes instead of many single

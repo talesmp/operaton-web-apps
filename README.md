@@ -1,5 +1,7 @@
 # Operaton BPM Web Apps
 
+[forum.operaton.org](https://forum.operaton.org) | [Slack](https://operaton.org/chat)
+
 The accompanying web apps for the [Operaton](https://github.com/operaton/operaton) an open-source BPMN system.
 
 ![operaton process page](/docs/screenshots/operaton-processes-page.png)

@@ -33,7 +33,8 @@ For both, the login information are:
 This project uses:
 
 - [Preact](https://preactjs.com/guide/v10/getting-started)
-    - [preact-iso](https://github.com/preactjs/preact-iso)
+    - [preact-iso (routing)](https://github.com/preactjs/preact-iso)
+    - [Preact Signals](https://preactjs.com/guide/v10/signals/)
 - [react-bpmn](https://github.com/bpmn-io/react-bpmn)
 - [Vite](https://vite.dev/guide/)
 - [Operaton API (currently C7 docs)](https://docs.camunda.org/rest/camunda-bpm-platform/7.22/#)

@@ -72,8 +72,8 @@ API call:
 
 const Instances = () => {
   const
-          state = useContext(AppState),
-          { params } = useRoute()
+      state = useContext(AppState),
+      { params } = useRoute()
 
   // call the core, access its result in a child component
   void engine_rest.get_process_instances(state, params.definition_id)

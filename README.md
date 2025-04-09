@@ -1,5 +1,7 @@
 # Operaton BPM Web Apps
 
+[Forum](https://forum.operaton.org) | [Slack](https://operaton.org/chat) | [Website](https://operaton.org)
+
 The accompanying web apps for the [Operaton](https://github.com/operaton/operaton) an open-source BPMN system.
 
 ![operaton process page](/docs/screenshots/operaton-processes-page.png)
@@ -29,6 +31,13 @@ Documentation for the Operaton web apps can currently be found inside the [`/doc
 
 Please refer to the [Contributing.md](docs/Contributing.md) file for detailed information.
 As well have a look at [Coding Conventions.md](docs/Coding%20Conventions.md).
+
+### Join the community
+
+Sometimes the GitHub issues aren't the best place to discuss some topics. Hence we provide a forum and a Slack channel as well:
+
+- [forum.operaton.org](https://forum.operaton.org)
+- [Slack](https://operaton.org/chat)
 
 ## Screenshots
 

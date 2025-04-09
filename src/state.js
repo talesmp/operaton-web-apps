@@ -29,6 +29,11 @@ const createAppState = () => {
   const history_mode = signal(false)
 
   const api = {
+    authorization: {
+      all: signal(null),
+      update: signal(null),
+      delete: signal(null)
+    },
     engine: {
       telemetry: signal(null)
     },
@@ -44,11 +49,15 @@ const createAppState = () => {
       unlock: signal(null),
     },
     group: {
-      list: signal(null)
+      list: signal(null),
+      create: signal(null),
+      add_user: signal(null)
     },
     tenant: {
       list: signal(null),
-      by_member: signal(null)
+      by_member: signal(null),
+      create: signal(null),
+      add_user: signal(null)
     },
     process: {
       definition: {

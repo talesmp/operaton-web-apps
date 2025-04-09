@@ -112,6 +112,14 @@ button[type=submit]:is(:focus, :active, :hover) {
   align-items: center;
 }
 
+td .button-group {
+  padding: 0;
+}
+
+td button {
+  margin-top: 0;
+}
+
 input,
 select,
 textarea {

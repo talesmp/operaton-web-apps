@@ -122,12 +122,32 @@ export const remove_tenant = (state, tenant_id, user_name) => delete_(`/tenant/$
   id: tenant_id,
   userId: user_name ?? 'demo',
 }, state, state.remove_tenant_response) // TODO remove `?? 'demo'` when we have working authentication
+
+//--------------------------------//
+//------StartProcessList----------//
+//--------------------------------//
 export const get_process_definitions = (state) => get('/process-definition/statistics', state, state.api.process.definition.list)
 export const get_process_definition = (state, id) => get(`/process-definition/${id}`, state, state.api.process.definition.single)
-
 export const get_process_definition_for_start_button = (state) => get(`/process-definition?latest=true&active=true&startableInTasklist=true&startablePermissionCheck=true&firstResult=0&maxResults=15`, state, state.api.process.definition.list)
-export const get_startForm = (state, processId) => get(`/process-definition/${processId}/startForm`, state, state.api.process.definition.single)
+export const get_startForm = (state, processId) => get(`/process-definition/${processId}/startForm`, state, state.api.process.definition.single);
+//standard get-wrapper-method parses respsone into json, but response was html
+export const get_rendered_start_form = async (state, id) => {
+  const url = `${_url(state)}/process-definition/${id}/rendered-form`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) 
+      throw new Error(`HTTP ${response.status}`);
+    const form = await response.text();
+    return { status: _STATE.SUCCESS, data: form };
+  } catch (error) {
+    return { status: _STATE.ERROR, error };
+  }
+};
 export const start_process_without_form_field = (state, id,) => post(`/process-definition/${id}/submit-form`, {}, state, state.api.process.definition.single);
+export const start_process_with_form_field =  (state, id, body) => post(`/process-definition/${id}/submit-form`, body, state, state.api.process.definition.single);
+//--------------------------------//
+//--------------------------------//
+//--------------------------------//
 
 export const get_process_instances = (state, definition_id) => get(`/history/process-instance?${url_params(definition_id)}`, state, state.api.process.instance.list)
 export const get_process_instance = (state, instance_id) => get(`/process-instance/${instance_id}`, state, state.api.process.instance.single)

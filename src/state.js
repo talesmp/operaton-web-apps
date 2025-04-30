@@ -18,8 +18,6 @@ import { createContext } from 'preact'
  */
 const createAppState = () => {
   const server = signal(get_stored_server())
-  const process_definitions = signal(null)
-  const process_definition = signal(null)
   const process_definition_diagram = signal(null)
   const selected_process_definition_id = signal(null)
   const process_instances = signal(null)
@@ -65,11 +63,20 @@ const createAppState = () => {
   const selected_process_statistics = signal(null)
   const bpmn_xml = signal(null)
 
+//--------------------------------//
+//------StartProcessList----------//
+//--------------------------------//
   const show_processes = signal(false); 
   const process_list = signal([]);
   const search_term = signal('');
   const showConfirmation = signal(false);  
   const processToStart = signal(null);
+  const formFields = [];
+  const start_processID = signal(null)
+  const display_start_formular = signal(false)
+//--------------------------------//
+//--------------------------------//
+
   //const process_start_error_message = signal("");
 
   // admin
@@ -161,12 +168,20 @@ const createAppState = () => {
     selected_process_statistics,
     bpmn_xml,
 
+
+//--------------------------------//
+//------StartProcessList----------//
+//--------------------------------//
     show_processes,
     process_list,
     search_term,
     showConfirmation,
     processToStart,
-    //process_start_error_message
+    display_start_formular,
+    formFields,
+    start_processID
+//--------------------------------//
+//--------------------------------//
   }
 }
 

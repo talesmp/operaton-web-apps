@@ -85,8 +85,9 @@ const fetch_with_body = (method, url, body, state, signl) => {
     .catch(error => error.json().then(json => signl.value = { status: _STATE.ERROR, data: json }))
 }
 
-export const POST = (url, body, state, signl) =>
-  fetch_with_body('POST', url, body, state, signl)
+export const POST = (url, body, state, signl) => {
+  return fetch_with_body('POST', url, body, state, signl)
+}
 
 export const PUT = (url, body, state, signl) =>
   fetch_with_body('PUT', url, body, state, signl)

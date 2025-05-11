@@ -54,11 +54,12 @@ const get_task_process_definitions = (state, ids) =>
   }).then(r => r.json())
 
 // Task-Formular absenden (kein Signal nötig, da redirect)
-const post_task_form = (state, task_id, data) =>
+const post_task_form = (state, task_id, data) => 
   POST(`/task/${task_id}/submit-form`, {
     variables: data,
     withVariablesInReturn: true
-  }, state, state.api.task.submit_form)
+  }, state, state.api.task.submit_form).then((response) => console.log(response))
+
 
 
 // Export als Aufgaben-Modul

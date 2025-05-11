@@ -3,13 +3,15 @@ import DOMPurify from 'dompurify'
 import { AppState } from '../state.js'
 import engine_rest from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
-import { useRoute } from 'preact-iso/router'
+import { useRoute } from 'preact-iso'
+
 
 const TaskForm = () => {
   const [generated, setGenerated] = useState('')
   const [deployed, setDeployed] = useState([])
   const [error, setError] = useState(null)
   const state = useContext(AppState)
+  const { params } = useRoute()
 
   const task = state.api.task.one.value.data
   const refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
@@ -31,7 +33,7 @@ const TaskForm = () => {
   }
 
   // === Formdaten parsen ===
-  if (rendered_form.data && generated === '') {
+  if (rendered_form?.data && generated === '') {
     setGenerated(parse_html(state, rendered_form.data))
   }
 
@@ -62,7 +64,7 @@ const TaskForm = () => {
     <>
       <div>(*) required field</div>
       <div id="generated-form" class="task-form">
-        <form onSubmit={(e) => post_form(e, state, setError)}>
+        <form onSubmit={(e) => submit_form(e, state, setError, params.task_id)}>
           <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
 
           <div class={`error ${error ? 'show' : 'hidden'}`}>
@@ -125,26 +127,28 @@ if (!form) {
   return DOMPurify.sanitize(form.innerHTML, { ADD_ATTR: ['cam-variable-type'] })
 }
 
-const post_form = (e, state, setError) => {
-  const { params } = useRoute()
+const submit_form = (e, state, setError, taskId) => {
   e.preventDefault()
   setError(null)
 
-  const task_id = params.task_id
   const data = build_form_data()
 
-  const message = engine_rest.task.post_task_form(state, task_id, data)
+  engine_rest.task.post_task_form(state, taskId, data)
+    .then(() => {
+      localStorage.removeItem(`task_form_${taskId}`)
 
-  if (message) {
-    setError(message)
-  } else {
-    localStorage.removeItem(`task_form_${task_id}`)
-  }
+      window.location.href = '/tasks'
+    })
+    .catch(error => {
+      console.error('Submit failed:', error)
+      setError(error?.message || 'An unknown error occurred.')
+    })
 }
 
+/* with "Save TaskForm" we store the form data in the local storage, so the task can be completed in the future,
+   no matter when, we reuse the JSON structure from the REST API POST call */
 const store_data = (state) => {
-  const data = build_form_data(true)
-  localStorage.setItem(`task_form_${state.task.value?.id}`, JSON.stringify(data))
+  localStorage.setItem(`task_form_${state.api.task.value?.data.id}`, JSON.stringify(build_form_data(true)))
 }
 
 const build_form_data = (temporary = false) => {
@@ -173,6 +177,7 @@ const build_form_data = (temporary = false) => {
         if (input.value) data[name] = { value: input.value }
     }
   }
+  console.log(data)
 
   return data
 }

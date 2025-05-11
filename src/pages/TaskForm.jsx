@@ -85,10 +85,11 @@ const parse_html = (state, html) => {
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
   const form = doc.getElementsByTagName('form')[0]
-if (!form) {
-  console.warn('No <form> element found in rendered form HTML')
-  return '<p class="info-box">No form available for this task.</p>'
-}
+
+  if (!form) {
+    console.warn('No <form> element found in rendered form HTML')
+    return '<p class="info-box">No form available for this task.</p>'
+  }
   const disable = state.api.user?.profile?.value?.id !== state.api.task.value?.data.assignee
 
   let storedData = localStorage.getItem(`task_form_${state.api.task?.value?.data?.id}`)
@@ -98,11 +99,16 @@ if (!form) {
   const selects = form.getElementsByTagName('select')
 
   for (const field of inputs) {
+    console.log(field)
     if (!field.getAttribute('name')) field.name = 'name'
     if (field.hasAttribute('uib-datepicker-popup')) field.type = 'date'
     if (field.getAttribute('cam-variable-type') === 'Long') field.type = 'number'
     if (disable) field.setAttribute('disabled', 'disabled')
-    if (field.hasAttribute('required')) field.previousElementSibling.textContent += '*'
+    if (field.hasAttribute('required')) {
+      if(field.type != "date"){
+        field.previousElementSibling.textContent += '*'
+      }
+    }
 
     if (storedData) {
       if (field.type === 'checkbox' && storedData[field.name]?.value) {
@@ -211,23 +217,30 @@ const DeployedFormRow = ({ components }) => (
   </div>
 )
 
-const DeployedFormComponent = ({ component }) => {
-  const colSize = component.layout.columns || 16
+const DeployedFormComponent = (props) =>
+  <div class={`col col-${props.component.layout.columns ? props.component.layout.columns : '16'}`}>
 
-  const content = (() => {
-    switch (component.type) {
-      case 'spacer': return <span>&nbsp;</span>
-      case 'separator': return <hr />
-      case 'text': return <div class="task-text">{component.text}</div>
-      case 'checklist':
-      case 'radio': return <MultiInput component={component} />
-      case 'select': return <Select component={component} />
-      default: return <Input type={component.type} component={component} />
-    }
-  })()
 
-  return <div class={`col col-${colSize}`}>{content}</div>
-}
+    {(() => {
+      switch (props.component.type) {
+        case 'spacer':
+          return <span>&nbsp;</span>
+        case 'separator':
+          return <hr />
+        case 'text':
+          return <div class="task-text">{props.component.text}</div>
+        case 'checklist':
+          return <MultiInput component={props.component} />
+        case 'radio':
+          return <MultiInput component={props.component} />
+        case 'select':
+          return <Select component={props.component} />
+        default:
+          return <Input type={props.component.type} component={props.component} />
+      }
+    })()}
+
+  </div>
 
 const Input = ({ type, component }) => {
   let inputType = type === 'textfield' ? 'text' : type

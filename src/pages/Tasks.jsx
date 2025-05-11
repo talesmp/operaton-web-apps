@@ -1,5 +1,4 @@
 import { useContext } from 'preact/hooks'
-import * as api from '../api/engine_rest.jsx'
 import * as formatter from '../helper/date_formatter.js'
 import * as Icons from '../assets/icons.jsx'
 import { AppState } from '../state.js'
@@ -7,6 +6,7 @@ import { useRoute, useLocation } from 'preact-iso'
 import { useSignalEffect } from '@preact/signals'
 import { Tabs } from '../components/Tabs.jsx'
 import { TaskForm } from './TaskForm.jsx'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 
 const TasksPage = () => {
   const state = useContext(AppState)
@@ -23,13 +23,13 @@ const TasksPage = () => {
 
   // TODO remove it when we have a login
   if (!state.user_profile.value) {
-    void api.get_user_profile(state, null)
+    //void api.get_user_profile(state, null)
   }
 
-  void api.get_tasks(state)
+  void engine_rest.task.get_tasks(state)
 
   if (params.task_id) {
-    void api.get_task(state, params.task_id)
+    void engine_rest.task.get_task(state, params.task_id)
   } else {
     state.task.value = null
   }
@@ -171,14 +171,14 @@ const ResetAssigneeBtn = () => {
     assignee_is_different_user = task.value?.assignee && !(user_profile.value && user_profile.value.id === task.value?.assignee)
 
   return assignee_is_different_user && !(task_assign_result.value?.success ?? false)
-    ? <button onClick={() => api.assign_task(state, null, task.value.id)} className="secondary">
+    ? <button onClick={() => engine_rest.task.assign_task(state, null, task.value.id)} className="secondary">
       <Icons.user_minus /> Reset Assignee
     </button>
     : user_is_assignee || (task_claim_result.value?.success ?? false)
-      ? <button onClick={() => api.unclaim_task(state, task.value.id)} className="secondary">
+      ? <button onClick={() => engine_rest.task.unclaim_task(state, task.value.id)} className="secondary">
         <Icons.user_minus /> Unclaim
       </button>
-      : <button onClick={() => api.claim_task(state, task.value.id)} className="secondary">
+      : <button onClick={() => engine_rest.task.claim_task(state, task.value.id)} className="secondary">
         <Icons.user_plus /> Claim
       </button>
 }

@@ -13,26 +13,22 @@ const TaskForm = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
 
-  const task = state.api.task.one.value.data
+  const selectedTask = state.api.task.one.value.data
   const refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
 
-  if (!task) return <p class="info-box">No task selected.</p>
-  console.log(state)
+  if (!selectedTask) return <p class="info-box">No task selected.</p> 
 
   const rendered_form = state.api.task.rendered_form.value
   const deployed_form = state.api.task.deployed_form.value
 
-  // === Form abrufen, falls noch nicht geladen ===
-  if (!task.data?.formKey && !task[refName] && !rendered_form) {
-    void engine_rest.task.get_task_rendered_form(state, task.id)
-    console.log(rendered_form)
+  if (!selectedTask.data?.formKey && !selectedTask[refName] && !rendered_form) {
+    engine_rest.task.get_task_rendered_form(state, selectedTask.id)
   }
 
-  if (!task.formKey && task[refName] && !deployed_form) {
-    void engine_rest.task.get_task_deployed_form(state, task.id)
+  if (!selectedTask.formKey && selectedTask[refName] && !deployed_form) {
+    engine_rest.task.get_task_deployed_form(state, selectedTask.id)
   }
 
-  // === Formdaten parsen ===
   if (rendered_form?.data && generated === '') {
     setGenerated(parse_html(state, rendered_form.data))
   }
@@ -41,15 +37,15 @@ const TaskForm = () => {
     setDeployed(prepare_form_data(deployed_form))
   }
 
-  // === Rendering ===
-  if (task.formKey) {
-    const formLink = task.formKey.substring(13)
+  if (selectedTask.formKey) {
+    const formLink = selectedTask.formKey.substring(13)
+    const hostName = window.location.hostname
     return (
       <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
     )
   }
 
-  if (task[refName]) {
+  if (selectedTask[refName]) {
     return (
       <div id="deployed-form" class="task-form">
         <form>
@@ -81,7 +77,6 @@ const TaskForm = () => {
 }
 
 const parse_html = (state, html) => {
-  console.log("Parse html")
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
   const form = doc.getElementsByTagName('form')[0]
@@ -95,13 +90,7 @@ const parse_html = (state, html) => {
 
   //TODO: Muss noch gemacht werden
   let storedData = localStorage.getItem(`task_form_${state.api.task.one.value?.data.id}`)
-  console.log(storedData)
-  if (storedData){
-    storedData = JSON.parse(storedData)
-    console.log("stored data gefunden")
-  }else{
-    console.log("nix gefunden")
-  }
+  if (storedData) storedData = JSON.parse(storedData)
 
   const inputs = form.getElementsByTagName('input')
   const selects = form.getElementsByTagName('select')
@@ -162,7 +151,6 @@ const submit_form = (e, state, setError, taskId) => {
 /* with "Save TaskForm" we store the form data in the local storage, so the task can be completed in the future,
    no matter when, we reuse the JSON structure from the REST API POST call */
 const store_data = (state) => {
-  console.log(state.api.task.one.value?.data?.id)
   localStorage.setItem(`task_form_${state.api.task.one.value?.data?.id}`, JSON.stringify(build_form_data(true)))
 }
 
@@ -192,7 +180,6 @@ const build_form_data = (temporary = false) => {
         if (input.value) data[name] = { value: input.value }
     }
   }
-  console.log(data)
 
   return data
 }

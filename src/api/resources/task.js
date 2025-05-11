@@ -10,7 +10,7 @@ const get_task = (state, task_id) =>
 
 // Gerenderte Form holen (Response ist kein json sondern das html)
 const get_task_rendered_form = (state, task_id) =>
-  GET_TEXT(`/task/${task_id}/rendered-form`, state, state.api.task.rendered_form).then((response)=>console.log(response))
+  GET_TEXT(`/task/${task_id}/rendered-form`, state, state.api.task.rendered_form)
 
 // Deployment-Form holen
 const get_task_deployed_form = (state, task_id) =>
@@ -58,7 +58,7 @@ const post_task_form = (state, task_id, data) =>
   POST(`/task/${task_id}/submit-form`, {
     variables: data,
     withVariablesInReturn: true
-  }, state, state.api.task.submit_form).then((response) => console.log(response))
+  }, state, state.api.task.submit_form)
 
 
 

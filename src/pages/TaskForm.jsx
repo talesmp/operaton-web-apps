@@ -66,7 +66,6 @@ const TaskForm = () => {
       <div id="generated-form" class="task-form">
         <form onSubmit={(e) => submit_form(e, state, setError, params.task_id)}>
           <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
-
           <div class={`error ${error ? 'show' : 'hidden'}`}>
             <span class="icon"><Icons.exclamation_triangle /></span>
             <span class="error-text">{error}</span>
@@ -82,6 +81,7 @@ const TaskForm = () => {
 }
 
 const parse_html = (state, html) => {
+  console.log("Parse html")
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
   const form = doc.getElementsByTagName('form')[0]
@@ -90,21 +90,29 @@ const parse_html = (state, html) => {
     console.warn('No <form> element found in rendered form HTML')
     return '<p class="info-box">No form available for this task.</p>'
   }
+  //TODO: Muss noch gemacht werden
   const disable = state.api.user?.profile?.value?.id !== state.api.task.value?.data.assignee
 
-  let storedData = localStorage.getItem(`task_form_${state.api.task?.value?.data?.id}`)
-  if (storedData) storedData = JSON.parse(storedData)
+  //TODO: Muss noch gemacht werden
+  let storedData = localStorage.getItem(`task_form_${state.api.task.one.value?.data.id}`)
+  console.log(storedData)
+  if (storedData){
+    storedData = JSON.parse(storedData)
+    console.log("stored data gefunden")
+  }else{
+    console.log("nix gefunden")
+  }
 
   const inputs = form.getElementsByTagName('input')
   const selects = form.getElementsByTagName('select')
 
   for (const field of inputs) {
-    console.log(field)
     if (!field.getAttribute('name')) field.name = 'name'
     if (field.hasAttribute('uib-datepicker-popup')) field.type = 'date'
     if (field.getAttribute('cam-variable-type') === 'Long') field.type = 'number'
     if (disable) field.setAttribute('disabled', 'disabled')
     if (field.hasAttribute('required')) {
+      //TODO: Muss noch gemacht werden
       if(field.type != "date"){
         field.previousElementSibling.textContent += '*'
       }
@@ -154,7 +162,8 @@ const submit_form = (e, state, setError, taskId) => {
 /* with "Save TaskForm" we store the form data in the local storage, so the task can be completed in the future,
    no matter when, we reuse the JSON structure from the REST API POST call */
 const store_data = (state) => {
-  localStorage.setItem(`task_form_${state.api.task.value?.data.id}`, JSON.stringify(build_form_data(true)))
+  console.log(state.api.task.one.value?.data?.id)
+  localStorage.setItem(`task_form_${state.api.task.one.value?.data?.id}`, JSON.stringify(build_form_data(true)))
 }
 
 const build_form_data = (temporary = false) => {
@@ -255,7 +264,7 @@ const Input = (props) => {
   }
 
   return (
-    <>
+    <div class="row">
       <label>{label}<br />
       <input type={type} name={props.component.key}
              required={props.component.validate && props.component.validate.required}
@@ -266,7 +275,7 @@ const Input = (props) => {
              step={props.component.validate ? props.component.validate.step : ''}
       />
       </label>
-    </>)
+    </div>)
 }
 
 
@@ -274,12 +283,12 @@ const Select = (props) => {
   const options = props.component.values.map((data) => <option key={data.value} value={data.value}>{data.label}</option>)
 
   return (
-    <>
+    <div class="row">
       <label>{props.component.label}</label>
       <select name={props.component.key}>
         {options}
       </select>
-    </>
+    </div>
   )
 }
 

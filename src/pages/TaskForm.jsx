@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify'
 import { AppState } from '../state.js'
 import engine_rest from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
+import { useRoute } from 'preact-iso/router'
 
 const TaskForm = () => {
   const [generated, setGenerated] = useState('')
@@ -10,17 +11,19 @@ const TaskForm = () => {
   const [error, setError] = useState(null)
   const state = useContext(AppState)
 
-  const task = state.api.task.value
+  const task = state.api.task.one.value.data
   const refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
 
   if (!task) return <p class="info-box">No task selected.</p>
+  console.log(state)
 
   const rendered_form = state.api.task.rendered_form.value
   const deployed_form = state.api.task.deployed_form.value
 
   // === Form abrufen, falls noch nicht geladen ===
-  if (!task.formKey && !task[refName] && !rendered_form) {
+  if (!task.data?.formKey && !task[refName] && !rendered_form) {
     void engine_rest.task.get_task_rendered_form(state, task.id)
+    console.log(rendered_form)
   }
 
   if (!task.formKey && task[refName] && !deployed_form) {
@@ -28,13 +31,11 @@ const TaskForm = () => {
   }
 
   // === Formdaten parsen ===
-  if (rendered_form && generated === '') {
-    console.log("Zeile 32")
-    setGenerated(parse_html(state, rendered_form))
+  if (rendered_form.data && generated === '') {
+    setGenerated(parse_html(state, rendered_form.data))
   }
 
   if (deployed_form && deployed.length === 0) {
-    console.log("Zeile 37")
     setDeployed(prepare_form_data(deployed_form))
   }
 
@@ -86,9 +87,9 @@ if (!form) {
   console.warn('No <form> element found in rendered form HTML')
   return '<p class="info-box">No form available for this task.</p>'
 }
-  const disable = state.user_profile.value.id !== state.task.value?.assignee
+  const disable = state.api.user?.profile?.value?.id !== state.api.task.value?.data.assignee
 
-  let storedData = localStorage.getItem(`task_form_${state.task.value?.id}`)
+  let storedData = localStorage.getItem(`task_form_${state.api.task?.value?.data?.id}`)
   if (storedData) storedData = JSON.parse(storedData)
 
   const inputs = form.getElementsByTagName('input')
@@ -125,10 +126,11 @@ if (!form) {
 }
 
 const post_form = (e, state, setError) => {
+  const { params } = useRoute()
   e.preventDefault()
   setError(null)
 
-  const task_id = state.task.value?.id
+  const task_id = params.task_id
   const data = build_form_data()
 
   const message = engine_rest.task.post_task_form(state, task_id, data)

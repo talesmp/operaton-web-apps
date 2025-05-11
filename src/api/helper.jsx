@@ -62,6 +62,15 @@ export const GET = (url, state, signl) => {
     .catch(error => signl.value = { status: _STATE.ERROR, error })
 }
 
+export const GET_TEXT = (url, state, signl) => {
+  signl.value = { status: _STATE.LOADING }
+
+  return fetch(`${_url(state)}${url}`)
+    .then(response => response.ok ? response.text() : Promise.reject(response))
+    .then(text => signl.value = { status: _STATE.SUCCESS, data: text })
+    .catch(error => signl.value = { status: _STATE.ERROR, error })
+}
+
 const fetch_with_body = (method, url, body, state, signl) => {
   signl.value = { status: _STATE.LOADING }
 

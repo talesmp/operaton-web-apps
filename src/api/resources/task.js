@@ -1,4 +1,4 @@
-import { GET, POST } from '../helper.jsx'
+import { GET, GET_TEXT, POST } from '../helper.jsx'
 
 // Tasks nach Process Instance
 const get_process_instance_tasks = (state, instance_id) =>
@@ -8,9 +8,9 @@ const get_process_instance_tasks = (state, instance_id) =>
 const get_task = (state, task_id) =>
   GET(`/task/${task_id}`, state, state.api.task.one)
 
-// Gerenderte Form holen
+// Gerenderte Form holen (Response ist kein json sondern das html)
 const get_task_rendered_form = (state, task_id) =>
-  GET(`/task/${task_id}/rendered-form`, state, state.api.task.rendered_form)
+  GET_TEXT(`/task/${task_id}/rendered-form`, state, state.api.task.rendered_form).then((response)=>console.log(response))
 
 // Deployment-Form holen
 const get_task_deployed_form = (state, task_id) =>

@@ -1,8 +1,7 @@
 import { useState, useContext } from 'preact/hooks'
-import * as api from '../api/engine_rest.jsx'
 import DOMPurify from 'dompurify'
 import { AppState } from '../state.js'
-import { useSignalEffect } from '@preact/signals'
+import engine_rest from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 
 const TaskForm = () => {
@@ -10,214 +9,172 @@ const TaskForm = () => {
   const [deployed, setDeployed] = useState([])
   const [error, setError] = useState(null)
   const state = useContext(AppState)
+
+  const task = state.api.task.value
   const refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
 
-  state.task_generated_form.value = null
-  state.task_deployed_form.value = null
+  if (!task) return <p class="info-box">No task selected.</p>
 
-  // no embedded form and no Camunda form, we have to look for generated form
-  useSignalEffect(() => {
-    if (state.task.value && !state.task_generated_form.value && !state.task.value.formKey && !state.task.value[refName]) {
-      api.get_task_rendered_form(state, state.task.value.id)
-    }
+  const rendered_form = state.api.task.rendered_form.value
+  const deployed_form = state.api.task.deployed_form.value
 
-    if (state.task.value && !state.task.value.formKey && state.task.value[refName]) {
-      api.get_task_deployed_form(state, state.task.value?.id)
-    }
-  })
+  // === Form abrufen, falls noch nicht geladen ===
+  if (!task.formKey && !task[refName] && !rendered_form) {
+    void engine_rest.task.get_task_rendered_form(state, task.id)
+  }
 
-  // generated form was loaded, so do something
-  useSignalEffect(() => {
-    if (state.task_generated_form.value && generated === '') {
-      setGenerated(parse_html(state, state.task_generated_form.value))
-    }
-  })
+  if (!task.formKey && task[refName] && !deployed_form) {
+    void engine_rest.task.get_task_deployed_form(state, task.id)
+  }
 
-  // deployed form was loaded, so do something
-  useSignalEffect(() => {
-    if (state.task_deployed_form.value && deployed.length === 0) {
-      setDeployed(prepare_form_data(state.task_deployed_form.value))
-    }
-  })
+  // === Formdaten parsen ===
+  if (rendered_form && generated === '') {
+    console.log("Zeile 32")
+    setGenerated(parse_html(state, rendered_form))
+  }
+
+  if (deployed_form && deployed.length === 0) {
+    console.log("Zeile 37")
+    setDeployed(prepare_form_data(deployed_form))
+  }
+
+  // === Rendering ===
+  if (task.formKey) {
+    const formLink = task.formKey.substring(13)
+    return (
+      <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
+    )
+  }
+
+  if (task[refName]) {
+    return (
+      <div id="deployed-form" class="task-form">
+        <form>
+          {deployed.map(({ key, value }) =>
+            <DeployedFormRow key={key} components={value} />)}
+        </form>
+      </div>
+    )
+  }
 
   return (
     <>
-      {(() => {
-        if (state.task.value?.formKey) {
-          const formLink = state.task.value?.formKey.substring(13)
+      <div>(*) required field</div>
+      <div id="generated-form" class="task-form">
+        <form onSubmit={(e) => post_form(e, state, setError)}>
+          <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
 
-          return ( // TODO needs to be clarified what to do here
-            <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
-          )
-        } else if (state.task.value && state.task.value[refName]) {
-          return (
-            <div id="deployed-form" class="task-form">
-              <form>
-                {deployed?.map(({ key, value }) =>
-                  <DeployedFormRow key={key} components={value} />)}
-              </form>
-            </div>
-          )
-        }
-        return (
-          <>
-            <div>(*) required field</div>
-            <div id="generated-form" class="task-form">
-              <form onSubmit={(e) => post_form(e, state, setError)}>
-                <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
-
-                <div class={`error ${error ? 'show' : 'hidden'}`}>
-                  <span class="icon"><Icons.exclamation_triangle /></span>
-                  <span class="error-text">{error}</span>
-                </div>
-                <div class="form-buttons">
-                  <button type="submit">Complete Task</button>
-                  <button type="button" class="secondary" onClick={() => store_data(state)}>Save Form</button>
-                </div>
-              </form>
-            </div>
-          </>
-        )
-      })()}
+          <div class={`error ${error ? 'show' : 'hidden'}`}>
+            <span class="icon"><Icons.exclamation_triangle /></span>
+            <span class="error-text">{error}</span>
+          </div>
+          <div class="form-buttons">
+            <button type="submit">Complete Task</button>
+            <button type="button" class="secondary" onClick={() => store_data(state)}>Save Form</button>
+          </div>
+        </form>
+      </div>
     </>
   )
 }
 
-/* remove unnecessary JS code, set date type for date inputs and add form buttons */
 const parse_html = (state, html) => {
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
   const form = doc.getElementsByTagName('form')[0]
-
+if (!form) {
+  console.warn('No <form> element found in rendered form HTML')
+  return '<p class="info-box">No form available for this task.</p>'
+}
   const disable = state.user_profile.value.id !== state.task.value?.assignee
+
+  let storedData = localStorage.getItem(`task_form_${state.task.value?.id}`)
+  if (storedData) storedData = JSON.parse(storedData)
+
   const inputs = form.getElementsByTagName('input')
   const selects = form.getElementsByTagName('select')
-  let storedData = localStorage.getItem(`task_form_${state.task.value?.id}`)
-
-  if (storedData) {
-    storedData = JSON.parse(storedData)
-  }
 
   for (const field of inputs) {
-    // sanitize will remove the attribute name when its value is also "name"
-    if (!field.getAttribute('name')) {
-      field.name = 'name'
-    }
+    if (!field.getAttribute('name')) field.name = 'name'
+    if (field.hasAttribute('uib-datepicker-popup')) field.type = 'date'
+    if (field.getAttribute('cam-variable-type') === 'Long') field.type = 'number'
+    if (disable) field.setAttribute('disabled', 'disabled')
+    if (field.hasAttribute('required')) field.previousElementSibling.textContent += '*'
 
-    // if we have a date, we change the input type to date, so the standard datepicker can be used
-    if (field.hasAttribute('uib-datepicker-popup')) {
-      field.type = 'date'
-    }
-
-    // for the Long type we set the proper input type, so we can use the browser validation
-    if (field.getAttribute('cam-variable-type') === 'Long') {
-      field.type = 'number'
-    }
-
-    if (disable) {
-      field.setAttribute('disabled', 'disabled')
-    }
-
-    if (field.hasAttribute('required')) {
-      field.previousElementSibling.textContent += '*'
-    }
-
-    // set previously stored data
     if (storedData) {
-      if (field.getAttribute('type') === 'checkbox') {
-        if (storedData[field.name] && storedData[field.name]['value']) {
-          field.setAttribute('checked', 'checked')
-        }
+      if (field.type === 'checkbox' && storedData[field.name]?.value) {
+        field.checked = true
       } else if (storedData[field.name]) {
-        field.setAttribute('value', storedData[field.name]['value'])
+        field.value = storedData[field.name].value
       }
     }
   }
 
   for (const field of selects) {
-    if (disable) {
-      field.setAttribute('disabled', 'disabled')
-    }
-
-    if (storedData && storedData[field.name]) {
+    if (disable) field.setAttribute('disabled', 'disabled')
+    if (storedData?.[field.name]) {
       for (const option of field.children) {
-        if (option.getAttribute('value') === storedData[field.name]['value']) {
-          option.setAttribute('selected', 'selected')
+        if (option.value === storedData[field.name].value) {
+          option.selected = true
         }
       }
     }
   }
 
-  // we clean up the HTML, will remove unnecessary JS and attributes
   return DOMPurify.sanitize(form.innerHTML, { ADD_ATTR: ['cam-variable-type'] })
 }
 
 const post_form = (e, state, setError) => {
-  setError(null) // reset former error message from server
+  e.preventDefault()
+  setError(null)
+
   const task_id = state.task.value?.id
   const data = build_form_data()
 
-  const message = api.post_task_form(state, state.task.value?.id, data)
+  const message = engine_rest.task.post_task_form(state, task_id, data)
 
-  // error message from server
   if (message) {
     setError(message)
   } else {
-    // we don't care if it exists, we remove it as a precaution
     localStorage.removeItem(`task_form_${task_id}`)
   }
-
-  e.preventDefault()
 }
 
-/* with "Save TaskForm" we store the form data in the local storage, so the task can be completed in the future,
-   no matter when, we reuse the JSON structure from the REST API POST call */
 const store_data = (state) => {
-  localStorage.setItem(`task_form_${state.task.value?.id}`, JSON.stringify(build_form_data(true)))
+  const data = build_form_data(true)
+  localStorage.setItem(`task_form_${state.task.value?.id}`, JSON.stringify(data))
 }
 
-// building Json format for posting the data, if we store it temporarily we don't change the format
-const build_form_data = (temporary) => {
-  const inputs = document.getElementById('generated-form')
-    .getElementsByClassName('form-control')
+const build_form_data = (temporary = false) => {
+  const inputs = document.getElementById('generated-form').getElementsByClassName('form-control')
   const data = {}
 
-  // building Json format for posting the data
   for (let input of inputs) {
-    // sanitize will remove the attribute name when its value is also "name"
-    let variable = input.getAttribute('name')
+    const name = input.name
+    if (!name) continue
 
-    switch (input.getAttribute('type')) {
+    switch (input.type) {
       case 'checkbox':
-        data[variable] = { value: input.checked }
+        data[name] = { value: input.checked }
         break
       case 'date': {
         if (input.value) {
-          if (temporary) {
-            data[variable] = { value: input.value }
-          } else {
-            const date = input.value.split('-')
-            data[variable] = { value: `${date[2]}/${date[1]}/${date[0]}` }
-          }
+          const val = temporary ? input.value : input.value.split('-').reverse().join('/')
+          data[name] = { value: val }
         }
         break
       }
       case 'number':
-        if (input.value) {
-          data[variable] = { value: parseInt(input.value, 10) }
-        }
+        if (input.value) data[name] = { value: parseInt(input.value, 10) }
         break
       default:
-        if (input.value) {
-          data[variable] = { value: input.value }
-        }
+        if (input.value) data[name] = { value: input.value }
     }
   }
 
   return data
 }
 
-// make a nicer structure that helps us to render the rows
 const prepare_form_data = (form) => {
   const components = []
   let rowName = ''
@@ -225,11 +182,8 @@ const prepare_form_data = (form) => {
 
   form.components.forEach((component, index) => {
     if (rowName !== component.layout.row) {
-      if (rowName !== '') {
-        components.push({ key: rowName, value: row })
-        row = []
-      }
-
+      if (rowName !== '') components.push({ key: rowName, value: row })
+      row = []
       rowName = component.layout.row
     }
 
@@ -243,99 +197,83 @@ const prepare_form_data = (form) => {
   return components
 }
 
-const DeployedFormRow = (props) =>
+const DeployedFormRow = ({ components }) => (
   <div class="form-fields">
-    {props.components?.map(component =>
+    {components?.map(component =>
       <DeployedFormComponent key={component.id} component={component} />)}
   </div>
+)
 
-const DeployedFormComponent = (props) =>
-  <div class={`col col-${props.component.layout.columns ? props.component.layout.columns : '16'}`}>
+const DeployedFormComponent = ({ component }) => {
+  const colSize = component.layout.columns || 16
 
+  const content = (() => {
+    switch (component.type) {
+      case 'spacer': return <span>&nbsp;</span>
+      case 'separator': return <hr />
+      case 'text': return <div class="task-text">{component.text}</div>
+      case 'checklist':
+      case 'radio': return <MultiInput component={component} />
+      case 'select': return <Select component={component} />
+      default: return <Input type={component.type} component={component} />
+    }
+  })()
 
-    {(() => {
-      switch (props.component.type) {
-        case 'spacer':
-          return <span>&nbsp;</span>
-        case 'separator':
-          return <hr />
-        case 'text':
-          return <div class="task-text">{props.component.text}</div>
-        case 'checklist':
-          return <MultiInput component={props.component} />
-        case 'radio':
-          return <MultiInput component={props.component} />
-        case 'select':
-          return <Select component={props.component} />
-        default:
-          return <Input type={props.component.type} component={props.component} />
-      }
-    })()}
+  return <div class={`col col-${colSize}`}>{content}</div>
+}
 
-  </div>
-
-const Input = (props) => {
-  let type = props.type
-  const label = props.component.dateLabel ? props.component.dateLabel :
-    (props.component.timeLabel ? props.component.timeLabel : props.component.label)
-
-  if (type === 'textfield') {
-    type = 'text'
+const Input = ({ type, component }) => {
+  let inputType = type === 'textfield' ? 'text' : type
+  if (inputType === 'datetime') {
+    inputType = component.subtype === 'datetime' ? 'datetime-local' : component.subtype
   }
 
-  if (type === 'datetime') {
-    type = props.component.subtype === 'datetime' ? 'datetime-local' : props.component.subtype
-  }
+  const label = component.dateLabel || component.timeLabel || component.label
 
   return (
     <>
       <label>{label}<br />
-      <input type={type} name={props.component.key}
-             required={props.component.validate && props.component.validate.required}
-             min={props.component.validate ? props.component.validate.min : ''}
-             max={props.component.validate ? props.component.validate.max : ''}
-             maxlength={props.component.validate ? props.component.validate.maxlength : ''}
-             pattern={props.component.validate ? props.component.validate.pattern : ''}
-             step={props.component.validate ? props.component.validate.step : ''}
-      />
+        <input
+          class="form-control"
+          type={inputType}
+          name={component.key}
+          required={component.validate?.required}
+          min={component.validate?.min}
+          max={component.validate?.max}
+          maxLength={component.validate?.maxlength}
+          pattern={component.validate?.pattern}
+          step={component.validate?.step}
+        />
       </label>
-    </>)
-}
-
-const Select = (props) => {
-  const options = props.component.values.map((data) => <option key={data.value} value={data.value}>{data.label}</option>)
-
-  return (
-    <>
-      <label>{props.component.label}</label>
-      <select name={props.component.key}>
-        {options}
-      </select>
     </>
   )
 }
 
-const MultiInput = (props) => {
-  let type = props.component.type
+const Select = ({ component }) => (
+  <>
+    <label>{component.label}</label>
+    <select class="form-control" name={component.key}>
+      {component.values.map(opt =>
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      )}
+    </select>
+  </>
+)
 
-  if (type === 'checklist') {
-    type = 'checkbox'
-  }
-
-  const options = props.component.values.map((data) => {
-    return (
-      <div class="input-list" key={`list_${data.value}`}>
-        <input type={type} name={data.value} value={data.value} key={`field_${data.value}`} />
-        <label key={data.value}>{data.label}</label>
-      </div>
-    )
-  })
+const MultiInput = ({ component }) => {
+  const type = component.type === 'checklist' ? 'checkbox' : component.type
 
   return (
     <>
-      <label>{props.component.label}</label>
-      {options}
-    </>)
+      <label>{component.label}</label>
+      {component.values.map(opt => (
+        <div class="input-list" key={`list_${opt.value}`}>
+          <input type={type} name={opt.value} value={opt.value} class="form-control" />
+          <label>{opt.label}</label>
+        </div>
+      ))}
+    </>
+  )
 }
 
 export { TaskForm }

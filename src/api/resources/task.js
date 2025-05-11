@@ -43,7 +43,7 @@ const get_tasks = (state, sort_key = 'name', sort_order = 'asc') =>
             task.def_version = def?.version ?? ''
           })
 
-          state.tasks.value = tasks // falls UI das erwartet
+
         })
     })
 

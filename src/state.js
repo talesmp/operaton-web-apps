@@ -27,9 +27,6 @@ const createAppState = () => {
     selected_process_statistics: signal(null),
   }
   const history_mode = signal(false)
-
-  const task = signal(null)
-  const tasks = signal(null)
   const user_profile = signal(null)
   const task_claim_result = signal(null)
   const task_assign_result = signal(null)
@@ -115,8 +112,6 @@ const createAppState = () => {
     api,
     deployments_page,
     history_mode,
-    task,
-    tasks,
     user_profile,
     task_claim_result,
     task_assign_result

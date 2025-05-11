@@ -62,7 +62,7 @@ const TaskForm = () => {
 
   return (
     <>
-      <div>(*) required field</div>
+      <div style={"margin-bottom: 8px;"}>(*) required field</div>
       <div id="generated-form" class="task-form">
         <form onSubmit={(e) => submit_form(e, state, setError, params.task_id)}>
           <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
@@ -210,12 +210,11 @@ const prepare_form_data = (form) => {
   return components
 }
 
-const DeployedFormRow = ({ components }) => (
+const DeployedFormRow = (props) =>
   <div class="form-fields">
-    {components?.map(component =>
+    {props.components?.map(component =>
       <DeployedFormComponent key={component.id} component={component} />)}
   </div>
-)
 
 const DeployedFormComponent = (props) =>
   <div class={`col col-${props.component.layout.columns ? props.component.layout.columns : '16'}`}>
@@ -242,58 +241,69 @@ const DeployedFormComponent = (props) =>
 
   </div>
 
-const Input = ({ type, component }) => {
-  let inputType = type === 'textfield' ? 'text' : type
-  if (inputType === 'datetime') {
-    inputType = component.subtype === 'datetime' ? 'datetime-local' : component.subtype
+const Input = (props) => {
+  let type = props.type
+  const label = props.component.dateLabel ? props.component.dateLabel :
+    (props.component.timeLabel ? props.component.timeLabel : props.component.label)
+
+  if (type === 'textfield') {
+    type = 'text'
   }
 
-  const label = component.dateLabel || component.timeLabel || component.label
+  if (type === 'datetime') {
+    type = props.component.subtype === 'datetime' ? 'datetime-local' : props.component.subtype
+  }
 
   return (
     <>
       <label>{label}<br />
-        <input
-          class="form-control"
-          type={inputType}
-          name={component.key}
-          required={component.validate?.required}
-          min={component.validate?.min}
-          max={component.validate?.max}
-          maxLength={component.validate?.maxlength}
-          pattern={component.validate?.pattern}
-          step={component.validate?.step}
-        />
+      <input type={type} name={props.component.key}
+             required={props.component.validate && props.component.validate.required}
+             min={props.component.validate ? props.component.validate.min : ''}
+             max={props.component.validate ? props.component.validate.max : ''}
+             maxlength={props.component.validate ? props.component.validate.maxlength : ''}
+             pattern={props.component.validate ? props.component.validate.pattern : ''}
+             step={props.component.validate ? props.component.validate.step : ''}
+      />
       </label>
+    </>)
+}
+
+
+const Select = (props) => {
+  const options = props.component.values.map((data) => <option key={data.value} value={data.value}>{data.label}</option>)
+
+  return (
+    <>
+      <label>{props.component.label}</label>
+      <select name={props.component.key}>
+        {options}
+      </select>
     </>
   )
 }
 
-const Select = ({ component }) => (
-  <>
-    <label>{component.label}</label>
-    <select class="form-control" name={component.key}>
-      {component.values.map(opt =>
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      )}
-    </select>
-  </>
-)
+const MultiInput = (props) => {
+  let type = props.component.type
 
-const MultiInput = ({ component }) => {
-  const type = component.type === 'checklist' ? 'checkbox' : component.type
+  if (type === 'checklist') {
+    type = 'checkbox'
+  }
+
+  const options = props.component.values.map((data) => {
+    return (
+      <div class="input-list" key={`list_${data.value}`}>
+        <input type={type} name={data.value} value={data.value} key={`field_${data.value}`} />
+        <label key={data.value}>{data.label}</label>
+      </div>
+    )
+  })
 
   return (
     <>
-      <label>{component.label}</label>
-      {component.values.map(opt => (
-        <div class="input-list" key={`list_${opt.value}`}>
-          <input type={type} name={opt.value} value={opt.value} class="form-control" />
-          <label>{opt.label}</label>
-        </div>
-      ))}
-    </>
-  )
+      <label>{props.component.label}</label>
+      {options}
+    </>)
 }
 
 export { TaskForm }

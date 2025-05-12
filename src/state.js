@@ -27,6 +27,9 @@ const createAppState = () => {
     selected_process_statistics: signal(null),
   }
   const history_mode = signal(false)
+  const user_profile = signal(null)
+  const task_claim_result = signal(null)
+  const task_assign_result = signal(null)
 
   const api = {
     authorization: {
@@ -75,7 +78,14 @@ const createAppState = () => {
       }
     },
     task: {
-      by_process_instance: signal(null)
+      list: signal(null),
+      one: signal(null),
+      by_process_instance: signal(null),
+      rendered_form: signal(null),
+      deployed_form: signal(null),
+      claim_result: signal(null),
+      assign_result: signal(null),
+      submit_form: signal(null)
     },
     deployment: {
       one: signal(null),
@@ -102,6 +112,9 @@ const createAppState = () => {
     api,
     deployments_page,
     history_mode,
+    user_profile,
+    task_claim_result,
+    task_assign_result
   }
 }
 

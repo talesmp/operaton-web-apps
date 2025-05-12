@@ -41,7 +41,7 @@ const TaskForm = () => {
     const formLink = selectedTask.formKey.substring(13)
     const hostName = window.location.hostname
     return (
-      <a href={`http://localhost:8888/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
+      <a href={`${state.server.value.url}/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
     )
   }
 

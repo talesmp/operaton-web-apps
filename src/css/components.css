@@ -557,7 +557,7 @@ main#processes {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-
+    z-index: 10;
   }
 
   #selection {
@@ -600,10 +600,11 @@ main#processes {
   }
 
   #canvas {
-    overflow: scroll;
+    /*overflow: scroll;*/
     /*min-width: 30ch;*/
     /*width: 100%;*/
     /*resize: horizontal;*/
+    /*z-index: -10;*/
     max-width: 100%;
     position: relative;
 
@@ -932,4 +933,8 @@ dialog#global-search {
 
 .overlay-badge {
   padding: 2px;
+}
+
+.c-hand {
+  cursor: pointer;
 }

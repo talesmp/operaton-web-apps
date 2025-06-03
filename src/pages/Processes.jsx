@@ -3,9 +3,7 @@ import { useContext, useEffect } from 'preact/hooks'
 import { useLocation, useRoute } from 'preact-iso'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
-import ReactBpmn from 'react-bpmn'
 import { BpmnVisualization } from 'bpmn-visualization'
-import BpmnViewer from 'bpmn-js'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
 import * as bpmnvisu from 'bpmn-visualization'
@@ -139,60 +137,24 @@ const ProcessDiagram = () => {
   /** @namespace diagram.value.data.bpmn20Xml **/
   return <>
     {show_diagram && diagram.value.data?.bpmn20Xml !== null && diagram.value.data?.bpmn20Xml !== undefined
-    && statistics.value !== null && statistics.value !== undefined
+    && statistics.value !== null && statistics.value?.data !== undefined
       ? <BpmnViewer3 xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
       : <> </>
     }
   </>
 }
 
-const BpmnViewer2 = ({ xml, container }) => {
-  const viewer = new BpmnViewer({
-    container: document.getElementById(container),
-    overlays: {
-      defaults: {
-        show: { minZoom: 1 },
-        scale: true,
-        zoom: true,
-        scroll: true
-      }
-    }
-  })
-
-  viewer.importXML(xml).then((result) => {
-    const { warnings } = result
-    console.log('success !', warnings)
-
-    const canvas = viewer.get('canvas'),
-      overlays = viewer.get('overlays')
-
-    canvas.zoom('fit-viewport')
-    overlays.overlays.add('SCAN_OK', 'note', {
-      position: {
-        bottom: 0,
-        right: 0
-      },
-      html: '<div class="diagram-note">Mixed up the labels?</div>'
-    })
-    // canvas.addMarker("SCAN_OK", "needs-discussion");
-  }).catch((err) => {
-    const { warnings, message } = err
-    console.log('something went wrong:', warnings, message)
-  })
-
-  return <></>
-}
-
 const BpmnViewer3 = ({ xml, container, tokens }) => {
-   const
-     state = useContext(AppState),
-     { params: { definition_id } } = useRoute(),
-     viewer = new BpmnVisualization({
+  const
+    state = useContext(AppState),
+    { params: { definition_id } } = useRoute(),
+    viewer = new BpmnVisualization({
       container,
-      navigation: { enabled: true }
+      navigation: { enabled: true },
+      // zoom: { throttleDelay: 80, debounceDelay: 80 }
     }),
     viewerElements = viewer.bpmnElementsRegistry,
-    style = {
+    style_running = {
       font: {
         color: '#000000',
         size: '16',
@@ -203,33 +165,48 @@ const BpmnViewer3 = ({ xml, container, tokens }) => {
       stroke: {
         color: '#000000',
       }
+    },
+    style_incidents = {
+      font: {
+        color: '#000000',
+        size: '16',
+      },
+      fill: {
+        color: '#ffaaaa',
+      },
+      stroke: {
+        color: '#000000',
+      }
     }
 
   try {
-    // viewer.load(xml, { fit: { type: 'Center' } });
     viewer.load(xml, { fit: { type: bpmnvisu.FitType.Center, margin: 20 } })
     // viewer.load(xml)
   } catch (error) {
     console.error('Error loading BPMN content', error)
   }
 
-  tokens.map(({ id, instances }) => {
+  tokens.map(({ id, instances, incidents }) => {
     viewerElements.addOverlays(id, {
       position: 'bottom-left',
-      label: `${instances}`, style
+      label: `${instances}`, style: style_running
     })
+
+    if (incidents.length > 0) {
+      viewerElements.addOverlays(id, {
+        position: 'top-left',
+        label: `${incidents.length}`, style: style_incidents
+      })
+    }
 
     const callActivityElt = viewer.bpmnElementsRegistry.getElementsByIds([id])[0].htmlElement
     callActivityElt.onclick = () => {
       console.log(definition_id)
 
-
       void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
     }
-    viewer.bpmnElementsRegistry.addCssClasses([id], 'c-hand');
+    viewer.bpmnElementsRegistry.addCssClasses([id], 'c-hand')
   })
-
-
 
   return <></>
 }

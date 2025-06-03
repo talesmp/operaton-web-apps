@@ -68,6 +68,7 @@ const createAppState = () => {
         list: signal(null),
         called: signal(null),
         diagram: signal(null),
+        statistics: signal(null)
       },
       instance: {
         called: signal(null),

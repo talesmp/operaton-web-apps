@@ -549,46 +549,81 @@ const AuthorizationsPage = () => {
             </a>
           </li>)}
       </ul>
-      <div>
-        <h3>
-          {(resource_type !== undefined && resource_type !== null)
-            ? authorization_resources.find(({ resource_type: resource_type_ }) => resource_type_.toString() === resource_type).name
-            : ''} Authorization
-        </h3>
+      {resource_type
+        ? <div>
+          <h3>
+            {(resource_type !== undefined && resource_type !== null)
+              ? authorization_resources.find(({ resource_type: resource_type_ }) => resource_type_.toString() === resource_type).name
+              : ''} Authorization
+          </h3>
 
-        <button onClick={() => show_create_authorization.value = !show_create_authorization.value}>
-          {!show_create_authorization.value
-            ? "Create new authorization"
-            : "Cancel creating new authorization"}
-        </button>
-        <table class="fade-in">
-          <thead>
-          <tr>
-            <th>Type</th>
-            <th>User / Group</th>
-            <th>Permissions</th>
-            <th>Resource ID</th>
-            <th>Action</th>
-          </tr>
-          </thead>
-          <tbody>
-          {show_create_authorization.value
-            ? <tr>
-              <td>
-                <form id="create-authorization-form"><input /></form>
-              </td>
+          <button onClick={() => show_create_authorization.value = !show_create_authorization.value}>
+            {!show_create_authorization.value
+              ? 'Create new authorization'
+              : 'Cancel creating new authorization'}
+          </button>
+
+          <table class="fade-in">
+            <thead>
+            <tr>
+              <th>Type</th>
+              <th>User / Group</th>
+              <th>Permissions</th>
+              <th>Resource ID</th>
+              <th>Action</th>
             </tr>
-            : ''
-          }
-          <RequestState
-            signl={state.api.authorization.all}
-            on_success={() => <AuthorizationResourceRows authorizations={state.api.authorization.all.value.data} />} />
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+            {show_create_authorization.value
+              ? <tr>
+                <td>
+                  <form id="create-authorization-form" onSubmit={null}>
+                    <select>
+                      <option value="gloabl">GLOBAL</option>
+                      <option value="allow">ALLOW</option>
+                      <option value="deny">DENY</option>
+                    </select>
+                  </form>
+                </td>
+                <td>
+                  <input
+                    id=""
+                    name=""
+                    onInput={(e) => {}} />
+                </td>
+                <td>
+                  <fieldset>
+                    <legend>Available Permissions</legend>
+                    <label>
+                      Create
+                      <input type="checkbox" value="" />
+                    </label>
+                  </fieldset>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    id=""
+                    name=""
+                    onInput={(e) => {}} />
+                </td>
+                <td class="button-group">
+                  <button onClick={() => null}>Cancel</button>
+                  <button form="create-authorization-form" type="submit">Save</button>
+                </td>
+              </tr>
+              : ''
+            }
+            <RequestState
+              signl={state.api.authorization.all}
+              on_success={() => <AuthorizationResourceRows authorizations={state.api.authorization.all.value.data} />} />
+            </tbody>
+          </table>
+        </div>
+        : <p class="info-box">Select a authorization resource</p>}
+        </div>
     </div>
-  </div>
-}
+    }
 
 const AuthorizationResourceRows = ({ authorizations }) =>
   authorizations.map(AuthorizationResourceRow)
@@ -683,28 +718,41 @@ const AuthorizationResourceRow = (authorization) => {
 
 }
 
+const permissions = {
+  READ: 0,
+  UPDATE: 1,
+  CREATE: 2,
+  DELETE: 3,
+  ACCESS: 4
+
+  // Task Assign
+  // Task Work
+  // Read Variable
+  // Update Variable
+}
+
 const authorization_resources = [
-  { id: 'application', name: 'Application', resource_type: 0, resource_id: 'admin/cockpit/tasklist/*' },
-  { id: 'authorization', name: 'Authorization', resource_type: 4, resource_id: 'Authorization ID' },
-  { id: 'batch', name: 'Batch', resource_type: 13, resource_id: 'Batch ID' },
-  { id: 'decision_definition', name: 'Decision Definition', resource_type: 10, resource_id: 'Decision Definition Key' },
-  { id: 'decision_requirements_definition', name: 'Decision Requirements Definition', resource_type: 14, resource_id: 'Decision Requirements Definition Key' },
-  { id: 'deployment', name: 'Deployment', resource_type: 9, resource_id: 'Deployment ID' },
-  { id: 'filter', name: 'Filter', resource_type: 5, resource_id: 'Filter ID' },
-  { id: 'group', name: 'Group', resource_type: 2, resource_id: 'Group ID' },
-  { id: 'group_membership', name: 'Group Membership', resource_type: 3, resource_id: 'Group ID' },
-  { id: 'process_definition', name: 'Process Definition', resource_type: 6, resource_id: 'Process Definition Key' },
-  { id: 'process_instance', name: 'Process Instance', resource_type: 8, resource_id: 'Process Instance ID' },
-  { id: 'task', name: 'Task', resource_type: 7, resource_id: 'Task ID' },
-  { id: 'historic_task', name: 'Historic Task', resource_type: 19, resource_id: 'Historic Task ID' },
-  { id: 'historic_process_instance', name: 'Historic Process Instance', resource_type: 20, resource_id: 'Historic Process Instance ID' },
-  { id: 'tenant', name: 'Tenant', resource_type: 11, resource_id: 'Tenant ID' },
-  { id: 'tenant_membership', name: 'Tenant Membership', resource_type: 12, resource_id: 'Tenant ID' },
-  { id: 'user', name: 'User', resource_type: 1, resource_id: 'User ID' },
-  { id: 'report', name: 'Report', resource_type: 15, resource_id: 'Report ID' },
-  { id: 'dashboard', name: 'Dashboard', resource_type: 16, resource_id: 'Dashboard' },
-  { id: 'user_operation_log_category', name: 'User Operation Log Category', resource_type: 17, resource_id: 'User Operation Log Category' },
-  { id: 'system', name: 'System', resource_type: 21, resource_id: '* resources do not support individual resource ids. You have to use them with a wildcard id (*).' },
+  { id: 'application', name: 'Application', resource_type: 0, resource_id: 'admin/cockpit/tasklist/*', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'authorization', name: 'Authorization', resource_type: 4, resource_id: 'Authorization ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'batch', name: 'Batch', resource_type: 13, resource_id: 'Batch ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'decision_definition', name: 'Decision Definition', resource_type: 10, resource_id: 'Decision Definition Key', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'decision_requirements_definition', name: 'Decision Requirements Definition', resource_type: 14, resource_id: 'Decision Requirements Definition Key', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'deployment', name: 'Deployment', resource_type: 9, resource_id: 'Deployment ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'filter', name: 'Filter', resource_type: 5, resource_id: 'Filter ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'group', name: 'Group', resource_type: 2, resource_id: 'Group ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'group_membership', name: 'Group Membership', resource_type: 3, resource_id: 'Group ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'process_definition', name: 'Process Definition', resource_type: 6, resource_id: 'Process Definition Key', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'process_instance', name: 'Process Instance', resource_type: 8, resource_id: 'Process Instance ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'task', name: 'Task', resource_type: 7, resource_id: 'Task ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'historic_task', name: 'Historic Task', resource_type: 19, resource_id: 'Historic Task ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'historic_process_instance', name: 'Historic Process Instance', resource_type: 20, resource_id: 'Historic Process Instance ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'tenant', name: 'Tenant', resource_type: 11, resource_id: 'Tenant ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'tenant_membership', name: 'Tenant Membership', resource_type: 12, resource_id: 'Tenant ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'user', name: 'User', resource_type: 1, resource_id: 'User ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'report', name: 'Report', resource_type: 15, resource_id: 'Report ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'dashboard', name: 'Dashboard', resource_type: 16, resource_id: 'Dashboard', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'user_operation_log_category', name: 'User Operation Log Category', resource_type: 17, resource_id: 'User Operation Log Category', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'system', name: 'System', resource_type: 21, resource_id: '* resources do not support individual resource ids. You have to use them with a wildcard id (*).', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
 ]
 
 export { AdminPage }

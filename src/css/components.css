@@ -550,6 +550,8 @@ h1 > span.selected {
 
 
 main#processes {
+  max-width: 100vw;
+  overflow: hidden;
 
   #left-side {
     display: flex;
@@ -597,11 +599,13 @@ main#processes {
     }
   }
 
-  #preview {
-    overflow: auto;
-    min-width: 30ch;
-    width: 100%;
+  #canvas {
+    overflow: scroll;
+    /*min-width: 30ch;*/
+    /*width: 100%;*/
     /*resize: horizontal;*/
+    max-width: 100%;
+    position: relative;
 
     &::before {
       content: ' ';
@@ -921,4 +925,11 @@ dialog#global-search {
   text-transform: uppercase;
   font-size: .8em;
   letter-spacing: .1em;
+}
+
+
+/* BPMN Diagram */
+
+.overlay-badge {
+  padding: 2px;
 }

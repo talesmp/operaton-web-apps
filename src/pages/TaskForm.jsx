@@ -5,18 +5,17 @@ import engine_rest from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 import { useRoute } from 'preact-iso'
 
-
 const TaskForm = () => {
-  const [generated, setGenerated] = useState('')
-  const [deployed, setDeployed] = useState([])
-  const [error, setError] = useState(null)
-  const state = useContext(AppState)
-  const { params } = useRoute()
+  const
+    [generated, setGenerated] = useState(''),
+    [deployed, setDeployed] = useState([]),
+    [error, setError] = useState(null),
+    state = useContext(AppState),
+    { params } = useRoute(),
+    selectedTask = state.api.task.one.value.data,
+    refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
 
-  const selectedTask = state.api.task.one.value.data
-  const refName = state.server.value.c7_mode ? 'camundaFormRef' : 'operatonFormRef'
-
-  if (!selectedTask) return <p class="info-box">No task selected.</p> 
+  if (!selectedTask) return <p class="info-box">No task selected.</p>
 
   const rendered_form = state.api.task.rendered_form.value
   const deployed_form = state.api.task.deployed_form.value
@@ -58,7 +57,7 @@ const TaskForm = () => {
 
   return (
     <>
-      <div style={"margin-bottom: 8px;"}>(*) required field</div>
+      <div style={'margin-bottom: 8px;'}>(*) required field</div>
       <div id="generated-form" class="task-form">
         <form onSubmit={(e) => submit_form(e, state, setError, params.task_id)}>
           <div class="form-fields" dangerouslySetInnerHTML={{ __html: generated }} />
@@ -102,7 +101,7 @@ const parse_html = (state, html) => {
     if (disable) field.setAttribute('disabled', 'disabled')
     if (field.hasAttribute('required')) {
       //TODO: Muss noch gemacht werden
-      if(field.type != "date"){
+      if (field.type != 'date') {
         field.previousElementSibling.textContent += '*'
       }
     }
@@ -253,18 +252,17 @@ const Input = (props) => {
   return (
     <div class="row">
       <label>{label}<br />
-      <input type={type} name={props.component.key}
-             required={props.component.validate && props.component.validate.required}
-             min={props.component.validate ? props.component.validate.min : ''}
-             max={props.component.validate ? props.component.validate.max : ''}
-             maxlength={props.component.validate ? props.component.validate.maxlength : ''}
-             pattern={props.component.validate ? props.component.validate.pattern : ''}
-             step={props.component.validate ? props.component.validate.step : ''}
-      />
+        <input type={type} name={props.component.key}
+               required={props.component.validate && props.component.validate.required}
+               min={props.component.validate ? props.component.validate.min : ''}
+               max={props.component.validate ? props.component.validate.max : ''}
+               maxlength={props.component.validate ? props.component.validate.maxlength : ''}
+               pattern={props.component.validate ? props.component.validate.pattern : ''}
+               step={props.component.validate ? props.component.validate.step : ''}
+        />
       </label>
     </div>)
 }
-
 
 const Select = (props) => {
   const options = props.component.values.map((data) => <option key={data.value} value={data.value}>{data.label}</option>)

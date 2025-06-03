@@ -3,6 +3,10 @@ import { GET } from '../helper.jsx'
 export const get_process_definitions = (state) =>
   GET('/process-definition/statistics', state, state.api.process.definition.list)
 
+export const get_process_definition_statistics_with_incidents = (state, id) =>
+  GET(`/process-definition/${id}/statistics?incidents=true`, state, state.api.process.definition.statistics)
+
+
 export const get_process_definition = (state, id) =>
   GET(`/process-definition/${id}`, state, state.api.process.definition.one)
 
@@ -61,6 +65,7 @@ const process_definition = {
   called: get_called_process_definitions,
   by_deployment_id: get_process_definition_by_deployment_id,
   diagram: get_diagram,
+  statistics: get_process_definition_statistics_with_incidents,
 }
 
 export default process_definition

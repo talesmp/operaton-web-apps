@@ -4,18 +4,24 @@ import { useLocation, useRoute } from 'preact-iso'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 import ReactBpmn from 'react-bpmn'
+import { BpmnVisualization } from 'bpmn-visualization'
+import BpmnViewer from 'bpmn-js'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
+import * as bpmnvisu from 'bpmn-visualization'
 
 /**
  * Save custom split view width to localstorage
  */
-const store_details_width = () =>
+const store_details_width = () => {
+  const width = window.getComputedStyle(
+    document.getElementById('selection'), null).getPropertyValue('width')
   localStorage.setItem(
     'details_width',
-    window.getComputedStyle(document.getElementById('selection'), null)
-      .getPropertyValue('width')
+    width
   )
+  document.getElementById('canvas').style.maxWidth = `calc(100vw - ${width})`
+}
 
 /**
  * Keep the `?history=true` query params of the URL alive as long as the history
@@ -65,10 +71,12 @@ const ProcessesPage = () => {
   }, [details_width.value.data])
 
   if (definition_selected) {
+    console.log('history disabled? ', history_mode_disabled)
     if (history_mode_disabled) {
       if (no_definition_loaded) {
         void engine_rest.process_definition.one(state, params.definition_id)
         void engine_rest.process_definition.diagram(state, params.definition_id)
+        void engine_rest.process_definition.statistics(state, params.definition_id)
       } else if (loaded_definition_not_matching_url_param) {
         void engine_rest.process_definition.one(state, params.definition_id)
         void engine_rest.process_definition.diagram(state, params.definition_id)
@@ -98,13 +106,9 @@ const ProcessesPage = () => {
           class="split-layout">
       <div id="left-side">
         <div id="selection" onMouseUp={store_details_width}>
-
-
           {!params?.definition_id
             ? <ProcessDefinitionSelection />
             : <ProcessDefinitionDetails />}
-
-
         </div>
 
         <div id="history-mode-indicator" class={state.history_mode.value ? 'on' : 'off'}>
@@ -118,6 +122,7 @@ const ProcessesPage = () => {
             </button>}
         </div>
       </div>
+      <div id="canvas" />
       <ProcessDiagram />
     </main>
   )
@@ -125,22 +130,108 @@ const ProcessesPage = () => {
 
 const ProcessDiagram = () => {
   const
-    { api: { process: { definition: { diagram } } } } = useContext(AppState),
+    { api: { process: { definition: { diagram, statistics } } } } = useContext(AppState),
     { params } = useRoute(),
     show_diagram =
       diagram.value !== null &&
       params.definition_id !== undefined
 
   /** @namespace diagram.value.data.bpmn20Xml **/
-  return <div id="preview" class="fade-in">
-    {show_diagram
-      ? <ReactBpmn
-        diagramXML={diagram.value.data?.bpmn20Xml}
-        onLoading={null}
-        onShown={null}
-        onError={null} />
-      : 'Select Process Definition'}
-  </div>
+  return <>
+    {show_diagram && diagram.value.data?.bpmn20Xml !== null && diagram.value.data?.bpmn20Xml !== undefined
+    && statistics.value !== null && statistics.value !== undefined
+      ? <BpmnViewer3 xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
+      : <> </>
+    }
+  </>
+}
+
+const BpmnViewer2 = ({ xml, container }) => {
+  const viewer = new BpmnViewer({
+    container: document.getElementById(container),
+    overlays: {
+      defaults: {
+        show: { minZoom: 1 },
+        scale: true,
+        zoom: true,
+        scroll: true
+      }
+    }
+  })
+
+  viewer.importXML(xml).then((result) => {
+    const { warnings } = result
+    console.log('success !', warnings)
+
+    const canvas = viewer.get('canvas'),
+      overlays = viewer.get('overlays')
+
+    canvas.zoom('fit-viewport')
+    overlays.overlays.add('SCAN_OK', 'note', {
+      position: {
+        bottom: 0,
+        right: 0
+      },
+      html: '<div class="diagram-note">Mixed up the labels?</div>'
+    })
+    // canvas.addMarker("SCAN_OK", "needs-discussion");
+  }).catch((err) => {
+    const { warnings, message } = err
+    console.log('something went wrong:', warnings, message)
+  })
+
+  return <></>
+}
+
+const BpmnViewer3 = ({ xml, container, tokens }) => {
+   const
+     state = useContext(AppState),
+     { params: { definition_id } } = useRoute(),
+     viewer = new BpmnVisualization({
+      container,
+      navigation: { enabled: true }
+    }),
+    viewerElements = viewer.bpmnElementsRegistry,
+    style = {
+      font: {
+        color: '#000000',
+        size: '16',
+      },
+      fill: {
+        color: '#ccccff',
+      },
+      stroke: {
+        color: '#000000',
+      }
+    }
+
+  try {
+    // viewer.load(xml, { fit: { type: 'Center' } });
+    viewer.load(xml, { fit: { type: bpmnvisu.FitType.Center, margin: 20 } })
+    // viewer.load(xml)
+  } catch (error) {
+    console.error('Error loading BPMN content', error)
+  }
+
+  tokens.map(({ id, instances }) => {
+    viewerElements.addOverlays(id, {
+      position: 'bottom-left',
+      label: `${instances}`, style
+    })
+
+    const callActivityElt = viewer.bpmnElementsRegistry.getElementsByIds([id])[0].htmlElement
+    callActivityElt.onclick = () => {
+      console.log(definition_id)
+
+
+      void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
+    }
+    viewer.bpmnElementsRegistry.addCssClasses([id], 'c-hand');
+  })
+
+
+
+  return <></>
 }
 
 const ProcessDefinitionSelection = () => {
@@ -237,7 +328,7 @@ const Instances = () => {
     if (!state.history_mode.value) {
       void engine_rest.history.process_instance.all_unfinished(state, params.definition_id)
     } else {
-      void engine_rest.history.process_instance.all(state, params.definition_id)
+      void engine_rest.process_instance.all(state, params.definition_id)
     }
   }
 
@@ -438,7 +529,8 @@ const InstanceUserTasks = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void engine_rest.task.by_process_instance(state, params.selection_id)
+    // void engine_rest.task.by_process_instance(state, params.selection_id)
+    void engine_rest.task.get_process_instance_tasks(state, params.selection_id)
   })
 
   /** @namespace state.api.task.by_process_instance.value.data **/

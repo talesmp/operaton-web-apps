@@ -4,7 +4,7 @@ form {
   align-items: center;
   gap: var(--spacing-1);
 
-  container: formular / inline-size;
+  /*container: formular / inline-size;*/
 }
 form:not(:first-child) {
   margin-top: var(--spacing-1);
@@ -12,6 +12,10 @@ form:not(:first-child) {
 form > * {
   break-inside: avoid-column;
 }
+
+/*td form {*/
+/*  container*/
+/*}*/
 
 label {
   vertical-align: center;
@@ -112,8 +116,10 @@ button[type=submit]:is(:focus, :active, :hover) {
   align-items: center;
 }
 
-td .button-group {
+td.button-group {
   padding: 0;
+  flex-wrap: nowrap;
+  justify-content: start;
 }
 
 td button {

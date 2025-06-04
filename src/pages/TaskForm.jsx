@@ -1,7 +1,7 @@
 import { useState, useContext } from 'preact/hooks'
 import DOMPurify from 'dompurify'
 import { AppState } from '../state.js'
-import engine_rest from '../api/engine_rest.jsx'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 import { useRoute } from 'preact-iso'
 
@@ -21,11 +21,12 @@ const TaskForm = () => {
   const deployed_form = state.api.task.deployed_form.value
 
   if (!selectedTask.data?.formKey && !selectedTask[refName] && !rendered_form) {
-    engine_rest.task.get_task_rendered_form(state, selectedTask.id)
+    void engine_rest.task.get_task_rendered_form(state, selectedTask.id)
+    void engine_rest.task.get_task_form(state, selectedTask.formKey.substring(13))
   }
 
   if (!selectedTask.formKey && selectedTask[refName] && !deployed_form) {
-    engine_rest.task.get_task_deployed_form(state, selectedTask.id)
+    void engine_rest.task.get_task_deployed_form(state, selectedTask.id)
   }
 
   if (rendered_form?.data && generated === '') {
@@ -37,10 +38,21 @@ const TaskForm = () => {
   }
 
   if (selectedTask.formKey) {
-    const formLink = selectedTask.formKey.substring(13)
-    const hostName = window.location.hostname
+
+    // todo: if a link to a document exists, place this url in the generated html
+    //  localhost:8088/engine-rest/task/8c317066-e488-11ef-86ef-0242ac140003/variables/invoiceDocument/data
+    //  where such a link exists <a cam-file-download="invoiceDocument"></a>
+
     return (
-      <a href={`${state.server.value.url}/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>
+      <>
+        {/*<a href={`${state.server.value.url}/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>*/}
+
+
+        <RequestState signl={state.api.task.form} on_success={() =>
+          // eslint-disable-next-line react/no-danger
+          <div dangerouslySetInnerHTML={{ __html: state.api.task.form.value.data }} />
+        } />
+      </>
     )
   }
 
@@ -101,7 +113,7 @@ const parse_html = (state, html) => {
     if (disable) field.setAttribute('disabled', 'disabled')
     if (field.hasAttribute('required')) {
       //TODO: Muss noch gemacht werden
-      if (field.type != 'date') {
+      if (field.type !== 'date') {
         field.previousElementSibling.textContent += '*'
       }
     }

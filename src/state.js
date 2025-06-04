@@ -82,6 +82,7 @@ const createAppState = () => {
       list: signal(null),
       one: signal(null),
       by_process_instance: signal(null),
+      form: signal(null),
       rendered_form: signal(null),
       deployed_form: signal(null),
       claim_result: signal(null),

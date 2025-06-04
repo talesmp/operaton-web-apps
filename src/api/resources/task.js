@@ -1,4 +1,4 @@
-import { GET, GET_TEXT, POST } from '../helper.jsx'
+import { _STATE, _url, GET, GET_FORM, GET_TEXT, POST } from '../helper.jsx'
 
 // Tasks nach Process Instance
 const get_process_instance_tasks = (state, instance_id) =>
@@ -7,6 +7,9 @@ const get_process_instance_tasks = (state, instance_id) =>
 // Einzelnen Task laden
 const get_task = (state, task_id) =>
   GET(`/task/${task_id}`, state, state.api.task.one)
+
+const get_task_form = (state, form_id) =>
+  GET_FORM(`/${form_id}`, state, state.api.task.form)
 
 // Gerenderte Form holen (Response ist kein json sondern das html)
 const get_task_rendered_form = (state, task_id) =>
@@ -26,26 +29,31 @@ const unclaim_task = (state, task_id) =>
 const assign_task = (state, assignee, task_id) =>
   POST(`/task/${task_id}/assignee`, { userId: assignee }, state, state.api.task.assign_result)
 
+const  tasks_with_process_definitions = async (tasks, state) => {
+  const definition_ids = [...new Set(tasks.map(task => task.processDefinitionId))]
+
+  await get_task_process_definitions(state, definition_ids)
+    .then(defList => {
+      const defMap = new Map(defList.map(def => [def.id, def]))
+
+      tasks.forEach(task => {
+        const def = defMap.get(task.processDefinitionId)
+        task.definitionName = def?.name ?? ''
+        task.definitionVersion = def?.version ?? ''
+      })
+    })
+
+  return tasks
+}
+
 // Task-Liste laden + mit Definitionen anreichern
 const get_tasks = (state, sort_key = 'name', sort_order = 'asc') =>
-  GET(`/task?sortBy=${sort_key}&sortOrder=${sort_order}`, state, state.api.task.list)
-    .then(() => {
-      const tasks = state.api.task.list.value?.data ?? []
-      const definition_ids = [...new Set(tasks.map(task => task.processDefinitionId))]
+  fetch(`${_url(state)}/task?sortBy=${sort_key}&sortOrder=${sort_order}`)
+    .then(response => response.ok ? response.json() : Promise.reject(response))
+    .then(tasks => tasks_with_process_definitions(tasks, state))
+    .then(json => state.api.task.list.value = { status: _STATE.SUCCESS, data: json })
+    .catch(error => state.api.task.list.value = { status: _STATE.ERROR, error })
 
-      return get_task_process_definitions(state, definition_ids)
-        .then(defList => {
-          const defMap = new Map(defList.map(def => [def.id, def]))
-
-          tasks.forEach(task => {
-            const def = defMap.get(task.processDefinitionId)
-            task.def_name = def?.name ?? ''
-            task.def_version = def?.version ?? ''
-          })
-
-
-        })
-    })
 
 // Hilfsmethode – kein Signal
 const get_task_process_definitions = (state, ids) =>
@@ -66,6 +74,7 @@ const post_task_form = (state, task_id, data) =>
 const task = {
   get_tasks,
   get_task,
+  get_task_form,
   get_process_instance_tasks,
   get_task_rendered_form,
   get_task_deployed_form,

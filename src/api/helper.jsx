@@ -6,7 +6,8 @@
  * Please refer to the `docs/Coding Conventions.md` "JavaScript > api.js" to
  * learn how we organize the code in this file.
  */
-const _url = (state) => `${state.server.value.url}/engine-rest`
+export const _url = (state) => `${state.server.value.url}/engine-rest`
+export const _url_forms = (state) => `${state.server.value.url}`
 
 let headers = new Headers()
 headers.set('Authorization', `Basic ${window.btoa(unescape(encodeURIComponent('demo:demo')))}`) //TODO authentication
@@ -15,7 +16,8 @@ headers_json.set('Content-Type', 'application/json')
 
 /* helpers */
 
-const _STATE = {
+// fixme: hide when get_tasks is solved better
+export const _STATE = {
   NOT_INITIALIZED: 'NOT_INITIALIZED',
   LOADING: 'LOADING',
   SUCCESS: 'SUCCESS',
@@ -59,6 +61,15 @@ export const GET = (url, state, signl) => {
   return fetch(`${_url(state)}${url}`)
     .then(response => response.ok ? response.json() : Promise.reject(response))
     .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
+    .catch(error => signl.value = { status: _STATE.ERROR, error })
+}
+
+export const GET_FORM = (url, state, signl) => {
+  signl.value = { status: _STATE.LOADING }
+
+  return fetch(`${_url_forms(state)}${url}`)
+    .then(response => response.ok ? response.text() : Promise.reject(response))
+    .then(text => signl.value = { status: _STATE.SUCCESS, data: text })
     .catch(error => signl.value = { status: _STATE.ERROR, error })
 }
 

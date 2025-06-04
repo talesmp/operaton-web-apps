@@ -1,4 +1,4 @@
-div#app {
+#app {
     display: grid;
     grid-template-areas:
         "header"
@@ -38,7 +38,7 @@ div#app {
 
 /* header */
 
-header {
+#app > header {
     grid-area: header;
     display: flex;
     flex-direction: column;
@@ -146,18 +146,20 @@ header {
     }
 }
 
-header > nav > menu {
+#app > header > nav > menu {
     padding: 0;
     letter-spacing: 0.03rem;
 }
 
-header > nav menu > li > a.active {
+#app > header > nav menu > li > a {
+    padding: .2em var(--spacing-1) 0 var(--spacing-1);
+    margin: var(--spacing-1) 0;
+}
+#app > header > nav menu > li > a.active {
     /*font-weight: bold;*/
     color: var(--text);
     background: var(--background-3);
     border-radius: var(--border-radius);
-    padding: 0 var(--spacing-1);
-    margin: var(--spacing-1) 0;
 }
 
 /*header > nav menu > li > a.active::after {*/
@@ -172,7 +174,7 @@ header > nav menu > li > a.active {
 /*    top: 0;*/
 /*}*/
 
-header > nav menu a {
+#app > header > nav menu a {
     color: var(--text);
     text-decoration: none;
 }

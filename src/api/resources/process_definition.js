@@ -11,7 +11,7 @@ export const get_process_definition = (state, id) =>
   GET(`/process-definition/${id}`, state, state.api.process.definition.one)
 
 export const get_called_process_definitions = (state, definition_id) =>
-  GET(`/process-definition/${definition_id}/static-called-process-definitions`, state, state.api.process.definition.diagram)
+  GET(`/process-definition/${definition_id}/static-called-process-definitions`, state, state.api.process.definition.called)
 
 /**
  * BPMN 2.0 XML for a process definition

@@ -13,6 +13,19 @@ form > * {
   break-inside: avoid-column;
 }
 
+form.form-horizontal {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+form.form-horizontal > div.form-group {
+  margin-top: 1lh;
+}
+form.form-horizontal > p:first-child {
+  font-style: italic;
+}
+
+
 /*td form {*/
 /*  container*/
 /*}*/
@@ -146,9 +159,9 @@ select {
   line-height: 1;
 }
 
-:where(input, select, textarea):disabled {
+:where(input, select, textarea, button):disabled {
   background: var(--background-2);
-  color: var(--text-2);
+  color: var(--text-disabled);
 }
 
 
@@ -156,7 +169,7 @@ option {
   font-size: var(--base-font-size);
 
   &[disabled] {
-    color: var(--text-2);
+    color: var(--text-disabled);
     font-size: var(--small-font-size);
   }
 }

@@ -3,10 +3,9 @@ import { useContext, useEffect } from 'preact/hooks'
 import { useLocation, useRoute } from 'preact-iso'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
-import { BpmnVisualization } from 'bpmn-visualization'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
-import * as bpmnvisu from 'bpmn-visualization'
+import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
 /**
  * Save custom split view width to localstorage
@@ -138,78 +137,12 @@ const ProcessDiagram = () => {
   return <>
     {show_diagram && diagram.value.data?.bpmn20Xml !== null && diagram.value.data?.bpmn20Xml !== undefined
     && statistics.value !== null && statistics.value?.data !== undefined
-      ? <BpmnViewer3 xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
+      ? <BpmnViewer xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
       : <> </>
     }
   </>
 }
 
-const BpmnViewer3 = ({ xml, container, tokens }) => {
-  const
-    state = useContext(AppState),
-    { params: { definition_id } } = useRoute(),
-    viewer = new BpmnVisualization({
-      container,
-      navigation: { enabled: true },
-      // zoom: { throttleDelay: 80, debounceDelay: 80 }
-    }),
-    viewerElements = viewer.bpmnElementsRegistry,
-    style_running = {
-      font: {
-        color: '#000000',
-        size: '16',
-      },
-      fill: {
-        color: '#ccccff',
-      },
-      stroke: {
-        color: '#000000',
-      }
-    },
-    style_incidents = {
-      font: {
-        color: '#000000',
-        size: '16',
-      },
-      fill: {
-        color: '#ffaaaa',
-      },
-      stroke: {
-        color: '#000000',
-      }
-    }
-
-  try {
-    viewer.load(xml, { fit: { type: bpmnvisu.FitType.Center, margin: 20 } })
-    // viewer.load(xml)
-  } catch (error) {
-    console.error('Error loading BPMN content', error)
-  }
-
-  tokens.map(({ id, instances, incidents }) => {
-    viewerElements.addOverlays(id, {
-      position: 'bottom-left',
-      label: `${instances}`, style: style_running
-    })
-
-    if (incidents.length > 0) {
-      viewerElements.addOverlays(id, {
-        position: 'top-left',
-        label: `${incidents.length}`, style: style_incidents
-      })
-    }
-
-    const callActivityElt = viewer.bpmnElementsRegistry.getElementsByIds([id])[0].htmlElement
-    callActivityElt.onclick = () => {
-      console.log(definition_id)
-
-      void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
-    }
-    viewer.bpmnElementsRegistry.addCssClasses([id], 'c-hand')
-  })
-
-  return <></>
-}
 
 const ProcessDefinitionSelection = () => {
   const

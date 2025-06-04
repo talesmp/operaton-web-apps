@@ -23,6 +23,7 @@ export function Header () {
   useHotkeys('alt+0', () => route('/'))
   useHotkeys('alt+1', () => route('/tasks'))
   useHotkeys('alt+2', () => route('/processes'))
+  useHotkeys('alt+3', () => route('/decisions'))
   useHotkeys('alt+4', () => route('/deployments'))
   useHotkeys('alt+7', () => route('/admin'))
 
@@ -58,7 +59,7 @@ export function Header () {
                 </option>
                 {servers.map(server =>
                   <option key={server.url} value={server.url}
-                          selected={localStorage.getItem('server')?.url === server.url}>
+                          selected={state.server.value?.url === server.url}>
                     {server.name} {server.c7_mode ? '(C7)' : ''}
                   </option>)}
               </select>
@@ -98,8 +99,8 @@ export function Header () {
 
       <menu>
         <li>
-          <button class="neutral" onClick={showSearch}>
-            <Icons.search /> Search
+          <button id="go-to" class="neutral" onClick={showSearch}>
+            <Icons.search /> Go To
             {/*<small class="font-mono">[&nbsp;ALT&nbsp;+&nbsp;S&nbsp;]</small>*/}
           </button>
         </li>

@@ -1,58 +1,125 @@
 import { signal, useSignalEffect } from '@preact/signals'
 import { useContext, useEffect } from 'preact/hooks'
-import { useRoute } from 'preact-iso'
-import * as api from '../api.jsx'
+import { useLocation, useRoute } from 'preact-iso'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
-import ReactBpmn from 'react-bpmn'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
-import { RequestState } from '../api.jsx'
+import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
+/**
+ * Save custom split view width to localstorage
+ */
 const store_details_width = () => {
+  const width = window.getComputedStyle(
+    document.getElementById('selection'), null).getPropertyValue('width')
   localStorage.setItem(
     'details_width',
-    window.getComputedStyle(document.getElementById('selection'), null)
-      .getPropertyValue('width')
+    width
   )
+  document.getElementById('canvas').style.maxWidth = `calc(100vw - ${width})`
+}
+
+/**
+ * Keep the `?history=true` query params of the URL alive as long as the history
+ * mode is active.
+ *
+ * @param query Provide the result of `useRoute().query`
+ * @returns {string} Either returns `?history=true` when history mode is active or an empty string when not.
+ */
+const keep_history_query = (query) => {
+  if (query.history) {
+    return '?history=true'
+  }
+  return ''
 }
 
 const ProcessesPage = () => {
   const
     state = useContext(AppState),
-    { params } = useRoute(),
-    details_width = signal(localStorage.getItem('details_width') ?? 400)
+    { params, query, path } = useRoute(),
+    { route } = useLocation(),
+    details_width = signal(localStorage.getItem('details_width') ?? 400),
+    enable_history_mode = () => {
+      route(`${path}?history=true`)
+      state.history_mode.value = true
+    },
+    disable_history_mode = () => {
+      route(`${path}`)
+      state.history_mode.value = false
+    },
+    // condition naming for deciding on fetching data from backend
+    definition_selected = params.definition_id,
+    history_mode_disabled = !state.history_mode.value,
+    no_definition_loaded = state.api.process.definition.one.value === null,
 
+    /** @namespace state.api.process.definition.one.value.data **/
+    loaded_definition_not_matching_url_param =
+      state.api.process.definition.one.value?.data !== undefined &&
+      state.api.process.definition.one.value?.data.id !== params.definition_id
+
+  if (query.history) {
+    enable_history_mode()
+  }
+
+  /** @namespace details_width.value.data **/
   useEffect(() => {
     document.getElementById('selection').style.width = details_width.value.data
   }, [details_width.value.data])
 
-  // && state.api.process.definition.single.value?.id !== params.definition_id
+  if (definition_selected) {
+    console.log('history disabled? ', history_mode_disabled)
+    if (history_mode_disabled) {
+      if (no_definition_loaded) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+        void engine_rest.process_definition.statistics(state, params.definition_id)
+      } else if (loaded_definition_not_matching_url_param) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      }
+    } else {
+      void engine_rest.history.process_instance.all(state, params.definition_id)
 
-  if (params.definition_id) {
-    if (state.api.process.definition.single.value === null) {
-      void api.get_process_definition(state, params.definition_id)
-      void api.get_diagram(state, params.definition_id)
-    } else if (state.api.process.definition.single.value?.data !== undefined && state.api.process.definition.single.value?.data.id !== params.definition_id) {
-      void api.get_process_definition(state, params.definition_id)
-      void api.get_diagram(state, params.definition_id)
+      if (no_definition_loaded) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      } else if (loaded_definition_not_matching_url_param) {
+        void engine_rest.process_definition.one(state, params.definition_id)
+        void engine_rest.process_definition.diagram(state, params.definition_id)
+      }
     }
   } else {
     // reset state
-    state.api.process.definition.single.value = null
+    state.api.process.definition.one.value = null
     state.api.process.definition.diagram.value = null
     state.api.process.instance.list.value = null
-    state.api.process.instance.single.value = null
-    void api.get_process_definitions(state)
+
+    void engine_rest.process_definition.list(state)
   }
 
   return (
     <main id="processes"
           class="split-layout">
-      <div id="selection" onMouseUp={store_details_width}>
-        {!params?.definition_id
-          ? <ProcessDefinitionSelection />
-          : <ProcessDefinitionDetails />}
+      <div id="left-side">
+        <div id="selection" onMouseUp={store_details_width}>
+          {!params?.definition_id
+            ? <ProcessDefinitionSelection />
+            : <ProcessDefinitionDetails />}
+        </div>
+
+        <div id="history-mode-indicator" class={state.history_mode.value ? 'on' : 'off'}>
+          {state.history_mode.value ?
+            <button onClick={disable_history_mode}>
+              History Mode Active
+            </button>
+            :
+            <button onClick={enable_history_mode}>
+              Enable History Mode
+            </button>}
+        </div>
       </div>
+      <div id="canvas" />
       <ProcessDiagram />
     </main>
   )
@@ -60,22 +127,22 @@ const ProcessesPage = () => {
 
 const ProcessDiagram = () => {
   const
-    { api: { process: { definition: { diagram } } } } = useContext(AppState),
+    { api: { process: { definition: { diagram, statistics } } } } = useContext(AppState),
     { params } = useRoute(),
     show_diagram =
       diagram.value !== null &&
       params.definition_id !== undefined
 
-  return <div id="preview" class="fade-in">
-    {show_diagram
-      ? <ReactBpmn
-        diagramXML={diagram.value.data?.bpmn20Xml}
-        onLoading={null}
-        onShown={null}
-        onError={null} />
-      : 'Select Process Definition'}
-  </div>
+  /** @namespace diagram.value.data.bpmn20Xml **/
+  return <>
+    {show_diagram && diagram.value.data?.bpmn20Xml !== null && diagram.value.data?.bpmn20Xml !== undefined
+    && statistics.value !== null && statistics.value?.data !== undefined
+      ? <BpmnViewer xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
+      : <> </>
+    }
+  </>
 }
+
 
 const ProcessDefinitionSelection = () => {
   const
@@ -89,6 +156,7 @@ const ProcessDefinitionSelection = () => {
       <thead>
       <tr>
         <th>Name</th>
+        <th>Version</th>
         <th>Key</th>
         <th>Instances</th>
         <th>Incidents</th>
@@ -109,51 +177,52 @@ const ProcessDefinitionSelection = () => {
 
 const ProcessDefinitionDetails = () => {
   const
-    { api: { process: { definition } } } = useContext(AppState),
+    { api: { process: { definition: { one: process_definition } } } } =
+      useContext(AppState),
     { params } = useRoute()
 
+  /** @namespace process_definition.value.data.tenantId **/
   return (
     <div class="fade-in">
       <div class="row gap-2">
         <a className="tabs-back"
-           href={`/processes`}
+           href={`/processes${keep_history_query(useRoute().query)}`}
            title="Change Definition">
           <Icons.arrow_left />
           <Icons.list />
         </a>
         <RequestState
-          signl={definition.single}
+          signl={process_definition}
           on_success={() => <div>
-            <h1>{definition.single.value?.data.name ?? ' '}</h1>
+            <h1>{process_definition.value?.data.name ?? ' '}</h1>
             <dl>
               <dt>Definition ID</dt>
               <dd className="font-mono copy-on-click" onClick={copyToClipboard}>
-                {definition.single.value?.data.id ?? '-/-'}
+                {process_definition.value?.data.id ?? '-/-'}
               </dd>
-              {definition.single.value?.data.tenantId ?
+              {process_definition.value?.data.tenantId ?
                 <>
                   <dt>Tenant ID</dt>
-                  <dd>{definition.single?.value.data.tenantId ?? '-/-'}</dd>
+                  <dd>{process_definition?.value.data.tenantId ?? '-/-'}</dd>
                 </> : <></>
               }
             </dl>
           </div>} />
-
-
       </div>
 
       <Accordion
         accordion_name="process_definition_details"
         sections={process_definition_tabs}
-        base_path={`/processes/${params.definition_id}`} />
+        base_path={`/processes/${params.definition_id}${keep_history_query(useRoute().query)}`} />
     </div>
   )
 }
 
 const ProcessDefinition =
-  ({ definition: { id, name, key }, instances, incidents }) =>
+  ({ definition: { id, name, key, version }, instances, incidents }) =>
     <tr>
-      <td><a href={`/processes/${id}/instances`}>{name}</a></td>
+      <td><a href={`/processes/${id}/instances${keep_history_query(useRoute().query)}`}>{name}</a></td>
+      <td>{version}</td>
       <td>{key}</td>
       <td>{instances}</td>
       <td>{incidents.length}</td>
@@ -166,8 +235,14 @@ const Instances = () => {
     { params } = useRoute()
 
   if (!params.selection_id) {
-    void api.get_process_instances(state, params.definition_id)
+    if (!state.history_mode.value) {
+      void engine_rest.history.process_instance.all_unfinished(state, params.definition_id)
+    } else {
+      void engine_rest.process_instance.all(state, params.definition_id)
+    }
   }
+
+  console.log(state.history_mode.value)
 
   return !params?.selection_id
     ? (<table class="fade-in">
@@ -187,7 +262,7 @@ const Instances = () => {
 }
 
 const InstanceTableRows = () =>
-  useContext(AppState).process_instances.value.data?.map((instance) => (
+  useContext(AppState).api.process.instance.list.value.data?.map((instance) => (
     <ProcessInstance key={instance.id} {...instance} />
   )) ?? <p>...</p>
 
@@ -197,8 +272,12 @@ const InstanceDetails = () => {
     { params: { selection_id, definition_id, panel } } = useRoute()
 
   if (selection_id) {
-    if (state.api.process.instance.single.value === null) {
-      void api.get_process_instance(state, selection_id)
+    if (state.api.process.instance.one === undefined || state.api.process.instance.one.value === null) {
+      if (!state.history_mode.value) {
+        void engine_rest.process_instance.one(state, selection_id)
+      } else {
+        void engine_rest.history.process_instance.one(state, selection_id)
+      }
     }
   }
 
@@ -206,7 +285,7 @@ const InstanceDetails = () => {
     <div class="fade-in">
       <div class="row gap-2">
         <BackToListBtn
-          url={`/processes/${definition_id}/instances`}
+          url={`/processes/${definition_id}/instances${keep_history_query(useRoute().query)}`}
           title="Change Instance"
           className="bg-1" />
         <InstanceDetailsDescription />
@@ -216,23 +295,24 @@ const InstanceDetails = () => {
         sections={process_instance_tabs}
         accordion_name="instance_details_accordion"
         param_name="sub_panel"
-        base_path={`/processes/${definition_id}/${panel}/${selection_id}`} />
+        base_path={`/processes/${definition_id}/${panel}/${selection_id}${keep_history_query(useRoute().query)}`} />
     </div>
   )
 }
 
 const InstanceDetailsDescription = () =>
+
   <dl>
     <dt>Instance ID</dt>
-    <dd>{useContext(AppState).process_instance.value.data?.id ?? '-/-'}</dd>
+    <dd>{useContext(AppState).api.process.instance.one.value.data?.id ?? '-/-'}</dd>
     <dt>Business Key</dt>
-    <dd>{useContext(AppState).process_instance.value.data?.businessKey ?? '-/-'}</dd>
+    <dd>{useContext(AppState).api.process.instance.one.value.data?.businessKey ?? '-/-'}</dd>
   </dl>
 
 const ProcessInstance = ({ id, startTime, state, businessKey }) => (
   <tr>
     <td class="font-mono"><a
-      href={`./instances/${id}/vars`}> {id.substring(0, 8)}</a></td>
+      href={`./instances/${id}/vars${keep_history_query(useRoute().query)}`}> {id.substring(0, 8)}</a></td>
     <td>{new Date(Date.parse(startTime)).toLocaleString()}</td>
     <td>{state}</td>
     <td>{businessKey}</td>
@@ -244,13 +324,18 @@ const InstanceVariables = () => {
     state = useContext(AppState),
     { params } = useRoute(),
     selection_exists =
-      state.selection_values.value !== null
-      && state.selection_values.value.data !== null
-      && state.selection_values.value.data !== undefined
+      state.api.process.instance.variables.value !== null
+      && state.api.process.instance.variables.value.data !== null
+      && state.api.process.instance.variables.value.data !== undefined
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void api.get_process_instance_variables(state, params.selection_id)
+    if (!state.history_mode.value) {
+      void engine_rest.process_instance.variables(state, params.selection_id)
+    } else {
+      void
+        engine_rest.history.variable_instance.by_process_instance(state, params.selection_id)
+    }
   })
 
   return (
@@ -265,13 +350,21 @@ const InstanceVariables = () => {
       </thead>
       <tbody>
       {selection_exists
-        ? Object.entries(state.selection_values.value.data).map(
-          // eslint-disable-next-line react/jsx-key
-          ([name, { type, value }]) => (<tr>
-            <td>{name}</td>
-            <td>{type}</td>
-            <td>{value}</td>
-          </tr>))
+        ? !state.history_mode.value
+          ? Object.entries(state.api.process.instance.variables.value.data).map(
+            // eslint-disable-next-line react/jsx-key
+            ([name, { type, value }]) => (<tr>
+              <td>{name}</td>
+              <td>{type}</td>
+              <td>{value}</td>
+            </tr>))
+          : state.api.process.instance.variables.value.data.map(
+            // eslint-disable-next-line react/jsx-key
+            ({ name, type, value }) => (<tr>
+              <td>{name}</td>
+              <td>{type}</td>
+              <td>{value}</td>
+            </tr>))
         : 'Loading ...'}
       </tbody>
     </table>
@@ -285,9 +378,10 @@ const InstanceIncidents = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void api.get_process_instance_incidents(state, params.selection_id)
+    void engine_rest.history.incident.by_process_instance(state, params.selection_id)
   })
 
+  /** @namespace state.api.history.incident.by_process_definition.value.data **/
   return (
     <table>
       <thead>
@@ -305,7 +399,7 @@ const InstanceIncidents = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_instance_incidents.value?.data?.map(
+      {state.api.history.incident.by_process_definition.value?.data?.map(
         // eslint-disable-next-line react/jsx-key
         ({
           id,
@@ -345,9 +439,11 @@ const InstanceUserTasks = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() => {
-    void api.get_process_instance_tasks(state, params.selection_id)
+    // void engine_rest.task.by_process_instance(state, params.selection_id)
+    void engine_rest.task.get_process_instance_tasks(state, params.selection_id)
   })
 
+  /** @namespace state.api.task.by_process_instance.value.data **/
   return (
     <table>
       <thead>
@@ -365,7 +461,7 @@ const InstanceUserTasks = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_instance_tasks.value?.data?.map(
+      {state.api.task.by_process_instance.value?.data?.map(
         // eslint-disable-next-line react/jsx-key
         ({
           id,
@@ -402,13 +498,15 @@ const InstanceUserTasks = () => {
 const CalledProcessInstances = () => {
   const
     state = useContext(AppState),
-    { selection_id } = useRoute()
+    { selection_id, query } = useRoute()
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_called_process_instances(state, selection_id)
+    void engine_rest.process_instance.called(state, selection_id)
   )
 
+  /** @namespace state.api.process.instance.called.value.data **/
+  /** @namespace instance.definitionId **/
   return (
     <table>
       <thead>
@@ -420,10 +518,10 @@ const CalledProcessInstances = () => {
       </tr>
       </thead>
       <tbody>
-      {state.called_process_instances.value?.data?.map(instance =>
+      {state.api.process.instance.called.value?.data?.map(instance =>
         <tr key={instance.id}>
           <td>{instance.suspended ? 'Suspended' : 'Running'}</td>
-          <td><a href={`/processes/${instance.id}`}>{instance.id}</a></td>
+          <td><a href={`/processes/${instance.id}${keep_history_query(query)}`}>{instance.id}</a></td>
           <td>{instance.definitionId}</td>
           <td>{instance.definitionId}</td>
         </tr>
@@ -440,9 +538,11 @@ const Incidents = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_process_incidents(state, definition_id)
+    void engine_rest.history.incident.by_process_definition(state, definition_id)
   )
 
+  /** @namespace instance.incidentMessage **/
+  /** @namespace instance.incidentType **/
   return (
     <table>
       <thead>
@@ -453,7 +553,7 @@ const Incidents = () => {
       </tr>
       </thead>
       <tbody>
-      {state.process_incidents.value?.data?.map(incident =>
+      {state.api.history.incident.by_process_definition.value?.data?.map(incident =>
         <tr key={incident.id}>
           <td>{incident.incidentMessage}</td>
           <td>{incident.incidentType}</td>
@@ -468,13 +568,14 @@ const Incidents = () => {
 const CalledProcessDefinitions = () => {
   const
     state = useContext(AppState),
-    { definition_id } = useRoute()
+    { definition_id, query } = useRoute()
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_called_process_definitions(state, definition_id)
+    void engine_rest.process_definition.called(state, definition_id)
   )
 
+  /** @namespace definition.calledFromActivityIds **/
   return (
     <table>
       <thead>
@@ -485,9 +586,9 @@ const CalledProcessDefinitions = () => {
       </tr>
       </thead>
       <tbody>
-      {state.called_definitions.value?.data?.map(definition =>
+      {state.api.process.definition.called.value?.data?.map(definition =>
         <tr key={definition.id}>
-          <td><a href={`/processes/${definition.id}`}>{definition.name}</a></td>
+          <td><a href={`/processes/${definition.id}${keep_history_query(query)}`}>{definition.name}</a></td>
           <td>{definition.suspended ? 'Suspended' : 'Running'}</td>
           <td>{definition.calledFromActivityIds.map(a => `${a}, `)}</td>
         </tr>
@@ -504,9 +605,13 @@ const JobDefinitions = () => {
 
   // fixme: rm useSignalEffect
   useSignalEffect(() =>
-    void api.get_job_definitions(state, definition_id)
+    void engine_rest.job_definition.all.by_process_definition(state, definition_id)
   )
 
+  /** @namespace state.api.job_definition.all.by_process_definition.value.data **/
+  /** @namespace definition.jobType **/
+  /** @namespace definition.jobConfiguration **/
+  /** @namespace definition.overridingJobPriority **/
   return (
     <div class="relative">
       <table>
@@ -521,7 +626,7 @@ const JobDefinitions = () => {
         </tr>
         </thead>
         <tbody>
-        {state.job_definitions.value?.data?.map(definition =>
+        {state.api.job_definition.all.by_process_definition.value?.data?.map(definition =>
           <tr key={definition.id}>
             <td>{definition.suspended ? 'Suspended' : 'Active'}</td>
             <td>?</td>
@@ -576,7 +681,7 @@ const process_definition_tabs = [
   }]
 
 const UUIDLink = ({ uuid = '?', path }) =>
-  <a href={path}>{uuid.substring(0, 8)}</a>
+  <a href={`${path}${keep_history_query(useRoute().query)}`}>{uuid.substring(0, 8)}</a>
 
 const process_instance_tabs = [
   {

@@ -3,7 +3,7 @@ import { LocationProvider, Route, Router } from 'preact-iso'
 import { AppState, createAppState } from './state.js'
 
 import { Header } from './components/Header.jsx'
-import { Search } from './components/Search.jsx'
+import { GoTo } from './components/GoTo.jsx'
 
 import { Home } from './pages/Home.jsx'
 import { TasksPage } from './pages/Tasks.jsx'
@@ -49,7 +49,7 @@ export function App () {
           <Route path="/account/:page_id/:selection_id" component={AccountPage} />
           <Route default component={NotFound} />
         </Router>
-        <Search />
+        <GoTo />
       </LocationProvider>
     </AppState.Provider>
   )

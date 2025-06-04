@@ -1,10 +1,10 @@
 import { useContext } from 'preact/hooks'
 import { useRoute, useLocation } from 'preact-iso'
-import * as api from '../api.jsx'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { AppState } from '../state.js'
 import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
-import { RequestState } from '../api.jsx'
-import { useComputed } from '@preact/signals'
+import { signal, useSignal } from '@preact/signals'
+import authorization from '../api/resources/authorization.js'
 
 const AdminPage = () => {dd
   const
@@ -16,7 +16,13 @@ const AdminPage = () => {dd
     route('/admin/users')
   }
   if (page_id === 'system') {
-    void api.get_telemetry_data(state)
+    void engine_rest.engine.telemetry(state)
+  }
+  if (page_id === 'groups') {
+    void engine_rest.group.all(state)
+  }
+  if (page_id === 'tenants') {
+    void engine_rest.tenant.all(state)
   }
 
   const is_selected = (page) => (page_id === page) ? 'selected' : ''
@@ -36,39 +42,210 @@ const AdminPage = () => {dd
     {({
       users: <UserPage />,
       groups: <GroupsPage />,
-      tenants: <p>Tenants Page</p>,
-      authorizations: <p>Authorizations Page</p>,
+      tenants: <TenantsPage />,
+      authorizations: <AuthorizationsPage />,
       system: <SystemPage />,
     })[page_id] ?? <p>Select Page</p>}
 
   </main>
 }
 
+const TenantsPage = () => {
+  const
+    { params: { selection_id } } = useRoute()
+
+  return (selection_id === 'new')
+    ? <TenantCreate />
+    : (selection_id === undefined)
+      ? <TenantList />
+      : <TenantDetails tenant_id={selection_id} />
+}
+
+const TenantDetails = (tenant_id) => {
+  const
+    state = useContext(AppState)
+
+  void engine_rest.user.profile.get(state, tenant_id.value)
+  void engine_rest.group.by_member(state, tenant_id.value)
+  void engine_rest.tenant.by_member(state, tenant_id.value)
+
+  return <div class="content fade-in">
+    <Breadcrumbs paths={[
+      { name: 'Admin', route: '/admin' },
+      { name: 'Tenant', route: '/admin/tenants' },
+      { name: 'Details' }]} />
+
+    <h2>Tenant Details</h2>
+
+    <h3>Information</h3>
+    <h3>Groups</h3>
+    <h3>Users</h3>
+    <h3>Danger Zone</h3>
+  </div>
+}
+
+const TenantCreate = () => {
+  const
+    state = useContext(AppState),
+    { api: { tenant: { create: tenant_create } } } = state,
+    form_tenant = signal({ profile: {}, credentials: {} })
+
+  const set_value = (k, v) => form_tenant.value[k] = v.currentTarget.value
+
+  console.log('test', tenant_create.value)
+
+  const on_submit = e => {
+    e.preventDefault()
+    console.log(tenant_create.value)
+    void engine_rest.tenant.create(state, form_tenant.value)
+    // e.currentTarget.reset(); // Clear the inputs to prepare for the next submission
+  }
+
+  return <div>
+    <h2>Create New Tenant</h2>
+    <RequestState
+      signl={tenant_create}
+      on_nothing={() => <></>}
+      on_success={() => <p className="success">Successfully created new tenant.</p>}
+      // on_error={() => <p className="error">Error: {user_create.value.error.message}</p>}
+    />
+
+    <form onSubmit={on_submit}>
+      <label for="tenant-id">Tenant ID</label>
+      <input id="tenant-id" type="text" onInput={(e) => set_value('id', e)} required />
+
+      <label for="tenant-name">Tenant Name</label>
+      <input id="tenant-name" type="text" onInput={(e) => set_value('name', e)} required />
+
+      <div class="button-group">
+        <button type="submit">Create New User</button>
+        <a href="/admin/users" class="button secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+}
+
+const TenantList = () => {
+  const
+    state = useContext(AppState),
+    { api: { tenant: { list: tenants } } } = state
+
+  return <div>
+    <Breadcrumbs paths={[
+      { name: 'Admin', route: '/admin' },
+      { name: 'Tenants' }]} />
+    <h2>Tenants</h2>
+
+    <a href="/admin/tenants/new" class="button">Create new tenant</a>
+
+    <RequestState
+      signl={tenants}
+      on_success={() => tenants.value.data.length !== 0
+        ? <table class="fade-in">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+          </tr>
+          </thead>
+          <tbody>
+          {tenants.value.data.map((tenant) => (
+            <tr key={tenant.id}>
+              <td><a href={`/admin/tenants/${tenant.id}`}>{tenant.id}</a></td>
+              <td>{tenant.name}</td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+        : <p>No tenants</p>} />
+  </div>
+}
+
 const GroupsPage = () => {
   const
     state = useContext(AppState),
     { api: { group: { list: groups } } } = state,
-    //computed local state
-    groups_without_user_groups = useComputed(() => groups.value?.data?.filter(group => !groups.value?.data?.map(user_group => user_group.id).includes(group.id))),
-    // dialog functions
-    close_add_group_dialog = () => document.getElementById('add-group-dialog').close(),
-    show_add_group_dialog = () => {
-      void api.get_groups(state)
-      document.getElementById('add-group-dialog').showModal()
-    },
-    // button handler
-    handle_add_group = (group_id) => api.add_group(state, group_id).then(() => api.get_user_groups(state, null)),
-    handle_remove_group = (group_id) => api.remove_group(state, group_id).then(() => api.get_user_groups(state, null))
+    { params: { selection_id } } = useRoute()
+  // //computed local state
+  // // groups_without_user_groups = useComputed(() => groups.value?.data?.filter(group => !groups.value?.data?.map(user_group => user_group.id).includes(group.id))),
+  // // dialog functions
+  // // close_add_group_dialog = () => document.getElementById('add-group-dialog').close(),
+  // // show_add_group_dialog = () => {
+  // //   void api.group.all(state)
+  // //   document.getElementById('add-group-dialog').showModal()
+  // // },
+  // // button handler
+  // // handle_add_group = (group_id) => api.group.create(state, group_id).then(() => api.group.all(state, null)),
+  // // handle_remove_group = (group_id) => api.group.delete(state, group_id).then(() => api.group.all(state, null))
+  //
+  // // if (!groups.value) {
+  // //   void api.group.all(state)
+  // // }
 
-  if (!groups.value) {
-    void api.get_groups(state, null)
+  // console.log(groups.value)
+
+  return (selection_id === 'new')
+    ? <GroupCreate />
+    : (selection_id === undefined)
+      ? <GroupsList />
+      : <GroupDetails user_id={selection_id} />
+}
+
+const GroupCreate = () => {
+  // https://preactjs.com/guide/v10/forms/
+  const
+    state = useContext(AppState),
+    { api: { group: { create: group_create } } } = state,
+    form_group = useSignal({})
+
+  const set_value = (k, v) => form_group.value[k] = v.currentTarget.value
+
+  console.log('test', form_group.value)
+
+  const on_submit = e => {
+    e.preventDefault()
+    console.log(form_group.value)
+    void engine_rest.group.create(state, form_group.value)
+    // e.currentTarget.reset(); // Clear the inputs to prepare for the next submission
   }
+
+  return <div>
+    <h2>Create New Group</h2>
+    <RequestState
+      signl={group_create}
+      on_nothing={() => <></>}
+      on_success={() => <p className="success">Successfully created new group.</p>}
+      // on_error={() => <p className="error">Error: {user_create.value.error.message}</p>}
+    />
+
+    <form onSubmit={on_submit}>
+      <label for="group-id">Group ID</label>
+      <input id="group-id" type="text" onInput={(e) => set_value('id', e)} required />
+
+      <label for="group-name"> Group Name</label>
+      <input id="group-name" type="text" onInput={(e) => set_value('groupName', e)} required />
+
+      <label for="group-type">Group Type</label>
+      <input id="group-type" type="text" onInput={(e) => set_value('groupType', e)} required />
+
+      <div class="button-group">
+        <button type="submit">Create New Group</button>
+        <a href="/admin/groups" class="button secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+}
+
+const GroupsList = () => {
+  const
+    { api: { group: { list: groups } } } = useContext(AppState)
 
   return <div>
     <Breadcrumbs paths={[
       { name: 'Admin', route: '/admin' },
       { name: 'Groups' }]} />
     <h2>Groups</h2>
+    <a href="/admin/groups/new">Create New Group</a>
     <RequestState
       signl={groups}
       on_success={() => groups.value !== null ? <table class="fade-in">
@@ -86,43 +263,37 @@ const GroupsPage = () => {
               <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
               <td>{group.name}</td>
               <td>{group.type}</td>
-              <td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>
+              {/*<td><a onClick={() => handle_remove_group(group.id)}>Remove</a></td>*/}
             </tr>
           ))}
           </tbody>
         </table>
         : <p>User is currently not a member of any group.</p>} />
-    <br />
-    <button class="primary" onClick={show_add_group_dialog}>Add Group +</button>
-    <dialog id="add-group-dialog" className="fade-in">
-      <h2>Add Groups</h2>
-      {groups_without_user_groups.value?.length > 0 ? <table>
-          <thead>
-          <tr>
-            <th>Group ID</th>
-            <th>Group Name</th>
-            <th>Group Type</th>
-            <th>Action</th>
-          </tr>
-          </thead>
-          <tbody>
-          {groups_without_user_groups.value.map((group) => (
-            <tr key={group.id}>
-              <td><a href={`/admin/groups/${group.id}`}>{group.id}</a></td>
-              <td class="fill">{group.name}</td>
-              <td>{group.type}</td>
-              <td><a onClick={() => handle_add_group(group.id)}>Add</a></td>
-            </tr>
-          ))}
-          </tbody>
-        </table>
-        : <p>There are no additional groups available on this page to which the user can be added.</p>
-      }
-      <br />
-      <div className="button-group">
-        <button onClick={close_add_group_dialog}>Close</button>
-      </div>
-    </dialog>
+  </div>
+}
+
+const GroupDetails = (user_id) => {
+  const
+    state = useContext(AppState)
+
+  void engine_rest.user.profile.get(state, user_id.value)
+  void engine_rest.group.by_member(state, user_id.value)
+  void engine_rest.tenant.by_member(state, user_id.value)
+
+  return <div class="content fade-in">
+    <Breadcrumbs paths={[
+      { name: 'Admin', route: '/admin' },
+      { name: 'Groups', route: '/admin/groups' },
+      { name: 'Details' }]} />
+
+    <h2>Group Details</h2>
+
+    <h3>Profile</h3>
+    <UserProfile />
+    <UserPassword />
+    <UserGroups />
+    <h3>Tenants</h3>
+    <h3>Danger Zone</h3>
   </div>
 }
 
@@ -150,7 +321,8 @@ const UserPage = () => {
     state = useContext(AppState),
     { params: { selection_id } } = useRoute()
 
-  selection_id === undefined ? void api.get_users(state) : null
+  // selection_id === undefined ? void api.get_users(state) : null
+  selection_id === undefined ? void engine_rest.user.all(state) : null
 
   return (selection_id === 'new')
     ? <UserCreate />
@@ -180,12 +352,12 @@ const UserList = () => {
       <tbody>
       <RequestState
         signl={users}
-        on_success={() => users.value?.data.map((user) => (
-          <tr key={user.id}>
-            <td><a href={`/admin/users/${user.id}`}>{user.id}</a></td>
-            <td>{user.firstName}</td>
-            <td>{user.lastName}</td>
-            <td>{user.email}</td>
+        on_success={() => users.value?.data.map(({ id, firstName, lastName, email }) => (
+          <tr key={id}>
+            <td><a href={`/admin/users/${id}`}>{id}</a></td>
+            <td>{firstName}</td>
+            <td>{lastName}</td>
+            <td>{email}</td>
           </tr>
         )) ?? <tr>
           <td>No Users found</td>
@@ -199,8 +371,9 @@ const UserDetails = (user_id) => {
   const
     state = useContext(AppState)
 
-  void api.get_user_profile(state, user_id.value)
-  void api.get_user_groups(state, user_id.value)
+  void engine_rest.user.profile.get(state, user_id.value)
+  void engine_rest.group.by_member(state, user_id.value)
+  void engine_rest.tenant.by_member(state, user_id.value)
 
   return <div class="content fade-in">
     <Breadcrumbs paths={[
@@ -212,9 +385,7 @@ const UserDetails = (user_id) => {
 
     <h3>Profile</h3>
     <UserProfile />
-    <h3>Password</h3>
     <UserPassword />
-    <h3>Groups</h3>
     <UserGroups />
     <h3>Tenants</h3>
     <h3>Danger Zone</h3>
@@ -222,47 +393,53 @@ const UserDetails = (user_id) => {
 }
 
 const UserGroups = () => {
-  const { user_groups } = useContext(AppState)
+  const { api: { user: { group: { list: user_groups } } } } = useContext(AppState)
 
-  return <RequestState
-    signl={user_groups}
-    on_success={() =>
-      <table>
-        <caption>User Groups</caption>
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {user_groups.value.data.map(group => <tr key={group.id}>
-          <td>{group.id}</td>
-          <td>{group.name}</td>
-          <td>{group.type}</td>
-          <td>Remove from group</td>
-        </tr>)}
-        </tbody>
-      </table>
-    } />
+  return <>
+    <h3>Groups</h3>
+    <RequestState
+      signl={user_groups}
+      on_success={() =>
+        <table>
+          <caption class="screen-hidden">User Groups</caption>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          {user_groups.value.data.map(group => <tr key={group.id}>
+            <td>{group.id}</td>
+            <td>{group.name}</td>
+            <td>{group.type}</td>
+            <td>Remove from group</td>
+          </tr>)}
+          </tbody>
+        </table>
+      } />
+    <button>Add to group</button>
+  </>
 }
 
 const UserProfile = () => {
+  /** @namespace user_profile.value.data.firstName **/
+  /** @namespace user_profile.value.data.lastName **/
   const
-    { user_profile } = useContext(AppState)
+    { api: { user: { profile } } } = useContext(AppState)
 
-  return <>{user_profile.value?.data
+  return <>{profile.value?.data
     ? <form>
       <label for="first-name">First Name </label>
-      <input id="first-name" value={user_profile.value.data.firstName ?? ''} />
+      <input id="first-name" value={profile.value.data.firstName ?? ''} />
 
       <label for="last-name">Last Name</label>
-      <input id="last-name" value={user_profile.value.data.lastName ?? ''} />
+      <input id="last-name" value={profile.value.data.lastName ?? ''} />
 
       <label for="email">Email</label>
-      <input id="email" type="email" value={user_profile.value.data.email ?? ''} />
+      <input id="email" type="email" value={profile.value.data.email ?? ''} />
 
 
       <div class="button-group">
@@ -275,42 +452,51 @@ const UserProfile = () => {
 
 const UserPassword = () => {
 
-  return <form>
-    <label for="new-password">New Password</label>
-    <input id="new-password" type="password" placeholder="* * * * * * * * *" />
+  return <>
+    <h3>Password</h3>
+    <form>
+      <label for="new-password">New Password</label>
+      <input id="new-password" type="password" placeholder="* * * * * * * * *" />
 
-    <label for="new-password-repeat">New Password (repeat)</label>
-    <input id="new-password-repeat" type="password" placeholder="* * * * * * * * *" />
+      <label for="new-password-repeat">New Password (repeat)</label>
+      <input id="new-password-repeat" type="password" placeholder="* * * * * * * * *" />
 
-    <div class="button-group">
-      <button type="submit">Change Password</button>
-    </div>
-  </form>
+      <div class="button-group">
+        <button type="submit">Change Password</button>
+      </div>
+    </form>
+  </>
 }
 
 const UserCreate = () => {
   // https://preactjs.com/guide/v10/forms/
   const
     state = useContext(AppState),
-    { user_create, user_create_response } = state
+    { api: { user: { create: user_create } } } = state,
+    form_user = signal({ profile: {}, credentials: {} })
 
-  const set_value = (k1, k2, v) => user_create.value[k1][k2] = v.currentTarget.value
+  const set_value = (k1, k2, v) => form_user.value[k1][k2] = v.currentTarget.value
   const set_p_value = (k, v) => set_value('profile', k, v)
   const set_c_value = (k, v) => set_value('credentials', k, v)
+
+  console.log('test', user_create.value)
 
   const on_submit = e => {
     e.preventDefault()
     console.log(user_create.value)
-    user_create_response.value = api.create_user(state)
+    void engine_rest.user.create(state, form_user.value)
     // e.currentTarget.reset(); // Clear the inputs to prepare for the next submission
   }
 
   return <div>
     <h2>Create New User</h2>
-    {(user_create_response.value !== undefined)
-      ? user_create_response.value.success
-        ? <p class="success">Successfully created new user.</p>
-        : <p class="error">Error: {user_create_response.value?.message}</p> : null}
+    <RequestState
+      signl={user_create}
+      on_nothing={() => <></>}
+      on_success={() => <p className="success">Successfully created new user.</p>}
+      // on_error={() => <p className="error">Error: {user_create.value.error.message}</p>}
+    />
+
     <form onSubmit={on_submit}>
       <label for="user-id">User ID</label>
       <input id="user-id" type="text" onInput={(e) => set_p_value('id', e)} required />
@@ -337,5 +523,236 @@ const UserCreate = () => {
     </form>
   </div>
 }
+
+const AuthorizationsPage = () => {
+  const
+    { query: { resource_type } } = useRoute(),
+    state = useContext(AppState),
+    show_create_authorization = useSignal(false)
+
+  if (resource_type !== undefined || state.api.authorization.all.value === null) {
+    void engine_rest.authorization.all(state, resource_type)
+  }
+
+  return <div>
+    <Breadcrumbs paths={[
+      { name: 'Admin', route: '/admin' },
+      { name: 'Authorizations' }]} />
+
+    <div class="row">
+      <ul class="list">
+        {authorization_resources.map(({ name, resource_type }) =>
+          <li key={resource_type}>
+            <a href={`/admin/authorizations?resource_type=${resource_type}`}
+               onClick={() => engine_rest.authorization.all(state, resource_type)}>
+              {name}
+            </a>
+          </li>)}
+      </ul>
+      {resource_type
+        ? <div>
+          <h3>
+            {(resource_type !== undefined && resource_type !== null)
+              ? authorization_resources.find(({ resource_type: resource_type_ }) => resource_type_.toString() === resource_type).name
+              : ''} Authorization
+          </h3>
+
+          <button onClick={() => show_create_authorization.value = !show_create_authorization.value}>
+            {!show_create_authorization.value
+              ? 'Create new authorization'
+              : 'Cancel creating new authorization'}
+          </button>
+
+          <table class="fade-in">
+            <thead>
+            <tr>
+              <th>Type</th>
+              <th>User / Group</th>
+              <th>Permissions</th>
+              <th>Resource ID</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {show_create_authorization.value
+              ? <tr>
+                <td>
+                  <form id="create-authorization-form" onSubmit={null}>
+                    <select>
+                      <option value="gloabl">GLOBAL</option>
+                      <option value="allow">ALLOW</option>
+                      <option value="deny">DENY</option>
+                    </select>
+                  </form>
+                </td>
+                <td>
+                  <input
+                    id=""
+                    name=""
+                    onInput={(e) => {}} />
+                </td>
+                <td>
+                  <fieldset>
+                    <legend>Available Permissions</legend>
+                    <label>
+                      Create
+                      <input type="checkbox" value="" />
+                    </label>
+                  </fieldset>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    id=""
+                    name=""
+                    onInput={(e) => {}} />
+                </td>
+                <td class="button-group">
+                  <button onClick={() => null}>Cancel</button>
+                  <button form="create-authorization-form" type="submit">Save</button>
+                </td>
+              </tr>
+              : ''
+            }
+            <RequestState
+              signl={state.api.authorization.all}
+              on_success={() => <AuthorizationResourceRows authorizations={state.api.authorization.all.value.data} />} />
+            </tbody>
+          </table>
+        </div>
+        : <p class="info-box">Select a authorization resource</p>}
+        </div>
+    </div>
+    }
+
+const AuthorizationResourceRows = ({ authorizations }) =>
+  authorizations.map(AuthorizationResourceRow)
+
+const AuthorizationResourceRow = (authorization) => {
+  const
+    { permissions, type, groupId, userId, resourceId, id } = authorization,
+    state = useContext(AppState),
+    is_edit = useSignal(false),
+    is_deleted = useSignal(false),
+    form_authorization = signal(authorization),
+    form_id = `authorization_edit_${id}`,
+    set_value = (k, v) => form_authorization.value[k] = v.currentTarget.value,
+    set_null = (k) => form_authorization.value[k] = null
+
+  console.log(is_deleted.value)
+
+  const
+    on_submit = e => {
+      e.preventDefault()
+      console.log(form_authorization.value)
+      void engine_rest.authorization.update(state, id, form_authorization.value)
+      // e.currentTarget.reset(); // Clear the inputs to prepare for the next submission
+    },
+    dialog_id = `delete_authorization_dialog_${id}`,
+    show_delete_dialog = () =>
+      document.getElementById(dialog_id).showModal(),
+    delete_authorization = () => {
+      void engine_rest.authorization.delete(state, id)
+      is_deleted.value = true
+      document.getElementById(dialog_id).close()
+    }
+
+  return <>{!is_deleted.value
+    ? <tr key={id}>
+      {!is_edit.value
+        ? <>
+          <td>{{ 0: 'Global', 1: 'Allow', 2: 'Deny' }[type]}</td>
+          {/* (0=global, 1=grant, 2=revoke)*/}
+          <td>{userId || groupId}</td>
+          <td>{permissions.toString()}</td>
+          <td>{resourceId}</td>
+          <td className="button-group">
+            <button onClick={() => is_edit.value = true}>Edit</button>
+
+            <button onClick={() => show_delete_dialog()}>
+              Delete
+            </button>
+          </td>
+        </>
+        : <>
+          <td>{{ 0: 'Global', 1: 'Allow', 2: 'Deny' }[type]}</td>
+          {/* (0=global, 1=grant, 2=revoke)*/}
+          <td>
+            <form id={form_id} onSubmit={on_submit}>
+              {groupId
+                ? <input name="groupId" value={groupId}
+                         onInput={(e) => {
+                           set_value('groupId', e)
+                           set_null('userId')
+                         }} />
+                : <input name="userId" value={userId}
+                         onInput={(e) => {
+                           set_value('userId', e)
+                           set_null('groupId')
+                         }} />}
+            </form>
+          </td>
+          <td>{permissions.toString()}</td>
+          <td>
+            <input form={form_id} name="resourceId" value={resourceId} onInput={(e) => set_value('resourceId', e)} />
+          </td>
+          <td class="button-group">
+            <button onClick={() => is_edit.value = false}>Cancel</button>
+            <button form={form_id} type="submit">Save</button>
+          </td>
+        </>
+      }
+    </tr>
+    : ''
+  }
+
+    <dialog id={dialog_id}>
+      Do you really want to delete this authorization?
+
+      <div class="button-group">
+        <button class="danger" onClick={delete_authorization}>Delete</button>
+        <button onClick={() => document.getElementById(dialog_id).close()}>Cancel</button>
+      </div>
+    </dialog>
+  </>
+
+}
+
+const permissions = {
+  READ: 0,
+  UPDATE: 1,
+  CREATE: 2,
+  DELETE: 3,
+  ACCESS: 4
+
+  // Task Assign
+  // Task Work
+  // Read Variable
+  // Update Variable
+}
+
+const authorization_resources = [
+  { id: 'application', name: 'Application', resource_type: 0, resource_id: 'admin/cockpit/tasklist/*', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'authorization', name: 'Authorization', resource_type: 4, resource_id: 'Authorization ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'batch', name: 'Batch', resource_type: 13, resource_id: 'Batch ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'decision_definition', name: 'Decision Definition', resource_type: 10, resource_id: 'Decision Definition Key', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'decision_requirements_definition', name: 'Decision Requirements Definition', resource_type: 14, resource_id: 'Decision Requirements Definition Key', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'deployment', name: 'Deployment', resource_type: 9, resource_id: 'Deployment ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'filter', name: 'Filter', resource_type: 5, resource_id: 'Filter ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'group', name: 'Group', resource_type: 2, resource_id: 'Group ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'group_membership', name: 'Group Membership', resource_type: 3, resource_id: 'Group ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'process_definition', name: 'Process Definition', resource_type: 6, resource_id: 'Process Definition Key', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'process_instance', name: 'Process Instance', resource_type: 8, resource_id: 'Process Instance ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'task', name: 'Task', resource_type: 7, resource_id: 'Task ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'historic_task', name: 'Historic Task', resource_type: 19, resource_id: 'Historic Task ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'historic_process_instance', name: 'Historic Process Instance', resource_type: 20, resource_id: 'Historic Process Instance ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'tenant', name: 'Tenant', resource_type: 11, resource_id: 'Tenant ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'tenant_membership', name: 'Tenant Membership', resource_type: 12, resource_id: 'Tenant ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'user', name: 'User', resource_type: 1, resource_id: 'User ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'report', name: 'Report', resource_type: 15, resource_id: 'Report ID', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'dashboard', name: 'Dashboard', resource_type: 16, resource_id: 'Dashboard', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'user_operation_log_category', name: 'User Operation Log Category', resource_type: 17, resource_id: 'User Operation Log Category', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+  { id: 'system', name: 'System', resource_type: 21, resource_id: '* resources do not support individual resource ids. You have to use them with a wildcard id (*).', permission: [permissions.READ, permissions.UPDATE, permissions.CREATE, permissions.DELETE] },
+]
 
 export { AdminPage }

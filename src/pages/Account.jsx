@@ -1,9 +1,8 @@
 import { useLocation, useRoute } from 'preact-iso'
 import { AppState } from '../state.js'
-import * as api from '../api.jsx'
-import { _STATE, RequestState } from '../api.jsx'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { useContext } from 'preact/hooks'
-import { useComputed, useSignal, useSignalEffect } from '@preact/signals'
+import { useComputed, useSignal } from '@preact/signals'
 
 const AccountPage = () => {
   const
@@ -40,11 +39,11 @@ const ProfileAccountPage = () => {
     { params: { selection_id } } = useRoute(),
     state = useContext(AppState)
 
-  if (!state.user_profile.value) {
-    void api.get_user_profile(state)
+  if (!state.api.user.profile.value) {
+    void engine_rest.user.profile.get(state)
   }
-  return <api.RequestState
-    signl={state.user_profile}
+  return <RequestState
+    signl={state.api.user.profile}
     on_success={() => selection_id === 'edit' ? <ProfileEditPage /> : <ProfileDetails />
     }
   />
@@ -61,7 +60,7 @@ const ProfileEditPage = () => {
     set_value = (k, v) => user_profile_edit.value[k] = v.currentTarget.value,
     on_submit = e => {
       e.preventDefault()
-      api.update_user_profile(state).then(() => api.get_user_profile(state))
+      engine_rest.user.profile.update(state).then(() => engine_rest.user.profile.get(state))
     }
   //
   // useSignalEffect(() => {
@@ -107,26 +106,27 @@ const ProfileEditPage = () => {
 const ProfileDetails = () => {
   const
     state = useContext(AppState),
-    { user_profile } = state
+    { api: { user: { profile }} } = state
 
   return <section>
     <h2>Profile</h2>
     <dl>
       <dt>First Name</dt>
-      <dd>{user_profile.value.data.firstName}</dd>
+      <dd>{profile.value.data.firstName}</dd>
       <dt>Last Name</dt>
-      <dd>{user_profile.value.data.lastName}</dd>
+      <dd>{profile.value.data.lastName}</dd>
       <dt>Email</dt>
-      <dd>{user_profile.value.data.email}</dd>
+      <dd>{profile.value.data.email}</dd>
     </dl>
-    <a href={`/admin/users/${user_profile.value.data.id}`} class="button">Edit profile</a>
+    <a href={`/admin/users/${profile.value.data.id}`} class="button">Edit profile</a>
   </section>
 }
 
 const AccountAccountPage = () => {
   const
     state = useContext(AppState),
-    { user_credentials, user_credentials_response, user_unlock_response } = state,
+    // , user_credentials, user_credentials_response, user_unlock_response
+    { api: { user: { credentials, unlock } } } = state,
     // local state
     old_password = useSignal(''),
     password = useSignal(''),
@@ -137,9 +137,9 @@ const AccountAccountPage = () => {
     // form handlers
     on_submit = e => {
       e.preventDefault()
-      user_credentials.value.authenticatedUserPassword = old_password.value
-      user_credentials.value.password = password.value
-      void api.update_credentials(state, null)
+      credentials.value.data.authenticatedUserPassword = old_password.value
+      credentials.value.data.password = password.value
+      void engine_rest.user.credentials_update(state, null)
     }
     // ,
     // handle_delete_user = e => {
@@ -178,9 +178,10 @@ const AccountAccountPage = () => {
 
       <div className="button-group">
         {show_repeated_pw_hint.value && <div class="danger">Passwords must match.</div>}
-        {user_credentials_response.value?.status === _STATE.SUCCESS && <div>Password successfully changed.</div>}
-        {user_credentials_response.value?.status === _STATE.ERROR &&
-          <div class="danger">Failed to change password!</div>}
+        {/* fixme: don't use _STATE ! */}
+        {/*{user_credentials_response.value?.status === _STATE.SUCCESS && <div>Password successfully changed.</div>}*/}
+        {/*{user_credentials_response.value?.status === _STATE.ERROR &&*/}
+          <div class="danger">Failed to change password!</div>
         <button type="submit" disabled={is_change_pw_button_disabled.value}>Change Password</button>
       </div>
     </form>
@@ -219,12 +220,12 @@ const GroupAccountPage = () => {
     { api: { user: { group: { list: groups } } } } = state
 
   if (!groups.value) {
-    void api.get_user_groups(state, null)
-  }
+    void engine_rest.group.by_member(state, null)
+    }
 
   return <section>
     <h2>Your Groups</h2>
-    <api.RequestState
+    <RequestState
       signl={groups}
       on_success={() =>
         groups.value?.data.length > 0 ? <table>
@@ -252,13 +253,13 @@ const GroupAccountPage = () => {
 const TenantsAccountPage = () => {
   const
     state = useContext(AppState),
-    { user_tenants, tenants } = state,
+    { api: { tenant: { list: tenants, by_member: user_tenants }} } = state,
     // computed local state
     tenants_without_user_tenants = useComputed(() => tenants.value?.data?.filter(tenant => !user_tenants.value?.data?.map(user_tenant => user_tenant.id).includes(tenant.id))),
     //dialog functions
     close_add_tenant_dialog = () => document.getElementById('add-tenant-dialog').close(),
     show_add_tenant_dialog = () => {
-      void api.get_tenants(state)
+      void engine_rest.tenant.by_member(state)
       document.getElementById('add-tenant-dialog').showModal()
     },
     //button handlers
@@ -266,7 +267,7 @@ const TenantsAccountPage = () => {
     handle_remove_tenant = (tenant_id) => api.remove_tenant(state, tenant_id).then(() => api.get_user_tenants(state, null))
 
   if (!user_tenants.value) {
-    void api.get_user_tenants(state, null)
+    void void engine_rest.tenant.by_member(state)
   }
 
   return <section>

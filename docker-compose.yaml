@@ -1,6 +1,6 @@
 services:
   operaton:
-    image: operaton/operaton:1.0.0-beta-3-SNAPSHOT
+    image: operaton/operaton:latest
     environment:
       camunda.bpm.run.cors.enabled: true
       camunda.bpm.run.cors.allowed-origins: '*'

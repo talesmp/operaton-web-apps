@@ -1,85 +1,66 @@
 import { useContext } from 'preact/hooks'
-import * as api from '../api.jsx'
+import { AppState } from '../state.js'
+import { useRoute } from 'preact-iso'
 import * as formatter from '../helper/date_formatter.js'
 import * as Icons from '../assets/icons.jsx'
-import { AppState } from '../state.js'
-import { useRoute, useLocation } from 'preact-iso'
-import { useSignalEffect } from '@preact/signals'
 import { Tabs } from '../components/Tabs.jsx'
 import { TaskForm } from './TaskForm.jsx'
+import engine_rest, { RequestState } from '../api/engine_rest.jsx'
+import { useSignal } from '@preact/signals'
+import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 import { StartProcessList } from './StartProcessList.jsx' // Import the toggle component
 
 const TasksPage = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
-  const location = useLocation();
-  const server = state.server.value.url
-  console.log(state)
-  // when the server is changed and a task is selected, we return to /tasks
-  useSignalEffect(() => {
-    if (state.server.value.url !== server && location.path !== '/tasks') {
-      location.route('/tasks', true)
-    }
-  })
 
-  // TODO remove it when we have a login
-  if (!state.user_profile.value) {
-    void api.get_user_profile(state, null)
-  }
+  if (state.api.task.list.value === null) {
+    void engine_rest.task.get_tasks(state)
 
-  void api.get_tasks(state)
-
-  if (params.task_id) {
-    void api.get_task(state, params.task_id)
-  } else {
-    state.task.value = null
+    //TODO: remove, only for dev
+    console.warn(state)
   }
 
   return (
     <main id="tasks" class="fade-in">
       <TaskList />
-      { params?.task_id
-        ? <Task />
-        : <NoSelectedTask /> }
+      {params?.task_id ? <Task /> : <NoSelectedTask />}
     </main>
   )
 }
 
-const NoSelectedTask = () => {
+const TaskList = () => {
+  const state = useContext(AppState)
+  const taskList = state.api.task.list
+  const { params } = useRoute()
+  const selectedTaskId = params.task_id
+
   return (
-    <div id="task-details" className="fade-in">
-      <div class="task-empty">
-        <div class="info-box">
-          Please select a task from the task list on the left side.
+    <nav id="task-list" aria-label="tasks">
+      <div class="tile-filter" id="task-filter">
+        <div class="filter-header" onClick={open_filter}>
+          <span class="label">Filter Tasks & Search</span>
+          <span class="icon down"><Icons.chevron_down /></span>
+          <span class="icon up"><Icons.chevron_up /></span>
+        </div>
+        <div class="filter-menu">
+          <menu>
+            <li>My Tasks</li>
+            <li>Claimed Tasks</li>
+          </menu>
         </div>
       </div>
-    </div>
+
+      <ul class="list">
+        <RequestState
+          signl={taskList}
+          on_success={() =>
+            taskList.value?.data?.map(task =>
+              <TaskTile key={task.id} task={task}
+                        selected={task.id === selectedTaskId} />)} />
+      </ul>
+    </nav>
   )
-}
-
-const TaskList = () => {
-  const { tasks } = useContext(AppState)
-
-  return <nav id="task-list" aria-label="tasks">
-    <div class="tile-filter" id="task-filter">
-      <div class="filter-header" onClick={open_filter}>
-        <span class="label">Filter Tasks & Search</span>
-        <span class="icon down"><Icons.chevron_down /></span>
-        <span class="icon up"><Icons.chevron_up /></span>
-      </div>
-      <div class="filter-menu">
-        <menu>
-          <li>My Tasks</li>
-          <li>Claimed Tasks</li>
-        </menu>
-      </div>
-    </div>
-
-    <ul class="list">
-      {tasks.value?.map(task =>
-        <TaskTile key={task.id} {...task} />)}
-    </ul>
-  </nav>
 }
 
 const open_filter = () => {
@@ -87,117 +68,137 @@ const open_filter = () => {
   menu.classList.toggle('open')
 }
 
-const TaskTile = ({ id, name, created, assignee, priority, def_name }) => {
-  const state = useContext(AppState);
-  const selected = state.task.value?.id === id
+const TaskTile = ({ task, selected }) => {
+  const { id, name, created, assignee, priority, definitionName } = task
 
   return (
-    <li key={id} class={ selected ? 'selected' : ''}>
-      <a href={`/tasks/${id}/${task_tabs[0].id}`} data-task-id={id} aria-labelledby={id}>
+    <li key={id} class={selected ? 'selected' : ''}>
+      <a href={`/tasks/${id}/${task_tabs[0].id}`} aria-labelledby={id}>
         <header>
-          <span>{def_name}</span>
+          <span>{definitionName}</span>
           <span>{formatter.formatRelativeDate(created)}</span>
         </header>
         <div id={id} class="title">{name}</div>
         <footer>
-          <span>Assigned to <em>{assignee ? (state.user_profile.value && state.user_profile.value.id === assignee ? 'me' :assignee) : 'no one'}</em></span>
+          <span>
+            Assigned to <em>{assignee ? assignee : 'no one'}</em>
+          </span>
           <span class="tile-right">Priority {priority}</span>
         </footer>
       </a>
     </li>
-  )}
-
-const Task = () => {
-  const state = useContext(AppState)
-  let initial = true
-
-  // when something has changed (e.g. assignee) in the task we have to update the task list
-  useSignalEffect(() => {
-    if (state.task.value && initial) {
-      initial = false
-    } else if (state.task.value && state.tasks.peek()) {
-      update_task_list(state, state.task.value)
-    }
-  })
-
-  return (
-    <div id="task-details" className="fade-in">
-      <menu class="action-bar">
-        <li><ResetAssigneeBtn /></li>
-        <li>
-          <button><Icons.users /> Set Group</button>
-        </li>
-        <li>
-          <button><Icons.calendar /> Set Follow Up Date</button>
-        </li>
-        <li>
-          <button><Icons.bell /> Set Due Date</button>
-        </li>
-        <li>
-          <button><Icons.chat_bubble_left /> Comment</button>
-        </li>
-        <li>
-          <StartProcessList />
-        </li>
-      </menu>
-
-      <TaskDetails />
-    </div>
   )
 }
 
+const NoSelectedTask = () => (
+  <div id="task-details" className="fade-in">
+    <div class="task-empty">
+      <div class="info-box">
+        Please select a task from the task list on the left side.
+      </div>
+    </div>
+  </div>
+)
+
+// when something has changed (e.g. assignee) in the task we have to update the task list
+const Task = () =>
+  <div id="task-details" className="fade-in">
+    <menu class="action-bar">
+      <li><ResetAssigneeBtn /></li>
+      <li>
+        <button><Icons.users /> Set Group</button>
+      </li>
+      <li>
+        <button><Icons.calendar /> Set Follow Up Date</button>
+      </li>
+      <li>
+        <button><Icons.bell /> Set Due Date</button>
+      </li>
+      <li>
+        <button><Icons.chat_bubble_left /> Comment</button>
+      </li>
+      <li>
+        <StartProcessList />
+      </li>
+    </menu>
+    <TaskDetails />
+  </div>
+
 const TaskDetails = () => {
-  const { task, task_claim_result, task_assign_result } = useContext(AppState)
+  const state = useContext(AppState)
+  const { params } = useRoute()
+  const currentTaskId = useSignal(null)
 
-  task_claim_result.value = null
-  task_assign_result.value = null
+  // reset error/result state (optional)
+  state.task_claim_result.value = null
+  state.task_assign_result.value = null
 
-  return <section className="task-container">
-    {task.value?.def_name} [Process version: v{task.value?.def_version} | <a href="">Show process</a>]
-    <h3>{task.value?.name}</h3>
+  if (currentTaskId.value !== params.task_id) {
+    currentTaskId.value = params.task_id
+    engine_rest.task.get_task(state, params.task_id)
+      .then(() => engine_rest.process_definition.one(state, state.api.task.one.value?.data?.processDefinitionId))
+  }
 
-    {task.value?.description ?? <p>{task.value?.description}</p>}
+  return (
+    <section className="task-container">
+      {state.api.task.one.value?.data?.name} [Process version: v{state.api.process.definition.one.value?.data?.version} | <a href="">Show process</a>]
+      <h3>{state.api.task.one?.name}</h3>
+      {state.api.task.one?.description ? <p>{state.api.task.one.description}</p> : <p>No description provided.</p>}
 
-    <Tabs tabs={task_tabs}
-          base_url={`/tasks/${task.value?.id}`}
-          className="fade-in" />
-  </section>
+      {state.api.task.one.value !== null && state.api.task.one.value.data !== undefined
+        ? <Tabs
+          tabs={task_tabs}
+          base_url={`/tasks/${state.api.task.one.value.data.id}`}
+          className="fade-in"
+        />
+        : 'Loading'
+      }
+    </section>
+  )
 }
 
 const ResetAssigneeBtn = () => {
-  const
-    state = useContext(AppState),
-    { task, user_profile, task_claim_result, task_assign_result } = state,
-    user_is_assignee = task.value?.assignee,
-    assignee_is_different_user = task.value?.assignee && !(user_profile.value && user_profile.value.id === task.value?.assignee)
+  const state = useContext(AppState)
+  const task = state.api.task.value
+  const user = state.user_profile.value
 
-  return assignee_is_different_user && !(task_assign_result.value?.success ?? false)
-    ? <button onClick={() => api.assign_task(state, null, task.value.id)} className="secondary">
+  const user_is_assignee = task?.assignee
+  const assignee_is_different = task?.assignee && user?.id !== task?.assignee
+  const claimed = state.task_claim_result.value?.success
+  const assigned = state.task_assign_result.value?.success
+
+  return assignee_is_different && !assigned ? (
+    <button onClick={() => engine_rest.task.assign_task(state, null, task.id)} className="secondary">
       <Icons.user_minus /> Reset Assignee
     </button>
-    : user_is_assignee || (task_claim_result.value?.success ?? false)
-      ? <button onClick={() => api.unclaim_task(state, task.value.id)} className="secondary">
-        <Icons.user_minus /> Unclaim
-      </button>
-      : <button onClick={() => api.claim_task(state, task.value.id)} className="secondary">
-        <Icons.user_plus /> Claim
-      </button>
+  ) : user_is_assignee || claimed ? (
+    <button onClick={() => engine_rest.task.unclaim_task(state, task.id)} className="secondary">
+      <Icons.user_minus /> Unclaim
+    </button>
+  ) : (
+    <button onClick={() => engine_rest.task.claim_task(state, task.id)} className="secondary">
+      <Icons.user_plus /> Claim
+    </button>
+  )
 }
 
+const Diagram = () => {
+  const
+    state = useContext(AppState),
+    { api: { process: { definition: { diagram } }, task: { one: selected_task } } } = state
 
-// update the task list with a changed task, avoid reloading the task list
-const update_task_list = (state, task) => {
-  console.log('map')
-  state.tasks.value = state.tasks.peek().map((item) => {
-    if (item.id === task.id) {
-      task.def_name = item.def_name
-      task.def_version = item.def_version
+  if (selected_task !== null) {
+    void engine_rest.process_definition.diagram(state, selected_task.value.data.processDefinitionId)
+  }
 
-      return task
-    }
-
-    return item
-  })
+  return <>
+    <div id="diagram" />
+    <RequestState
+      signl={diagram}
+      on_success={() =>
+        <BpmnViewer xml={diagram.value.data?.bpmn20Xml} container="diagram" />}
+    />
+  </>
 }
 
 const task_tabs = [
@@ -217,10 +218,8 @@ const task_tabs = [
     name: 'Diagram',
     id: 'diagram',
     pos: 2,
-    target: <p>Diagram</p>
-  }]
+    target: <Diagram />
+  }
+]
 
 export { TasksPage }
-
-
-

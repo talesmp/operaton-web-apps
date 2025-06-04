@@ -6,7 +6,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 import { signal, useSignal } from '@preact/signals'
 import authorization from '../api/resources/authorization.js'
 
-const AdminPage = () => {dd
+const AdminPage = () => {
   const
     { params: { page_id } } = useRoute(),
     { route } = useLocation(),

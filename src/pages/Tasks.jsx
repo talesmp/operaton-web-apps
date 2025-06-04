@@ -8,7 +8,6 @@ import { TaskForm } from './TaskForm.jsx'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { useSignal } from '@preact/signals'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
-import { StartProcessList } from './StartProcessList.jsx' // Import the toggle component
 
 const TasksPage = () => {
   const state = useContext(AppState)
@@ -118,7 +117,9 @@ const Task = () =>
         <button><Icons.chat_bubble_left /> Comment</button>
       </li>
       <li>
-        <StartProcessList />
+        <a href="/tasks/start" class="button" >
+          <Icons.play />
+          Start Process</a>
       </li>
     </menu>
     <TaskDetails />

@@ -19,12 +19,13 @@ a, a:visited {
 }
 
 table {
-    display: block;
-    max-width: -moz-fit-content;
-    max-width: fit-content;
-    overflow-x: scroll;
-    white-space: nowrap;
+    /*display: block;*/
+    width: 100%;
+    border-collapse: collapse;
     border-spacing: 0;
+    text-indent: 0;
+    overflow: auto;
+    white-space: nowrap;
     margin-top: 1em;
 
     /* TODO: Force scrollbar visible on MacOS as an indicator, if table is scrollable */
@@ -45,11 +46,17 @@ table {
 
 th {
     text-align: left;
+    position: sticky;
+    top: 0;
+    background: var(--background-1);
+    text-transform: uppercase;
+    font-size: var(--small-font-size);
+    letter-spacing: .02em;
 }
 
 td,
 th {
-    padding: 0 var(--spacing-3) var(--spacing-2) 0;
+    padding: var(--spacing-1);
 }
 
 dl {

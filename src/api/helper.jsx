@@ -58,7 +58,7 @@ const response_data = (response) =>
 export const GET = (url, state, signl) => {
   signl.value = { status: _STATE.LOADING }
 
-  return fetch(`${_url(state)}${url}`)
+  return fetch(`${_url(state)}${url}`, { headers: { "Content-Type": "application/json"}})
     .then(response => response.ok ? response.json() : Promise.reject(response))
     .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
     .catch(error => signl.value = { status: _STATE.ERROR, error })

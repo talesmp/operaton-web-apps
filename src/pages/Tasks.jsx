@@ -36,66 +36,64 @@ const TaskList = () => {
 
   return (
     <nav id="task-list" aria-label="tasks">
-      <div class="tile-filter" id="task-filter">
-        <div class="filter-header" onClick={open_filter}>
-          <span class="label">Filter Tasks & Search</span>
-          <span class="icon down"><Icons.chevron_down /></span>
-          <span class="icon up"><Icons.chevron_up /></span>
-        </div>
-        <div class="filter-menu">
-          <menu>
-            <li>My Tasks</li>
-            <li>Claimed Tasks</li>
-          </menu>
-        </div>
-      </div>
+      {/*<div class="tile-filter" id="task-filter">*/}
+      {/*  <div class="filter-header" onClick={open_filter}>*/}
+      {/*    <span class="label">Filter Tasks & Search</span>*/}
+      {/*    <span class="icon down"><Icons.chevron_down /></span>*/}
+      {/*    <span class="icon up"><Icons.chevron_up /></span>*/}
+      {/*  </div>*/}
+      {/*  <div class="filter-menu">*/}
+      {/*    <menu>*/}
+      {/*      <li>My Tasks</li>*/}
+      {/*      <li>Claimed Tasks</li>*/}
+      {/*    </menu>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
-      <ul class="list">
+      <table>
+        <thead>
+        <tr>
+          <th>Task Name</th>
+          <th>Processes Definition</th>
+          <th>Processes Version</th>
+          <th>Created on</th>
+          <th>Assignee</th>
+          <th>Priority</th>
+        </tr>
+        </thead>
+        <tbody>
         <RequestState
           signl={taskList}
           on_success={() =>
             taskList.value?.data?.map(task =>
               <TaskTile key={task.id} task={task}
                         selected={task.id === selectedTaskId} />)} />
-      </ul>
+        </tbody>
+      </table>
     </nav>
   )
 }
 
-const open_filter = () => {
-  const menu = document.getElementById('task-filter')
-  menu.classList.toggle('open')
-}
-
 const TaskTile = ({ task, selected }) => {
-  const { id, name, created, assignee, priority, definitionName } = task
+  const { id, name, created, assignee, priority, definitionName, definitionVersion } = task
 
   return (
-    <li key={id} class={selected ? 'selected' : ''}>
-      <a href={`/tasks/${id}/${task_tabs[0].id}`} aria-labelledby={id}>
-        <header>
-          <span>{definitionName}</span>
-          <span>{formatter.formatRelativeDate(created)}</span>
-        </header>
-        <div id={id} class="title">{name}</div>
-        <footer>
-          <span>
-            Assigned to <em>{assignee ? assignee : 'no one'}</em>
-          </span>
-          <span class="tile-right">Priority {priority}</span>
-        </footer>
-      </a>
-    </li>
+    <tr key={id} class={selected ? 'selected' : ''}>
+      <td><a href={`/tasks/${id}/${task_tabs[0].id}`} aria-labelledby={id}>{name}</a></td>
+      <td>{definitionName}</td>
+      <td>{definitionVersion}</td>
+      <td>{formatter.formatRelativeDate(created)}</td>
+      <td>{assignee ? assignee : '-'}</td>
+      <td>{priority}</td>
+    </tr>
   )
 }
 
 const NoSelectedTask = () => (
   <div id="task-details" className="fade-in">
-    <div class="task-empty">
-      <div class="info-box">
-        Please select a task from the task list on the left side.
-      </div>
-    </div>
+    <p class="task-empty">
+      <span>Select a task from the task list above to show its details.</span>
+    </p>
   </div>
 )
 
@@ -117,7 +115,19 @@ const Task = () =>
         <button><Icons.chat_bubble_left /> Comment</button>
       </li>
       <li>
-        <button><Icons.play /> Start Process</button>
+        <a href="/tasks/start" class="button">
+          <Icons.play />
+          Start Process</a>
+      </li>
+      <li>
+        <a href="" class="button">Show process definition</a>
+      </li>
+      <li>
+
+        {useContext(AppState).api.task.one.value?.data.description !== undefined
+          ? <p>{useContext(AppState).api.task.one.value?.data.description}</p>
+          : <p>No description provided.</p>}
+
       </li>
     </menu>
     <TaskDetails />
@@ -139,20 +149,22 @@ const TaskDetails = () => {
   }
 
   return (
-    <section className="task-container">
-      {state.api.task.one.value?.data?.name} [Process version: v{state.api.process.definition.one.value?.data?.version} | <a href="">Show process</a>]
-      <h3>{state.api.task.one?.name}</h3>
-      {state.api.task.one?.description ? <p>{state.api.task.one.description}</p> : <p>No description provided.</p>}
+    <div className="task-container">
 
-      {state.api.task.one.value !== null && state.api.task.one.value.data !== undefined
-        ? <Tabs
-          tabs={task_tabs}
-          base_url={`/tasks/${state.api.task.one.value.data.id}`}
-          className="fade-in"
-        />
+      {state.api.task.one.value.data !== null && state.api.task.one.value.data !== undefined
+        ? <>
+
+          <Tabs
+            tabs={task_tabs}
+            base_url={`/tasks/${state.api.task.one.value.data.id}`}
+            className="fade-in"
+          />
+
+
+        </>
         : 'Loading'
       }
-    </section>
+    </div>
   )
 }
 

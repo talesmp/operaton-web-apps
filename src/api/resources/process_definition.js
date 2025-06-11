@@ -70,8 +70,13 @@ const url_params = () =>
 const get_startable_process_definitions = (state) =>
   GET(`/process-definition?${url_params()}`, state, state.api.process.definition.list)
 
+const get_deployed_start_form = (state, processId) =>
+  GET(`/process-definition/${processId}/deployed-start-form`, state, state.api.process.definition.deployed_start_form)
+
 const get_start_form = (state, processId) =>
-  GET(`/process-definition/${processId}/startForm`, state, state.api.process.definition.start_form)
+  // GET(`/process-definition/${processId}/deployed-start-form`, state, state.api.process.definition.start_form)
+  GET(`/process-definition/key/${processId}/startForm`, state, state.api.process.definition.start_form)
+  // GET(`/process-definition/${processId}/rendered-form`, state, state.api.process.definition.start_form)
 
 export const get_rendered_start_form = async (state, id) =>
   GET_TEXT(`/process-definition/${id}/rendered-form`, state, state.api.process.definition.rendered_form)
@@ -88,6 +93,7 @@ const process_definition = {
   statistics: get_process_definition_statistics_with_incidents,
   list_startable: get_startable_process_definitions,
   start_form: get_start_form,
+  get_deployed_start_form,
   rendered_start_form: get_rendered_start_form,
   submit_form: start_process_submit_form
 }

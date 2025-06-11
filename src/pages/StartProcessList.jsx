@@ -1,90 +1,31 @@
 import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
-import { signal, useSignal } from '@preact/signals'
+import { useSignal } from '@preact/signals'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { useRoute } from 'preact-iso'
+import { Breadcrumbs } from '../components/Breadcrumbs.jsx'
 
 const StartProcessList = () => {
   const
     state = useContext(AppState),
-    { params } = useRoute(),
-    start_processID = signal(null),
-    display_start_formular = signal(false)
+    { params } = useRoute()
 
   void engine_rest.process_definition.list_startable(state)
 
   if (params.id !== null) {
-    void engine_rest.process_definition.start_form(state, params.id)
-  }
-
-  const display_process_form = async (state, process_id) => {
-    start_processID.value = process_id
-    formFields.value = []
-
-    try {
-      const response = await engine_rest.process_definition.rendered_start_form(state, process_id)
-      rendered_form = response.data
-
-      // Parse the HTML string so querySelectors work
-      const parser = new DOMParser()
-      const htmlDoc = parser.parseFromString(rendered_form, 'text/html')
-
-      const group = htmlDoc.querySelector('.form-group')
-
-      const label = group.querySelector('label')?.textContent?.trim()
-      const select = group.querySelector('select')
-      const input = group.querySelector('input')
-
-      let select_name = ''
-      let cam_variable_name_ = ''
-      let cam_variable_type_ = ''
-      let value = ''
-      let select_options = []
-      let input_type = ''
-
-      if (select) {
-        cam_variable_type_ = 'Select'
-        select_name = select.getAttribute('name')
-        cam_variable_name_ = select.getAttribute('cam-variable-name')
-        const options = select.querySelectorAll('option')
-        select_options = Array.from(options).map(option => option.getAttribute('value'))
-      } else if (input) {
-        cam_variable_type_ = input.getAttribute('cam-variable-type')
-        cam_variable_name_ = input.getAttribute('cam-variable-name')
-        value = input.getAttribute('value')
-        input_type = input.getAttribute('type')
-      } else {
-        console.error('Unknown form field type in rendered form!')
-        return
-      }
-
-      formFields.value.push({
-        name: select_name,
-        cam_variable_name: cam_variable_name_,
-        cam_variable_type: cam_variable_type_,
-        label,
-        value,
-        select_options,
-        type: input_type
-      })
-      console.log('Debugging', formFields)
-
-    } catch (error) {
-      console.error('Fehler beim Abrufen der rendered_form,', error)
-    }
-
-    display_start_formular.value = !display_start_formular.value
+    void engine_rest.process_definition.one(state, params.id)
   }
 
   return <main id="start-task">
     <header>
-      <a href="/tasks">Back</a>
-      <h1>Start process</h1>
+      <Breadcrumbs paths={[
+        { name: 'Tasks', route: '/tasks' },
+        { name: 'Start Process' }]} />
     </header>
 
     <div class="row">
       <StartableProcessesList />
-      {params.id !== null
+      {params.id !== undefined
         ? <StartProcessForm />
         : <p>Select a process definition</p>}
     </div>
@@ -97,6 +38,12 @@ const StartableProcessesList = () => {
     { params } = useRoute(),
     search_term = useSignal('')
 
+  if (params.id !== null && state.api.process.definition.one.value !== null
+    && state.api.process.definition.one.value?.data !== undefined) {
+    void engine_rest.process_definition.start_form(state, state.api.process.definition.one.value.data.key)
+      .then(() => void engine_rest.task.get_task_form(state, state.api.process.definition.start_form.value.data.key.substring(13)))
+  }
+
   return <div>
     <input
       type="text"
@@ -106,27 +53,27 @@ const StartableProcessesList = () => {
       value={search_term.value}
       onChange={(e) => (search_term.value = e.target.value)} />
     <ul class="list">
+      <RequestState
+        signl={state.api.process.definition.list}
+        on_success={() =>
+          <>
+            {state.api.process.definition.list.value.data
+              .filter((process) => {
+                if (search_term.value.length === 0) {
+                  return true
+                }
+                return process.name
+                  .toLowerCase()
+                  .includes(search_term.value.toLowerCase())
 
-      <RequestState signl={state.api.process.definition.list}
-                    on_success={() =>
-                      <>
-                        {state.api.process.definition.list.value.data
-                          .filter((process) => {
-                            if (search_term.value.length === 0) {
-                              return true
-                            }
-                            return process.name
-                              .toLowerCase()
-                              .includes(search_term.value.toLowerCase())
-
-                          })
-                          .map((process) => (
-                            <li key={process.id}>
-                              <a href={`/tasks/start/${process.id}`}
-                                 class={(process.id === params.id) ? 'selected' : ''}>{process.name}</a>
-                            </li>
-                          ))}
-                      </>} />
+              })
+              .map((process) => (
+                <li key={process.id}
+                    class={(process.id === params.id) ? 'selected' : ''}>
+                  <a href={`/tasks/start/${process.id}`}>{process.name}</a>
+                </li>
+              ))}
+          </>} />
     </ul>
   </div>
 }
@@ -135,104 +82,112 @@ const StartProcessForm = () => {
   const
     state = useContext(AppState),
     { params } = useRoute(),
-    request_body_submit_form = useSignal({
-      variables: {},
-      business_key: 'myBusinessKey'
-    }),
-    formFields = useSignal([])
+    form_fields = useSignal([]),
+    fr = new FileReader(),
 
-  const handleSubmit = async (event) => {
-    const confirmStart = window.confirm(`Are you sure you want to start the process?`)
-    if (!confirmStart) return
-    event.preventDefault()
+    handleSubmit = (event) => {
+      event.preventDefault()
 
-    const form = event.target
-    const form_data = new FormData(form)
+      const
+        form = event.target,
+        form_data = new FormData(form),
+        response = {},
+        to_base_64 = (file) => new Promise((resolve, reject) => {
+          fr.onload = () => resolve(fr);
+          fr.onerror = (err) => reject(err);
+          fr.readAsDataURL(file);
+        });
 
-    formFields.value.forEach(field => {
 
-      let variable_type
-      let variable_value
-      let variable_name = field.name
+      form_fields.value.map(async ({ variable_name, type, input_type }) => {
+        console.log(variable_name, form_data.get(variable_name))
 
-      if (field.cam_variable_type === 'Select') {
-        variable_value = form_data.get(variable_name)
-        variable_type = 'String'
-      } else if (field.type === 'checkbox') {
-        variable_type = 'Boolean'
-        const input = form.querySelector(`[name="${variable_name}"]`)
-        variable_value = input.checked
-      } else {
-        variable_type = 'String'
-        variable_value = field.value
+        response[variable_name] = {
+          type,
+          value:
+            input_type === 'file'
+              ? await to_base_64(form_data.get(variable_name)).result.split("base,")[1]
+              : form_data.get(variable_name)
+        }
+
+        if (input_type === 'file') {
+          response[variable_name]['valueInfo'] = {
+            fileName: form_data.get(variable_name).name,
+            mimeType: form_data.get(variable_name).type
+          }
+        }
+      })
+
+      if (form_data.get('business_key') !== null) {
+        response['business_key'] = form_data.get('business_key').toString()
       }
 
-      request_body_submit_form.variables[variable_name] = {
-        value: variable_value,
-        type: variable_type
-      }
-    })
+      console.log(response)
 
-    request_body_submit_form.business_key = form_data.get('business_key')?.toString()
+      // void engine_rest.process_definition.submit_form(state, params.id, response)
+    }
 
-    void engine_rest.process_definition.submit_form(state, params.id, request_body_submit_form)
+  const parse_form = (form_html) => {
+    const parser = new DOMParser(),
+      parsed = parser.parseFromString(form_html, 'text/html'),
+      form = parsed.querySelector('form'),
+      inputs = form.querySelectorAll('input'),
+      selects = form.querySelectorAll('select'),
+      form_groups = form.querySelectorAll('.form-group'),
+      button_group = document.createElement('div'),
+      submit_button = document.createElement('button')
+
+    inputs.forEach(input =>
+      form_fields.value.push({
+        variable_name: input.getAttribute('cam-variable-name'),
+        type: input.getAttribute('cam-variable-type'),
+        input_type: input.getAttribute('type')
+      })
+    )
+    selects.forEach(input =>
+      form_fields.value.push({
+        variable_name: input.getAttribute('cam-variable-name'),
+        type: input.getAttribute('cam-variable-type'),
+        input_type: 'select'
+      })
+    )
+
+    submit_button.innerText = 'Submit'
+    submit_button.setAttribute('type', 'submit')
+    button_group.classList.add('button-group')
+    button_group.appendChild(submit_button)
+
+    form_groups.forEach(form_group =>
+      form.innerHTML += form_group.innerHTML
+    )
+
+    form.querySelectorAll('.form-group').forEach(el => el.remove())
+
+    form.querySelectorAll('[cam-variable-name]').forEach(form_element =>
+      form_element.setAttribute('name', form_element.getAttribute('cam-variable-name'))
+    )
+    form.querySelectorAll('select').forEach(select =>
+      select.querySelectorAll('option').forEach(option =>
+        option.value = option.innerText
+      )
+    )
+
+    form.appendChild(button_group)
+
+    return form.innerHTML
   }
 
   return <div>
     <h2>Form</h2>
-    <div className="popup-body" id="form-popup-body">
-      <form onSubmit={handleSubmit}>
-        {/* Form fields section */}
-        {formFields.value.length > 0 && (
-          <div>
-            {formFields.value.map(field => (
-              <div className="form-group" key={field.name}>
-                <label htmlFor={field.name}>{field.label}</label>
-
-                {field.cam_variable_type === 'Select' ? (
-                  <select
-                    className="form-control"
-                    name={field.name}
-                    cam-variable-type={field.cam_variable_type}
-                    cam-variable-name={field.cam_variable_name}
-                  >
-                    {field.select_options.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    className="form-control"
-                    name={field.name}
-                    cam-variable-type={field.cam_variable_type_}
-                    cam-variable-name={field.cam_variable_name_}
-                    type={field.type}
-                    {...(field.type === 'checkbox'
-                        ? {
-                          checked: field.value === 'true',
-                          onInput: (e) => field.value = e.target.checked.toString()
-                        }
-                        : {
-                          value: field.value ?? '',
-                          onInput: (e) => field.value = e.target.value
-                        }
-                    )}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="form-group">
-          <label htmlFor="business_key">Business Key:</label>
-          <input className="form-control" id="business_key" name="business_key" />
+    <RequestState signl={state.api.task.form} on_success={() => <>
+      {/*eslint-disable-next-line react/no-danger*/}
+      <form onSubmit={handleSubmit} dangerouslySetInnerHTML={{ __html: parse_form(state.api.task.form.value.data) }}>
+        <div class="button-group">
+          <button type="submit">Start Process</button>
         </div>
-
-        <button type="submit">Start Process</button>
       </form>
-    </div>
+    </>
+    } />
   </div>
 }
 

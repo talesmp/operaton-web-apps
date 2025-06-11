@@ -71,6 +71,7 @@ const createAppState = () => {
         statistics: signal(null),
         submit_form: signal(null),
         start_form: signal(null),
+        deployed_start_form: signal(null),
         rendered_form: signal(null),
       },
       instance: {

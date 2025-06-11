@@ -101,6 +101,7 @@ button, .button, .button:visited {
 }
 
 :where(a, button, input, select):focus {
+  transform: rotate(0);
   outline: var(--border-width-2) solid var(--color-primary);
   border-color: var(--color-primary);
   border-radius: var(--border-radius);

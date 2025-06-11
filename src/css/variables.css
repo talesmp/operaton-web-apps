@@ -70,8 +70,9 @@
     :root {
         --color-primary: #5ca2e4;
 
-        --background-1: #111;
-        --background-2: #222;
+        --background-1: #111113;
+        --background-2: #222224;
+        --background-3: #333335;
 
         --border-color: #555;
         --border-color-2: #777;

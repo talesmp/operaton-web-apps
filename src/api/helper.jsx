@@ -17,7 +17,7 @@ headers_json.set('Content-Type', 'application/json')
 /* helpers */
 
 // fixme: hide when get_tasks is solved better
-export const _STATE = {
+export const RESPONSE_STATE = {
   NOT_INITIALIZED: 'NOT_INITIALIZED',
   LOADING: 'LOADING',
   SUCCESS: 'SUCCESS',
@@ -56,34 +56,34 @@ const response_data = (response) =>
     : Promise.reject(response)
 
 export const GET = (url, state, signl) => {
-  signl.value = { status: _STATE.LOADING }
+  signl.value = { status: RESPONSE_STATE.LOADING }
 
   return fetch(`${_url(state)}${url}`, { headers: { "Content-Type": "application/json"}})
     .then(response => response.ok ? response.json() : Promise.reject(response))
-    .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
-    .catch(error => signl.value = { status: _STATE.ERROR, error })
+    .then(json => signl.value = { status: RESPONSE_STATE.SUCCESS, data: json })
+    .catch(error => signl.value = { status: RESPONSE_STATE.ERROR, error })
 }
 
 export const GET_FORM = (url, state, signl) => {
-  signl.value = { status: _STATE.LOADING }
+  signl.value = { status: RESPONSE_STATE.LOADING }
 
   return fetch(`${_url_forms(state)}${url}`)
     .then(response => response.ok ? response.text() : Promise.reject(response))
-    .then(text => signl.value = { status: _STATE.SUCCESS, data: text })
-    .catch(error => signl.value = { status: _STATE.ERROR, error })
+    .then(text => signl.value = { status: RESPONSE_STATE.SUCCESS, data: text })
+    .catch(error => signl.value = { status: RESPONSE_STATE.ERROR, error })
 }
 
 export const GET_TEXT = (url, state, signl) => {
-  signl.value = { status: _STATE.LOADING }
+  signl.value = { status: RESPONSE_STATE.LOADING }
 
   return fetch(`${_url(state)}${url}`)
     .then(response => response.ok ? response.text() : Promise.reject(response))
-    .then(text => signl.value = { status: _STATE.SUCCESS, data: text })
-    .catch(error => signl.value = { status: _STATE.ERROR, error })
+    .then(text => signl.value = { status: RESPONSE_STATE.SUCCESS, data: text })
+    .catch(error => signl.value = { status: RESPONSE_STATE.ERROR, error })
 }
 
 const fetch_with_body = (method, url, body, state, signl) => {
-  signl.value = { status: _STATE.LOADING }
+  signl.value = { status: RESPONSE_STATE.LOADING }
 
   return fetch(`${_url(state)}${url}`,
     {
@@ -92,8 +92,8 @@ const fetch_with_body = (method, url, body, state, signl) => {
       body: JSON.stringify(body)
     })
     .then(response_data)
-    .then(json => signl.value = { status: _STATE.SUCCESS, data: json })
-    .catch(error => error.json().then(json => signl.value = { status: _STATE.ERROR, data: json }))
+    .then(json => signl.value = { status: RESPONSE_STATE.SUCCESS, data: json })
+    .catch(error => error.json().then(json => signl.value = { status: RESPONSE_STATE.ERROR, data: json }))
 }
 
 export const POST = (url, body, state, signl) => {

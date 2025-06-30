@@ -44,7 +44,8 @@ const createAppState = () => {
       count: signal(null),
       list: signal(null),
       create: signal(null),
-      profile: signal(null),
+      // todo: remove demo user when login is implemented
+      profile: signal({ id: "demo" }),
       group: {
         list: signal(null)
       },
@@ -90,6 +91,7 @@ const createAppState = () => {
       rendered_form: signal(null),
       deployed_form: signal(null),
       claim_result: signal(null),
+      unclaim_result: signal(null),
       assign_result: signal(null),
       submit_form: signal(null)
     },

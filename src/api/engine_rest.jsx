@@ -1,4 +1,4 @@
-import { RequestState as request_state } from './helper.jsx'
+import { RequestState as request_state, RESPONSE_STATE as response_state } from './helper.jsx'
 import auth from './resources/auth.js'
 import engine from './resources/engine.js'
 import user from './resources/user.js'
@@ -30,3 +30,5 @@ const engine_rest = {
 export default engine_rest
 
 export const RequestState = request_state
+
+export const RESPONSE_STATE = response_state

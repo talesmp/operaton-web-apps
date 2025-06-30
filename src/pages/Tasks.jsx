@@ -5,7 +5,7 @@ import * as formatter from '../helper/date_formatter.js'
 import * as Icons from '../assets/icons.jsx'
 import { Tabs } from '../components/Tabs.jsx'
 import { TaskForm } from './TaskForm.jsx'
-import engine_rest, { RequestState } from '../api/engine_rest.jsx'
+import engine_rest, { RequestState, RESPONSE_STATE } from '../api/engine_rest.jsx'
 import { useSignal } from '@preact/signals'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
 
@@ -98,10 +98,12 @@ const NoSelectedTask = () => (
 )
 
 // when something has changed (e.g. assignee) in the task we have to update the task list
-const Task = () =>
-  <div id="task-details" className="fade-in">
+const Task = () => {
+  const state = useContext(AppState)
+
+  return <div id="task-details" className="fade-in">
     <menu class="action-bar">
-      <li><ResetAssigneeBtn /></li>
+      <li><ClaimButton /></li>
       <li>
         <button><Icons.users /> Set Group</button>
       </li>
@@ -114,24 +116,21 @@ const Task = () =>
       <li>
         <button><Icons.chat_bubble_left /> Comment</button>
       </li>
-      <li>
-        <a href="/tasks/start" class="button">
-          <Icons.play />
-          Start Process</a>
-      </li>
+      <li><a href="/tasks/start" class="button"><Icons.play />Start Process</a></li>
       <li>
         <a href="" class="button">Show process definition</a>
       </li>
       <li>
 
-        {useContext(AppState).api.task.one.value?.data.description !== undefined
-          ? <p>{useContext(AppState).api.task.one.value?.data.description}</p>
+        {state.api.task.one.value?.data !== undefined
+          ? <p>{state.api.task.one.value?.data.description}</p>
           : <p>No description provided.</p>}
 
       </li>
     </menu>
     <TaskDetails />
   </div>
+}
 
 const TaskDetails = () => {
   const state = useContext(AppState)
@@ -168,29 +167,41 @@ const TaskDetails = () => {
   )
 }
 
-const ResetAssigneeBtn = () => {
-  const state = useContext(AppState)
-  const task = state.api.task.value
-  const user = state.user_profile.value
+const ClaimButton = () => {
+  const state = useContext(AppState),
+    task = state.api.task.one.value,
+    user = state.api.user.profile.value
 
-  const user_is_assignee = task?.assignee
-  const assignee_is_different = task?.assignee && user?.id !== task?.assignee
-  const claimed = state.task_claim_result.value?.success
-  const assigned = state.task_assign_result.value?.success
+  return <RequestState
+    signl={state.api.task.one}
+    on_success={() =>
+      <ClaimButtonView task={task.data}
+                   claim_result={state.api.task.claim_result.value}
+                   assign_result={state.api.task.assign_result.value}
+                   unclaim_result={state.api.task.unclaim_result.value}
+                   user_id={user.id}
+                   state={state} />} />
+}
 
-  return assignee_is_different && !assigned ? (
-    <button onClick={() => engine_rest.task.assign_task(state, null, task.id)} className="secondary">
+const ClaimButtonView = ({ task, claim_result, assign_result, unclaim_result, user_id, state }) => {
+  const
+    user_is_assignee = task.assignee,
+    assignee_is_different = task.assignee && user_id !== task.assignee,
+    claimed = claim_result !== null ? claim_result.status === RESPONSE_STATE.SUCCESS : false,
+    assigned = assign_result !== null ? assign_result.status === RESPONSE_STATE.SUCCESS : false,
+    unclaimed = unclaim_result !== null ? unclaim_result.status === RESPONSE_STATE.SUCCESS : false
+
+  return assignee_is_different && !assigned
+    ? <button onClick={() => engine_rest.task.assign_task(state, null, task.id)} className="secondary">
       <Icons.user_minus /> Reset Assignee
     </button>
-  ) : user_is_assignee || claimed ? (
-    <button onClick={() => engine_rest.task.unclaim_task(state, task.id)} className="secondary">
-      <Icons.user_minus /> Unclaim
-    </button>
-  ) : (
-    <button onClick={() => engine_rest.task.claim_task(state, task.id)} className="secondary">
-      <Icons.user_plus /> Claim
-    </button>
-  )
+    : (user_is_assignee || claimed) && !unclaimed
+      ? <button onClick={() => engine_rest.task.unclaim_task(state, task.id)} className="secondary">
+        <Icons.user_minus /> Unclaim
+      </button>
+      : <button onClick={() => engine_rest.task.claim_task(state, task.id)} className="secondary">
+        <Icons.user_plus /> Claim
+      </button>
 }
 
 const Diagram = () => {

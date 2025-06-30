@@ -1,4 +1,4 @@
-import { _STATE, _url, GET, GET_FORM, GET_TEXT, POST } from '../helper.jsx'
+import { RESPONSE_STATE, _url, GET, GET_FORM, GET_TEXT, POST } from '../helper.jsx'
 
 // Tasks nach Process Instance
 const get_process_instance_tasks = (state, instance_id) =>
@@ -21,10 +21,10 @@ const get_task_deployed_form = (state, task_id) =>
 
 // Claim / Unclaim / Assign
 const claim_task = (state, task_id) =>
-  POST(`/task/${task_id}/claim`, { userId: state.user_profile.value.id }, state, state.api.task.claim_result)
+  POST(`/task/${task_id}/claim`, { userId: state.api.user.profile.value.id }, state, state.api.task.claim_result)
 
 const unclaim_task = (state, task_id) =>
-  POST(`/task/${task_id}/unclaim`, { userId: state.user_profile.value.id }, state, state.api.task.claim_result)
+  POST(`/task/${task_id}/unclaim`, { userId: state.api.user.profile.value.id }, state, state.api.task.unclaim_result)
 
 const assign_task = (state, assignee, task_id) =>
   POST(`/task/${task_id}/assignee`, { userId: assignee }, state, state.api.task.assign_result)
@@ -51,8 +51,8 @@ const get_tasks = (state, sort_key = 'name', sort_order = 'asc') =>
   fetch(`${_url(state)}/task?sortBy=${sort_key}&sortOrder=${sort_order}`)
     .then(response => response.ok ? response.json() : Promise.reject(response))
     .then(tasks => tasks_with_process_definitions(tasks, state))
-    .then(json => state.api.task.list.value = { status: _STATE.SUCCESS, data: json })
-    .catch(error => state.api.task.list.value = { status: _STATE.ERROR, error })
+    .then(json => state.api.task.list.value = { status: RESPONSE_STATE.SUCCESS, data: json })
+    .catch(error => state.api.task.list.value = { status: RESPONSE_STATE.ERROR, error })
 
 
 // Hilfsmethode – kein Signal

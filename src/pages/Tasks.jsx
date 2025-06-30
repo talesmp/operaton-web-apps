@@ -1,4 +1,4 @@
-import { useContext } from 'preact/hooks'
+import { useContext, useLayoutEffect } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useRoute } from 'preact-iso'
 import * as formatter from '../helper/date_formatter.js'
@@ -77,8 +77,15 @@ const TaskList = () => {
 const TaskTile = ({ task, selected }) => {
   const { id, name, created, assignee, priority, definitionName, definitionVersion } = task
 
+  useLayoutEffect(() => {
+      if (selected) {
+        document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
+  )
+
   return (
-    <tr key={id} class={selected ? 'selected' : ''}>
+    <tr id={id} key={id} class={selected ? 'selected' : ''}>
       <td><a href={`/tasks/${id}/${task_tabs[0].id}`} aria-labelledby={id}>{name}</a></td>
       <td>{definitionName}</td>
       <td>{definitionVersion}</td>
@@ -105,7 +112,7 @@ const Task = () => {
     <menu class="action-bar">
       <li><ClaimButton /></li>
       <li>
-        <button><Icons.users /> Set Group</button>
+        <button><Icons.users /> Set Groups</button>
       </li>
       <li>
         <button><Icons.calendar /> Set Follow Up Date</button>
@@ -176,11 +183,11 @@ const ClaimButton = () => {
     signl={state.api.task.one}
     on_success={() =>
       <ClaimButtonView task={task.data}
-                   claim_result={state.api.task.claim_result.value}
-                   assign_result={state.api.task.assign_result.value}
-                   unclaim_result={state.api.task.unclaim_result.value}
-                   user_id={user.id}
-                   state={state} />} />
+                       claim_result={state.api.task.claim_result.value}
+                       assign_result={state.api.task.assign_result.value}
+                       unclaim_result={state.api.task.unclaim_result.value}
+                       user_id={user.id}
+                       state={state} />} />
 }
 
 const ClaimButtonView = ({ task, claim_result, assign_result, unclaim_result, user_id, state }) => {

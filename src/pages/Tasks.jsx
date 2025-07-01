@@ -8,6 +8,7 @@ import { TaskForm } from './TaskForm.jsx'
 import engine_rest, { RequestState, RESPONSE_STATE } from '../api/engine_rest.jsx'
 import { useSignal } from '@preact/signals'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
+import History from '../api/resources/history.js'
 
 const TasksPage = () => {
   const state = useContext(AppState)
@@ -79,7 +80,7 @@ const TaskTile = ({ task, selected }) => {
 
   useLayoutEffect(() => {
       if (selected) {
-        document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'center' })
+        document.getElementById(id).scrollIntoView({ behavior: 'instant', block: 'center' })
       }
     }
   )
@@ -111,9 +112,7 @@ const Task = () => {
   return <div id="task-details" className="fade-in">
     <menu class="action-bar">
       <li><ClaimButton /></li>
-      <li>
-        <button><Icons.users /> Set Groups</button>
-      </li>
+      <li><SetGroupsButton /></li>
       <li>
         <button><Icons.calendar /> Set Follow Up Date</button>
       </li>
@@ -152,26 +151,93 @@ const TaskDetails = () => {
     currentTaskId.value = params.task_id
     engine_rest.task.get_task(state, params.task_id)
       .then(() => engine_rest.process_definition.one(state, state.api.task.one.value?.data?.processDefinitionId))
+      .then(() => engine_rest.task.get_identity_links(state, state.api.task.one.value?.data?.id))
   }
+
+  // if (state.api.task.one.value !== null && state.api.task.one.value.status === RESPONSE_STATE.SUCCESS
+  //   && state.api.task.identity_links.value === null) {
+  //   void engine_rest.task.get_identity_links(state, state.api.task.one.value.data.id)
+  // }
 
   return (
     <div className="task-container">
-
-      {state.api.task.one.value.data !== null && state.api.task.one.value.data !== undefined
+      {state.api.task.one.value.data !== null &&
+      state.api.task.one.value.data !== undefined
         ? <>
-
           <Tabs
             tabs={task_tabs}
             base_url={`/tasks/${state.api.task.one.value.data.id}`}
-            className="fade-in"
-          />
-
-
-        </>
-        : 'Loading'
-      }
+            className="fade-in" /></>
+        : 'Loading'}
     </div>
   )
+}
+
+const SetGroupsButton = () => {
+  const
+    state = useContext(AppState),
+    close = () => document.getElementById('add_groups').close(),
+    show = () => document.getElementById('add_groups').showModal(),
+    group_state = useSignal(null),
+    submit = (event) => {
+      event.preventDefault()
+      engine_rest.task.add_group(state, state.api.task.one.value.data.id, group_state.value)
+        .then(() => {
+          if (state.api.task.add_group.value.status === RESPONSE_STATE.SUCCESS) {
+            group_state.value = ''
+          }
+        })
+    },
+    delete_group = (group_id) => engine_rest.task.delete_group(state, state.api.task.one.value.data.id, group_id)
+
+  console.log(state.api.task.identity_links.value)
+
+  return <>
+    <button onClick={show}><Icons.users /> Set Groups</button>
+
+    <dialog id="add_groups">
+      <header>
+        <h2>Manage Groups</h2>
+        <button onClick={close} class="neutral"><Icons.close /></button>
+      </header>
+
+      <h3>Add Groups</h3>
+      <form onSubmit={submit}>
+        <label for="group_id">Group ID</label>
+        <input id="group_id" key="group_id" required
+               onInput={(e) => group_state.value = e.currentTarget.value} />
+        <div class="button-group">
+          <button type="submit">Add Group</button>
+        </div>
+      </form>
+
+      <h3>Remove Groups</h3>
+
+      <RequestState
+        signl={state.api.task.identity_links}
+        on_success={() =>
+          <table>
+            <thead>
+            <tr>
+              <th>Group ID</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            {() => console.log('in', state.api.task.identity_links.value)}
+            <tbody>
+            {state.api.task.identity_links.value.data.map(
+              ({ groupId, type }, index) => type === 'candidate'
+                ? <tr key={index}>
+                  <td>{groupId}</td>
+                  <td>
+                    <button onClick={() => delete_group(groupId)}>Delete</button>
+                  </td>
+                </tr>
+                : null)}
+            </tbody>
+          </table>} />
+    </dialog>
+  </>
 }
 
 const ClaimButton = () => {
@@ -230,6 +296,48 @@ const Diagram = () => {
   </>
 }
 
+const HistoryTab = () => {
+  const
+    state = useContext(AppState),
+    { api: { history: { user_operation },
+    task: { one }}} = state
+
+  void engine_rest.history.get_user_operation(state, one.value?.data?.executionId)
+
+  return <>
+    <h2>History</h2>
+
+    <table>
+      <thead>
+      <tr>
+        <th>Date / Time</th>
+        <th>User</th>
+        <th>Action</th>
+        <th>Type</th>
+        <th>Value</th>
+      </tr>
+      </thead>
+      <tbody>
+      <RequestState
+        signl={user_operation}
+        on_success={() => <HistoryEntry />} />
+
+      </tbody>
+    </table>
+  </>
+}
+
+const HistoryEntry = () =>
+  useContext(AppState).api.history.user_operation.value.data.map(({timestamp, userId, operationType, property, newValue}, index) =>
+    <tr key={index}>
+      <td>{timestamp}</td>
+      <td>{userId}</td>
+      <td>{operationType}</td>
+      <td>{property}</td>
+      <td>{newValue}</td>
+    </tr>
+  )
+
 const task_tabs = [
   {
     name: 'Form',
@@ -241,7 +349,7 @@ const task_tabs = [
     name: 'History',
     id: 'history',
     pos: 1,
-    target: <p>History</p>
+    target: <HistoryTab />
   },
   {
     name: 'Diagram',

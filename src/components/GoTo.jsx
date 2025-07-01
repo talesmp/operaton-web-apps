@@ -60,14 +60,14 @@ const SearchComponent = () => {
   useHotkeys('alt+s', () => setTimeout(show, 100))
 
   return <search class="col gap-2">
-    <div className="row space-between">
+    <header className="row space-between">
       <h2>Go To</h2>
       <button
-        className="neutral"
+        class="neutral"
         onClick={close}>
-        <Icons.close />
+        Close
       </button>
-    </div>
+    </header>
 
     <label className="col gap-1">
       <small>Enter resource ID</small>

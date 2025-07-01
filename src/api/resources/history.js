@@ -33,6 +33,12 @@ const get_process_instance_incidents = (state, instance_id) =>
 const get_process_instance_variable = (state, instance_id) =>
   GET(`/history/variable-instance?processInstanceId=${instance_id}`, state, state.api.process.instance.variables)
 
+/**
+ * Task History
+ */
+const get_user_operation = (state, execution_id) =>
+  GET(`/history/user-operation?processInstanceId=${execution_id}`, state, state.api.history.user_operation)
+
 const history = {
   process_instance: {
     all: get_process_instances,
@@ -45,7 +51,8 @@ const history = {
   },
   variable_instance: {
     by_process_instance: get_process_instance_variable,
-  }
+  },
+  get_user_operation
 }
 
 export default history

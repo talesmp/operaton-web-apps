@@ -168,7 +168,7 @@
       overflow-y: auto;
       background: var(--background-2);
 
-      li button {
+      li > button {
         width: 100%;
 
 
@@ -802,6 +802,17 @@ div.accordion {
 .copy-on-click:active {
   /*font-weight: bold;*/
   text-shadow: 0 0 4px var(--color-primary);
+}
+
+/* dialog */
+
+dialog > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+dialog > header > button {
+  width: unset;
 }
 
 /* global search */

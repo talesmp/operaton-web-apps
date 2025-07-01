@@ -93,7 +93,10 @@ const createAppState = () => {
       claim_result: signal(null),
       unclaim_result: signal(null),
       assign_result: signal(null),
-      submit_form: signal(null)
+      submit_form: signal(null),
+      add_group: signal(null),
+      delete_group: signal(null),
+      identity_links: signal(null),
     },
     deployment: {
       one: signal(null),
@@ -106,6 +109,7 @@ const createAppState = () => {
         by_process_definition: signal(null),
         by_process_instance: signal(null)
       },
+      user_operation: signal(null),
     },
     job_definition: {
       all: {

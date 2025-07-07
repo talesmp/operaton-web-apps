@@ -8,7 +8,6 @@ import { TaskForm } from './TaskForm.jsx'
 import engine_rest, { RequestState, RESPONSE_STATE } from '../api/engine_rest.jsx'
 import { useSignal } from '@preact/signals'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
-import History from '../api/resources/history.js'
 
 const TasksPage = () => {
   const state = useContext(AppState)
@@ -36,7 +35,7 @@ const TaskList = () => {
   const selectedTaskId = params.task_id
 
   return (
-    <nav id="task-list" aria-label="tasks">
+    <div id="task-list">
       {/*<div class="tile-filter" id="task-filter">*/}
       {/*  <div class="filter-header" onClick={open_filter}>*/}
       {/*    <span class="label">Filter Tasks & Search</span>*/}
@@ -50,6 +49,10 @@ const TaskList = () => {
       {/*    </menu>*/}
       {/*  </div>*/}
       {/*</div>*/}
+
+      <div>
+        <a href="/tasks/start" className="button"><Icons.play />Start Process</a>
+      </div>
 
       <table>
         <thead>
@@ -67,15 +70,15 @@ const TaskList = () => {
           signl={taskList}
           on_success={() =>
             taskList.value?.data?.map(task =>
-              <TaskTile key={task.id} task={task}
-                        selected={task.id === selectedTaskId} />)} />
+              <TaskRowEntry key={task.id} task={task}
+                            selected={task.id === selectedTaskId} />)} />
         </tbody>
       </table>
-    </nav>
+    </div>
   )
 }
 
-const TaskTile = ({ task, selected }) => {
+const TaskRowEntry = ({ task, selected }) => {
   const { id, name, created, assignee, priority, definitionName, definitionVersion } = task
 
   useLayoutEffect(() => {
@@ -86,7 +89,7 @@ const TaskTile = ({ task, selected }) => {
   )
 
   return (
-    <tr id={id} key={id} class={selected ? 'selected' : ''}>
+    <tr id={id} key={id} aria-selected={selected}>
       <td><a href={`/tasks/${id}/${task_tabs[0].id}`} aria-labelledby={id}>{name}</a></td>
       <td>{definitionName}</td>
       <td>{definitionVersion}</td>
@@ -99,46 +102,47 @@ const TaskTile = ({ task, selected }) => {
 
 const NoSelectedTask = () => (
   <div id="task-details" className="fade-in">
-    <p class="task-empty">
-      <span>Select a task from the task list above to show its details.</span>
-    </p>
+    <div class="task-empty">
+      Select a task from the task list above to show its details.
+    </div>
   </div>
 )
 
 // when something has changed (e.g. assignee) in the task we have to update the task list
 const Task = () => {
-  const state = useContext(AppState)
+  const
+    state = useContext(AppState),
+    { api: { task: { one: task }, process: { definition: { one: pd } } } } = state
 
   return <div id="task-details" className="fade-in">
-    <menu class="action-bar">
-      <li><ClaimButton /></li>
-      <li><SetGroupsButton /></li>
-      <li>
-        <button><Icons.calendar /> Set Follow Up Date</button>
-      </li>
-      <li>
-        <button><Icons.bell /> Set Due Date</button>
-      </li>
-      <li>
-        <button><Icons.chat_bubble_left /> Comment</button>
-      </li>
-      <li><a href="/tasks/start" class="button"><Icons.play />Start Process</a></li>
-      <li>
-        <a href="" class="button">Show process definition</a>
-      </li>
-      <li>
-
+    <header>
+      <div>
+        <h2>{task.value?.data?.name}</h2>
+        <a href={`/processes/${pd.value?.data?.id}`}>{pd.value?.data?.name} (version {pd.value?.data?.version})</a>
         {state.api.task.one.value?.data !== undefined
           ? <p>{state.api.task.one.value?.data.description}</p>
           : <p>No description provided.</p>}
+      </div>
 
-      </li>
-    </menu>
-    <TaskDetails />
+      <dl>
+        <dt>Follow Up Date</dt>
+        <dd><SetFollowUpDateButton /></dd>
+        <dt>Due Date</dt>
+        <dd><SetDueDateButton /></dd>
+        <dt>Assignee</dt>
+        <dd><ClaimButton /></dd>
+        <dt>Groups</dt>
+        <dd><SetGroupsButton /></dd>
+      </dl>
+
+      <button><Icons.chat_bubble_left /> Comment</button>
+
+    </header>
+    <TaskTabs />
   </div>
 }
 
-const TaskDetails = () => {
+const TaskTabs = () => {
   const state = useContext(AppState)
   const { params } = useRoute()
   const currentTaskId = useSignal(null)
@@ -154,13 +158,8 @@ const TaskDetails = () => {
       .then(() => engine_rest.task.get_identity_links(state, state.api.task.one.value?.data?.id))
   }
 
-  // if (state.api.task.one.value !== null && state.api.task.one.value.status === RESPONSE_STATE.SUCCESS
-  //   && state.api.task.identity_links.value === null) {
-  //   void engine_rest.task.get_identity_links(state, state.api.task.one.value.data.id)
-  // }
-
   return (
-    <div className="task-container">
+    <div className="task-tabs">
       {state.api.task.one.value.data !== null &&
       state.api.task.one.value.data !== undefined
         ? <>
@@ -173,9 +172,50 @@ const TaskDetails = () => {
   )
 }
 
+const SetDueDateButton = () => {
+  const
+    state = useContext(AppState),
+    { api: { task: { one: task } } } = state,
+    close = () => document.getElementById('set_due_date').close(),
+    show = () => document.getElementById('set_due_date').showModal()
+
+  return <>
+    <button onClick={show} class="link">
+      {task.value === null
+        ? 'Set Due Date'
+        : new Date(Date.parse(task.value?.data?.due)).toLocaleString()
+      }
+    </button>
+
+    <dialog id="set_due_date">
+    </dialog>
+  </>
+}
+
+const SetFollowUpDateButton = () => {
+  const
+    state = useContext(AppState),
+    { api: { task: { one: task } } } = state,
+    close = () => document.getElementById('set_follow_up_date').close(),
+    show = () => document.getElementById('set_follow_up_date').showModal()
+
+  return <>
+    <button onClick={show} class="link">
+      {task.value === null
+        ? 'Set Due Date'
+        : new Date(Date.parse(task.value?.data?.due)).toLocaleString()
+      }
+    </button>
+
+    <dialog id="set_follow_up_date">
+    </dialog>
+  </>
+}
+
 const SetGroupsButton = () => {
   const
     state = useContext(AppState),
+    { api: { task: { identity_links } } } = state,
     close = () => document.getElementById('add_groups').close(),
     show = () => document.getElementById('add_groups').showModal(),
     group_state = useSignal(null),
@@ -190,10 +230,15 @@ const SetGroupsButton = () => {
     },
     delete_group = (group_id) => engine_rest.task.delete_group(state, state.api.task.one.value.data.id, group_id)
 
-  console.log(state.api.task.identity_links.value)
-
   return <>
-    <button onClick={show}><Icons.users /> Set Groups</button>
+    <button onClick={show} class="link">
+      {identity_links.value?.data
+        ? 'Set groups'
+        : identity_links.value?.data?.reduce((res, { groupId, type }) =>
+            type === 'candidate'
+              ? `${res + groupId}, `
+              : res, '').slice(0, -2)}
+    </button>
 
     <dialog id="add_groups">
       <header>
@@ -243,17 +288,26 @@ const SetGroupsButton = () => {
 const ClaimButton = () => {
   const state = useContext(AppState),
     task = state.api.task.one.value,
-    user = state.api.user.profile.value
+    user = state.api.user.profile.value,
+    close = () => document.getElementById('set_assignee').close(),
+    show = () => document.getElementById('set_assignee').showModal()
 
   return <RequestState
     signl={state.api.task.one}
-    on_success={() =>
-      <ClaimButtonView task={task.data}
-                       claim_result={state.api.task.claim_result.value}
-                       assign_result={state.api.task.assign_result.value}
-                       unclaim_result={state.api.task.unclaim_result.value}
-                       user_id={user.id}
-                       state={state} />} />
+    on_success={() => <>
+      <button class="link" onClick={show}>
+        {task.data.assignee === null
+          ? 'Claim'
+          : task.data.assignee === user.id
+            ? 'You'
+            : task.data.assignee}
+      </button>
+
+      <dialog id="set_assignee">
+        {/*<ClaimButtonView />*/}
+      </dialog>
+    </>
+    } />
 }
 
 const ClaimButtonView = ({ task, claim_result, assign_result, unclaim_result, user_id, state }) => {
@@ -299,8 +353,12 @@ const Diagram = () => {
 const HistoryTab = () => {
   const
     state = useContext(AppState),
-    { api: { history: { user_operation },
-    task: { one }}} = state
+    {
+      api: {
+        history: { user_operation },
+        task: { one }
+      }
+    } = state
 
   void engine_rest.history.get_user_operation(state, one.value?.data?.executionId)
 
@@ -328,7 +386,7 @@ const HistoryTab = () => {
 }
 
 const HistoryEntry = () =>
-  useContext(AppState).api.history.user_operation.value.data.map(({timestamp, userId, operationType, property, newValue}, index) =>
+  useContext(AppState).api.history.user_operation.value.data.map(({ timestamp, userId, operationType, property, newValue }, index) =>
     <tr key={index}>
       <td>{timestamp}</td>
       <td>{userId}</td>

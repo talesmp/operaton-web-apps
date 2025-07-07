@@ -37,6 +37,7 @@ label {
 button, .button, .button:visited {
   border: none;
   margin-top: 1em;
+  box-sizing: content-box;
 
   background: var(--background-2);
   color: var(--text);
@@ -75,6 +76,18 @@ button, .button, .button:visited {
 :where(form, menu, li, ul) :is(button, .button, .button:visited) {
   margin-top: 0;
 }
+
+button.link {
+  background-color: transparent;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/*button.link:hover {*/
+/*  text-decoration: double .3em black;*/
+/*  outline: none;*/
+/*  margin-bottom: 1em;*/
+/*}*/
 
 /* TODO: better name? */
 .input-wrapper {
@@ -160,7 +173,8 @@ select {
   line-height: 1;
 }
 
-:where(input, select, textarea, button):disabled {
+:where(input, select, textarea, button):disabled,
+:where(input, select, textarea, button):read-only {
   background: var(--background-2);
   color: var(--text-disabled);
 }

@@ -62,7 +62,7 @@ th {
 dl {
     margin-top: var(--spacing-1);
     margin-bottom: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 dt {
@@ -92,10 +92,11 @@ section:not(:first-child) {
 
 dialog {
     max-width: 80ch;
-    width: 80ch;
+    width: min(calc(100% - var(--spacing-2) * 2), 80ch) ;
     margin: auto;
     max-height: 80%;
     border: var(--border);
     border-radius: var(--border-radius-2);
     box-shadow: 0 0 var(--spacing-2) #0002;
+    padding: var(--spacing-2);
 }

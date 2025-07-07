@@ -101,6 +101,7 @@ const createAppState = () => {
     deployment: {
       one: signal(null),
       all: signal(null),
+      resources: signal(null),
       resource: signal(null),
       delete: signal(null)
     },

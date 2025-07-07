@@ -11,7 +11,7 @@ const DeploymentsPage = () => {
     { route } = useLocation(),
     // state cases
     no_deployments_loaded = state.api.deployment.all.value === null || state.api.deployment.all.value === undefined,
-    no_resources_loaded = state.api.deployment.resource.value === null && deployment_id
+    no_resources_loaded = state.api.deployment.resources.value === null && deployment_id
 
 
   if (no_deployments_loaded) {
@@ -24,11 +24,15 @@ const DeploymentsPage = () => {
   }
 
   if (no_resources_loaded) {
-    void engine_rest.deployment.resource(state, deployment_id)
+    void engine_rest.deployment.resources(state, deployment_id)
       .then(() => {
-          selected_resource.value = state.api.deployment.resource.value.data.find((res) => res.id === resource_name)
+          selected_resource.value = state.api.deployment.resources.value.data.find((resource) => resource.name === resource_name)
         }
       )
+  }
+
+  if (resource_name && selected_resource.value !== null) {
+    void engine_rest.deployment.resource(state, deployment_id, selected_resource.value.id)
   }
 
   // else {
@@ -48,7 +52,7 @@ const DeploymentsPage = () => {
       <h2 class="screen-hidden">Deployments</h2>
       <DeploymentsList />
       <ResourcesList />
-      <ProcessDetails />
+      <ResourceDetails />
     </main>
   )
 }
@@ -59,14 +63,14 @@ const DeploymentsList = () => {
     { deployments_page: { selected_resource, selected_deployment, selected_process_statistics } } = state,
     { params } = useRoute(),
     reset_state = (deployment_id) => {
-      void engine_rest.deployment.resource(state, deployment_id)
+      void engine_rest.deployment.resources(state, deployment_id)
         .then(() => {
-            selected_resource.value = state.api.deployment.resource.value.data.find((res) => res.id === params.resource_name)
+            selected_resource.value = state.api.deployment.resources.value.data.find((res) => res.id === params.resource_name)
           }
         )
 
       // state.api.deployment.all.value = null
-      // state.api.deployment.resource.value = null
+      // state.api.deployment.resources.value = null
       state.api.process.definition.one.value = null
       state.api.process.instance.count.value = null
       selected_resource.value = null
@@ -111,9 +115,9 @@ const ResourcesList = () => {
     <h3 class="screen-hidden">Resources</h3>
     {(params.deployment_id)
       ? <RequestState
-        signl={state.api.deployment.resource}
+        signl={state.api.deployment.resources}
         on_success={() => <ul class="list">
-          {state.api.deployment.resource.value?.data.map((resource) => (
+          {state.api.deployment.resources.value?.data.map((resource) => (
             <li
               key={resource.id}
               class={params.resource_name === resource.name ? 'selected' : ''}>
@@ -132,7 +136,7 @@ const ResourcesList = () => {
   </div>
 }
 
-const ProcessDetails = () => {
+const ResourceDetails = () => {
   const
     state = useContext(AppState),
     {
@@ -140,6 +144,11 @@ const ProcessDetails = () => {
         process: {
           definition: { one: process_definition },
           instance: { count: instance_count }
+        },
+        deployment: {
+          one: deployment,
+          resources,
+          resource
         }
       }
     } = state
@@ -188,9 +197,10 @@ const ProcessDetails = () => {
   //   show_modal.value = true
   // }
 
+
   return <div class="process-details">
     <RequestState
-      signl={process_definition}
+      signl={resource}
       on_nothing={() => <p className="info-box">No resource selected</p>}
       on_success={() => <>
         {process_definition.value?.data.length > 0
@@ -213,7 +223,9 @@ const ProcessDetails = () => {
               </dd>
             </dl>
 
-            <BpmnViewer process_definition_id={process_definition.value.data[0].id} />
+            <div id="bpmn-container" />
+
+            <BpmnViewer xml={resource.value.data} container={"bpmn-container"} />
 
             {/*<button onClick={openModal} class="delete-button">*/}
             {/*  Delete Deployment*/}

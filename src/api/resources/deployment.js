@@ -1,4 +1,4 @@
-import { GET, POST, DELETE, PUT } from '../helper.jsx'
+import { GET, DELETE, GET_TEXT } from '../helper.jsx'
 
 /**
  * Fetches deployments sorted by deployment time, sets the first as selected
@@ -12,7 +12,14 @@ const get_deployments = (state) =>
  * @sideeffects Updates `state.deployment_resources`, `state.selected_resource`
  */
 const get_deployment_resources = (state, deployment_id) =>
-  GET(`/deployment/${deployment_id}/resources`, state, state.api.deployment.resource)
+  GET(`/deployment/${deployment_id}/resources`, state, state.api.deployment.resources)
+
+/**
+ * Fetches resources for a deployment and triggers BPMN diagram fetch
+ * @sideeffects Updates `state.deployment_resources`, `state.selected_resource`
+ */
+const get_deployment_resource = (state, deployment_id, resource_id) =>
+  GET_TEXT(`/deployment/${deployment_id}/resources/${resource_id}/data`, state, state.api.deployment.resource)
 
 /**
  * Deletes a deployment and cleans up related state
@@ -27,7 +34,8 @@ const delete_deployment = (state, deployment_id, params = {}) =>
 
 const deployment = {
   all: get_deployments,
-  resource: get_deployment_resources,
+  resources: get_deployment_resources,
+  resource: get_deployment_resource,
   delete: delete_deployment
 }
 

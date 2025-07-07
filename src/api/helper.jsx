@@ -93,7 +93,10 @@ const fetch_with_body = (method, url, body, state, signl) => {
     })
     .then(response_data)
     .then(json => signl.value = { status: RESPONSE_STATE.SUCCESS, data: json })
-    .catch(error => error.json().then(json => signl.value = { status: RESPONSE_STATE.ERROR, data: json }))
+    .catch(error => console.log("error:", error)
+
+      // error.json().then(json => signl.value = { status: RESPONSE_STATE.ERROR, data: json })
+)
 }
 
 export const POST = (url, body, state, signl) => {

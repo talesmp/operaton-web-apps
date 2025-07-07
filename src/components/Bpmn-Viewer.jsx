@@ -1,4 +1,4 @@
-import engine_rest, { RequestState } from '../api/engine_rest.jsx'
+import engine_rest from '../api/engine_rest.jsx'
 import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useRoute } from 'preact-iso'
@@ -27,7 +27,17 @@ import * as bpmnvisu from 'bpmn-visualization'
 //   }
 // }
 
+/**
+ * BPMN Diagram Viewer
+ * @param xml a xml string of a bpmn diagram
+ * @param container the html id for an element which gets filled with the diagram
+ * @param tokens elements shown on the diagram
+ * @returns {Element}
+ * @constructor
+ */
 export const BpmnViewer = ({ xml, container, tokens }) => {
+  console.log(xml)
+
   const
     state = useContext(AppState),
     { params: { definition_id } } = useRoute(),

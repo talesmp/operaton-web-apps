@@ -175,19 +175,54 @@ const TaskTabs = () => {
 const SetDueDateButton = () => {
   const
     state = useContext(AppState),
+    { params } = useRoute(),
     { api: { task: { one: task } } } = state,
     close = () => document.getElementById('set_due_date').close(),
-    show = () => document.getElementById('set_due_date').showModal()
+    show = () => document.getElementById('set_due_date').showModal(),
+    due_date = task.value?.data?.due ? new Date(Date.parse(task.value?.data?.due)) : null,
+    date_state = useSignal(
+      {
+        date: due_date !== null
+          ? due_date?.toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        time:
+          due_date !== null
+            ? due_date?.toISOString().split('T')[1].substring(0, 5)
+            : new Date().toISOString().split('T')[1].substring(0, 5)
+      }),
+
+    submit = (event) => {
+      event.preventDefault()
+      console.log(date_state.value)
+      engine_rest.task.update_task(state, { due: `${date_state.value.date}T${date_state.value.time}:0.000+0000` }, params.task_id)
+        .then(() => {close()})
+    }
 
   return <>
     <button onClick={show} class="link">
-      {task.value === null
+      {due_date === null
         ? 'Set Due Date'
-        : new Date(Date.parse(task.value?.data?.due)).toLocaleString()
+        : due_date.toLocaleString()
       }
     </button>
 
     <dialog id="set_due_date">
+      <button onClick={close}>Close</button>
+      <h2>Set Due Date for Task</h2>
+
+      <form onSubmit={submit}>
+        <label for="date">Date</label>
+        <input type="date" id="date"
+               value={due_date !== null ? due_date?.toISOString().split('T')[0] : null}
+               onInput={(e) => date_state.value['date'] = e.currentTarget.value} />
+        <label for="time">Time</label>
+        <input type="time" id="time"
+               value={due_date !== null ? due_date?.toISOString().split('T')[1].substring(0, 5) : null}
+               onInput={(e) => date_state.value['time'] = e.currentTarget.value} />
+        <div class="button-group">
+          <button type="submit">Submit</button>
+        </div>
+      </form>
     </dialog>
   </>
 }
@@ -195,19 +230,54 @@ const SetDueDateButton = () => {
 const SetFollowUpDateButton = () => {
   const
     state = useContext(AppState),
+    { params } = useRoute(),
     { api: { task: { one: task } } } = state,
     close = () => document.getElementById('set_follow_up_date').close(),
-    show = () => document.getElementById('set_follow_up_date').showModal()
+    show = () => document.getElementById('set_follow_up_date').showModal(),
+    followUpDate = task.value?.data?.followUp ? new Date(Date.parse(task.value?.data?.followUp)) : null,
+    date_state = useSignal(
+      {
+        date: followUpDate !== null
+          ? followUpDate?.toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        time:
+          followUpDate !== null
+            ? followUpDate?.toISOString().split('T')[1].substring(0, 5)
+            : new Date().toISOString().split('T')[1].substring(0, 5)
+      }),
+    // due:	"2025-06-18T13:58:44.000+0000"
+    submit = (event) => {
+      event.preventDefault()
+      engine_rest.task.update_task(state, { followUp: `${date_state.value.date}T${date_state.value.time}:0.000+0000` }, params.task_id)
+        .then(() => {close()})
+    }
 
   return <>
     <button onClick={show} class="link">
-      {task.value === null
+      {followUpDate === null
         ? 'Set Due Date'
-        : new Date(Date.parse(task.value?.data?.due)).toLocaleString()
+        : followUpDate.toLocaleString()
       }
     </button>
 
     <dialog id="set_follow_up_date">
+      <button onClick={close}>Close</button>
+      <h2>Set Follow Up Date for Task</h2>
+
+      <form onSubmit={submit}>
+        <label for="date">Date</label>
+        <input type="date" id="date"
+               value={followUpDate !== null ? followUpDate?.toISOString().split('T')[0] : null}
+               onInput={(e) => date_state.value['date'] = e.currentTarget.value} />
+        <label for="time">Time</label>
+        <input type="time" id="time"
+               value={followUpDate !== null ? followUpDate?.toISOString().split('T')[1].substring(0, 5) : null}
+               onInput={(e) => date_state.value['time'] = e.currentTarget.value} />
+        <div class="button-group">
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+
     </dialog>
   </>
 }
@@ -235,9 +305,9 @@ const SetGroupsButton = () => {
       {identity_links.value?.data
         ? 'Set groups'
         : identity_links.value?.data?.reduce((res, { groupId, type }) =>
-            type === 'candidate'
-              ? `${res + groupId}, `
-              : res, '').slice(0, -2)}
+          type === 'candidate'
+            ? `${res + groupId}, `
+            : res, '').slice(0, -2)}
     </button>
 
     <dialog id="add_groups">
@@ -287,48 +357,46 @@ const SetGroupsButton = () => {
 
 const ClaimButton = () => {
   const state = useContext(AppState),
-    task = state.api.task.one.value,
-    user = state.api.user.profile.value,
+    task = state.api.task.one.value?.data,
+    user = state.api.user.profile.value?.data,
+    claim_result = state.api.task.claim_result.value?.data,
+    assign_result = state.api.task.assign_result.value?.data,
+    unclaim_result = state.api.task.unclaim_result.value?.data,
     close = () => document.getElementById('set_assignee').close(),
-    show = () => document.getElementById('set_assignee').showModal()
+    show = () => document.getElementById('set_assignee').showModal(),
+    user_is_assignee = task?.assignee,
+    assignee_is_different = task?.assignee && user?.id !== task?.assignee,
+    claimed = claim_result?.status === RESPONSE_STATE.SUCCESS,
+    assigned = assign_result?.status === RESPONSE_STATE.SUCCESS,
+    unclaimed = unclaim_result?.status === RESPONSE_STATE.SUCCESS
 
   return <RequestState
     signl={state.api.task.one}
     on_success={() => <>
       <button class="link" onClick={show}>
-        {task.data.assignee === null
+        {task?.assignee === null
           ? 'Claim'
-          : task.data.assignee === user.id
+          : task?.assignee === user?.id
             ? 'You'
-            : task.data.assignee}
+            : task?.assignee}
       </button>
 
       <dialog id="set_assignee">
-        {/*<ClaimButtonView />*/}
+        <button onClick={close}>Close</button>
+        {assignee_is_different && !assigned
+          ? <button onClick={() => engine_rest.task.assign_task(state, null, task.id)} className="secondary">
+            <Icons.user_minus /> Reset Assignee
+          </button>
+          : (user_is_assignee || claimed) && !unclaimed
+            ? <button onClick={() => engine_rest.task.unclaim_task(state, task.id)} className="secondary">
+              <Icons.user_minus /> Unclaim
+            </button>
+            : <button onClick={() => engine_rest.task.claim_task(state, task.id)} className="secondary">
+              <Icons.user_plus /> Claim
+            </button>}
       </dialog>
     </>
     } />
-}
-
-const ClaimButtonView = ({ task, claim_result, assign_result, unclaim_result, user_id, state }) => {
-  const
-    user_is_assignee = task.assignee,
-    assignee_is_different = task.assignee && user_id !== task.assignee,
-    claimed = claim_result !== null ? claim_result.status === RESPONSE_STATE.SUCCESS : false,
-    assigned = assign_result !== null ? assign_result.status === RESPONSE_STATE.SUCCESS : false,
-    unclaimed = unclaim_result !== null ? unclaim_result.status === RESPONSE_STATE.SUCCESS : false
-
-  return assignee_is_different && !assigned
-    ? <button onClick={() => engine_rest.task.assign_task(state, null, task.id)} className="secondary">
-      <Icons.user_minus /> Reset Assignee
-    </button>
-    : (user_is_assignee || claimed) && !unclaimed
-      ? <button onClick={() => engine_rest.task.unclaim_task(state, task.id)} className="secondary">
-        <Icons.user_minus /> Unclaim
-      </button>
-      : <button onClick={() => engine_rest.task.claim_task(state, task.id)} className="secondary">
-        <Icons.user_plus /> Claim
-      </button>
 }
 
 const Diagram = () => {

@@ -1,15 +1,10 @@
-import engine_rest from '../api/engine_rest.jsx'
-import { useContext } from 'preact/hooks'
-import { AppState } from '../state.js'
-import { useRoute } from 'preact-iso'
-import { DmnJS } from 'dmn-js'
+import DmnJS from 'dmn-js'
 
-export const BpmnViewer = ({ xml, container, tokens }) => {
+export const DmnViewer = ({ xml, container }) => {
   const
-    // state = useContext(AppState),
-    // { params: { definition_id } } = useRoute(),
     viewer = new DmnJS({
-      container
+      container,
+      height: 500,
     })
 
   viewer.importXML(xml, (err) => {
@@ -19,6 +14,7 @@ export const BpmnViewer = ({ xml, container, tokens }) => {
       console.log('rendered')
     }
   })
+
 
   return <></>
 }

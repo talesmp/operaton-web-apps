@@ -36,7 +36,6 @@ import * as bpmnvisu from 'bpmn-visualization'
  * @constructor
  */
 export const BpmnViewer = ({ xml, container, tokens }) => {
-  console.log(xml)
 
   const
     state = useContext(AppState),

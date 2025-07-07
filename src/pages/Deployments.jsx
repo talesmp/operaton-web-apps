@@ -3,6 +3,7 @@ import { AppState } from '../state.js'
 import { useLocation, useRoute } from 'preact-iso'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
+import { DmnViewer } from '../components/DMNViewer.jsx'
 
 const DeploymentsPage = () => {
   const state = useContext(AppState),
@@ -12,7 +13,6 @@ const DeploymentsPage = () => {
     // state cases
     no_deployments_loaded = state.api.deployment.all.value === null || state.api.deployment.all.value === undefined,
     no_resources_loaded = state.api.deployment.resources.value === null && deployment_id
-
 
   if (no_deployments_loaded) {
     void engine_rest.deployment.all(state)
@@ -31,7 +31,7 @@ const DeploymentsPage = () => {
       )
   }
 
-  if (resource_name && selected_resource.value !== null) {
+  if (resource_name && selected_resource.value !== null && selected_resource.value !== undefined) {
     void engine_rest.deployment.resource(state, deployment_id, selected_resource.value.id)
   }
 
@@ -151,7 +151,9 @@ const ResourceDetails = () => {
           resource
         }
       }
-    } = state
+    } = state,
+    { params: { resource_name } } = useRoute(),
+    resource_file_type = resource_name?.split('.').pop()
   // show_modal = useSignal(false),
   // cascade = useState(false),
   // skip_custom_listeners = useState(true),
@@ -197,13 +199,12 @@ const ResourceDetails = () => {
   //   show_modal.value = true
   // }
 
-
   return <div class="process-details">
     <RequestState
       signl={resource}
       on_nothing={() => <p className="info-box">No resource selected</p>}
       on_success={() => <>
-        {process_definition.value?.data.length > 0
+        {process_definition.value?.data?.length > 0
           ? <><h3>{process_definition.value?.data[0].name || 'N/A - Process name is not defined'}</h3>
             <p class={process_definition.value?.data[0].suspended ? 'status-suspended' : 'status-active'}>
               {process_definition.value?.data[0].suspended ? 'Suspended' : 'Active'}
@@ -223,16 +224,31 @@ const ResourceDetails = () => {
               </dd>
             </dl>
 
-            <div id="bpmn-container" />
-
-            <BpmnViewer xml={resource.value.data} container={"bpmn-container"} />
-
             {/*<button onClick={openModal} class="delete-button">*/}
             {/*  Delete Deployment*/}
             {/*</button>*/}
           </>
           : <p>Empty response</p>}
       </>
+      } />
+    <RequestState
+      signl={resource}
+      on_nothing={() => <p className="info-box">No resource selected</p>}
+      on_success={() =>
+        resource.value.data !== null
+          ? <>
+            <p>Diagram</p>
+            <div id="diagram-container" />
+            {{
+              bpmn: <BpmnViewer xml={resource.value.data} container={'diagram-container'} />,
+              dmn: <DmnViewer xml={resource.value.data} container={'#diagram-container'} />
+            }[resource_file_type]}
+            {{
+              bpmn: () => console.log('bpmn'),
+              dmn: () => console.log('dmn'),
+            }[resource_file_type]}
+          </>
+          : <p>Empty response</p>
       } />
   </div>
 }

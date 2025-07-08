@@ -7,7 +7,7 @@ import { Tabs } from '../components/Tabs.jsx'
 import { TaskForm } from './TaskForm.jsx'
 import engine_rest, { RequestState, RESPONSE_STATE } from '../api/engine_rest.jsx'
 import { useSignal } from '@preact/signals'
-import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
+import { BPMNViewer } from '../components/BPMNViewer.jsx'
 
 const TasksPage = () => {
   const state = useContext(AppState)
@@ -413,7 +413,7 @@ const Diagram = () => {
     <RequestState
       signal={diagram}
       on_success={() =>
-        <BpmnViewer xml={diagram.value.data?.bpmn20Xml} container="diagram" />}
+        <BPMNViewer xml={diagram.value.data?.bpmn20Xml} container="diagram" />}
     />
   </>
 }

@@ -2,7 +2,7 @@ import { useContext } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useLocation, useRoute } from 'preact-iso'
 import engine_rest, { RequestState } from '../api/engine_rest.jsx'
-import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
+import { BPMNViewer } from '../components/BPMNViewer.jsx'
 import { DmnViewer } from '../components/DMNViewer.jsx'
 
 const DeploymentsPage = () => {
@@ -233,7 +233,7 @@ const ResourceDetails = () => {
             <p>Diagram</p>
             <div id="diagram-container" />
             {{
-              bpmn: <BpmnViewer xml={resource.value.data} container={'diagram-container'} />,
+              bpmn: <BPMNViewer xml={resource.value.data} container={'diagram-container'} />,
               dmn: <DmnViewer xml={resource.value.data} container={'#diagram-container'} />
             }[resource_file_type]}
             {{

@@ -5,7 +5,7 @@ import engine_rest, { RequestState } from '../api/engine_rest.jsx'
 import * as Icons from '../assets/icons.jsx'
 import { AppState } from '../state.js'
 import { Accordion } from '../components/Accordion.jsx'
-import { BpmnViewer } from '../components/Bpmn-Viewer.jsx'
+import { BPMNViewer } from '../components/BPMNViewer.jsx'
 
 /**
  * Save custom split view width to localstorage
@@ -137,7 +137,7 @@ const ProcessDiagram = () => {
   return <>
     {show_diagram && diagram.value.data?.bpmn20Xml !== null && diagram.value.data?.bpmn20Xml !== undefined
     && statistics.value !== null && statistics.value?.data !== undefined
-      ? <BpmnViewer xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
+      ? <BPMNViewer xml={diagram.value.data?.bpmn20Xml} container="canvas" tokens={statistics.value.data} />
       : <> </>
     }
   </>

@@ -1,5 +1,5 @@
 import engine_rest from '../api/engine_rest.jsx'
-import { useContext } from 'preact/hooks'
+import { useContext, useEffect } from 'preact/hooks'
 import { AppState } from '../state.js'
 import { useRoute } from 'preact-iso'
 import { BpmnVisualization } from 'bpmn-visualization'
@@ -35,7 +35,7 @@ import * as bpmnvisu from 'bpmn-visualization'
  * @returns {Element}
  * @constructor
  */
-export const BpmnViewer = ({ xml, container, tokens }) => {
+export const BPMNViewer = ({ xml, container, tokens }) => {
 
   const
     state = useContext(AppState),
@@ -72,68 +72,76 @@ export const BpmnViewer = ({ xml, container, tokens }) => {
       }
     }
 
-  try {
-    viewer.load(xml, { fit: { type: bpmnvisu.FitType.Center, margin: 20 } })
-    // viewer.load(xml)
-  } catch (error) {
-    console.error('Error loading BPMN content', error)
-  }
-
-  tokens?.map(({ id, instances, incidents }) => {
-    viewerElements.addOverlays(id, {
-      position: 'bottom-left',
-      label: `${instances}`, style: style_running
-    })
-
-    if (incidents.length > 0) {
-      viewerElements.addOverlays(id, {
-        position: 'top-left',
-        label: `${incidents.length}`, style: style_incidents
-      })
+  useEffect(() => {
+    try {
+      viewer.load(xml, { fit: { type: bpmnvisu.FitType.Center, margin: 20 } })
+      // viewer.load(xml)
+    } catch (error) {
+      console.error('Error loading BPMN content', error)
     }
 
-    const callActivityElement = viewer.bpmnElementsRegistry.getElementsByIds([id])[0].htmlElement
-    callActivityElement.onclick = () => {
-      console.log(definition_id)
-      const actions_list = []
 
-      if (callActivityElement.classList.contains('bpmn-call-activity')) {
-        // fixme: also filter for instance
-        actions_list.push(
-          {
-            label: 'Show called activity (sub-process)',
-            url: `/processes/${definition_id}/called_definitions`
-          })
-      }
+    tokens?.map(({ id, instances, incidents }) => {
+      viewerElements.addOverlays(id, {
+        position: 'bottom-left',
+        label: `${instances}`, style: style_running
+      })
 
       if (incidents.length > 0) {
-        // fixme: also filter for instance
-        actions_list.push(
-          {
-            label: 'Show all incidents for process definition',
-            url: `/processes/${definition_id}/incidents`
-          })
+        viewerElements.addOverlays(id, {
+          position: 'top-left',
+          label: `${incidents.length}`, style: style_incidents
+        })
       }
 
-      if (actions_list.length === 0) {
-        void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
-      } else {
-        const modal = document.getElementById("digagram-modal")
-        modal.showModal()
-        document.getElementById("show_running_instances").addEventListener('click', () => {
-          void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
-          modal.close()
-        })
-        if (incidents.length > 0) {
-          document.getElementById('show_incidents').disabled = false
-        }
+      const callActivityElement = viewer.bpmnElementsRegistry.getElementsByIds([id])[0].htmlElement
+      callActivityElement.onclick = () => {
+        console.log(definition_id)
+        const actions_list = []
+
         if (callActivityElement.classList.contains('bpmn-call-activity')) {
-          document.getElementById('show_called_activities').disabled = false
+          // fixme: also filter for instance
+          actions_list.push(
+            {
+              label: 'Show called activity (sub-process)',
+              url: `/processes/${definition_id}/called_definitions`
+            })
+        }
+
+        if (incidents.length > 0) {
+          // fixme: also filter for instance
+          actions_list.push(
+            {
+              label: 'Show all incidents for process definition',
+              url: `/processes/${definition_id}/incidents`
+            })
+        }
+
+        if (actions_list.length === 0) {
+          void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
+        } else {
+          const modal = document.getElementById("digagram-modal")
+          modal.showModal()
+          document.getElementById("show_running_instances").addEventListener('click', () => {
+            void engine_rest.process_instance.by_activity_ids(state, definition_id, [id])
+            modal.close()
+          })
+          if (incidents.length > 0) {
+            document.getElementById('show_incidents').disabled = false
+          }
+          if (callActivityElement.classList.contains('bpmn-call-activity')) {
+            document.getElementById('show_called_activities').disabled = false
+          }
         }
       }
-    }
-    viewer.bpmnElementsRegistry.addCssClasses([id], 'c-hand')
-  })
+      viewer.bpmnElementsRegistry.addCssClasses([id], 'c-hand')
+    })
+
+    return () => viewer.graph.destroy()
+    // return () => document.getElementById(container).innerText = ""
+  }, [container, definition_id, state, style_incidents, style_running, tokens, viewer, viewerElements, xml])
+
+
 
   return <>
     <dialog id="digagram-modal" className="digagram-modal">

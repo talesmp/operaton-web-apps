@@ -91,7 +91,7 @@ const SearchResults = () => {
   return <section>
     <h3 class="screen-hidden">Results</h3>
     <RequestState
-      signl={state.api.process.definition.one}
+      signal={state.api.process.definition.one}
       on_nothing={() => <></>}
       on_error={() => <></>}
       on_success={() =>
@@ -105,7 +105,7 @@ const SearchResults = () => {
 
 
     <RequestState
-      signl={state.api.process.instance.one}
+      signal={state.api.process.instance.one}
       on_nothing={() => <></>}
       on_error={() => <></>}
       on_success={() =>

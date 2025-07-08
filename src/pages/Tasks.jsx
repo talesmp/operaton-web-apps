@@ -67,7 +67,7 @@ const TaskList = () => {
         </thead>
         <tbody>
         <RequestState
-          signl={taskList}
+          signal={taskList}
           on_success={() =>
             taskList.value?.data?.map(task =>
               <TaskRowEntry key={task.id} task={task}
@@ -329,7 +329,7 @@ const SetGroupsButton = () => {
       <h3>Remove Groups</h3>
 
       <RequestState
-        signl={state.api.task.identity_links}
+        signal={state.api.task.identity_links}
         on_success={() =>
           <table>
             <thead>
@@ -371,7 +371,7 @@ const ClaimButton = () => {
     unclaimed = unclaim_result?.status === RESPONSE_STATE.SUCCESS
 
   return <RequestState
-    signl={state.api.task.one}
+    signal={state.api.task.one}
     on_success={() => <>
       <button class="link" onClick={show}>
         {task?.assignee === null
@@ -411,7 +411,7 @@ const Diagram = () => {
   return <>
     <div id="diagram" />
     <RequestState
-      signl={diagram}
+      signal={diagram}
       on_success={() =>
         <BpmnViewer xml={diagram.value.data?.bpmn20Xml} container="diagram" />}
     />
@@ -445,7 +445,7 @@ const HistoryTab = () => {
       </thead>
       <tbody>
       <RequestState
-        signl={user_operation}
+        signal={user_operation}
         on_success={() => <HistoryEntry />} />
 
       </tbody>

@@ -165,7 +165,7 @@ const ProcessDefinitionSelection = () => {
       </thead>
       <tbody>
       <RequestState
-        signl={definition.list}
+        signal={definition.list}
         on_success={() =>
           definition.list.value?.data?.map(process =>
             <ProcessDefinition key={process.id} {...process} />)
@@ -192,7 +192,7 @@ const ProcessDefinitionDetails = () => {
           <Icons.list />
         </a>
         <RequestState
-          signl={process_definition}
+          signal={process_definition}
           on_success={() => <div>
             <h1>{process_definition.value?.data.name ?? ' '}</h1>
             <dl>

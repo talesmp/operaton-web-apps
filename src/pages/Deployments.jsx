@@ -7,7 +7,7 @@ import { DmnViewer } from '../components/DMNViewer.jsx'
 
 const DeploymentsPage = () => {
   const state = useContext(AppState),
-    { deployments_page: { selected_resource, selected_deployment, selected_process_statistics } } = state,
+    { deployments_page: { selected_resource } } = state,
     { params: { deployment_id, resource_name } } = useRoute(),
     { route } = useLocation(),
     // state cases
@@ -34,13 +34,6 @@ const DeploymentsPage = () => {
   if (resource_name && selected_resource.value !== null && selected_resource.value !== undefined) {
     void engine_rest.deployment.resource(state, deployment_id, selected_resource.value.id)
   }
-
-  // else {
-  //   // reset state
-  //   // todo fix me with new state api signals
-  //   selected_process_statistics.value = null
-  //   selected_deployment.value = null
-  // }
 
   if (resource_name && selected_resource.value !== null) {
     void engine_rest.process_definition.by_deployment_id(state, deployment_id, resource_name)
@@ -83,7 +76,7 @@ const DeploymentsList = () => {
       <h3 class="screen-hidden">Queried deployments</h3>
       <ul class="list">
         <RequestState
-          signl={state.api.deployment.all}
+          signal={state.api.deployment.all}
           on_success={() => <>{
             state.api.deployment.all.value?.data.map((deployment) => (
               <li
@@ -115,7 +108,7 @@ const ResourcesList = () => {
     <h3 class="screen-hidden">Resources</h3>
     {(params.deployment_id)
       ? <RequestState
-        signl={state.api.deployment.resources}
+        signal={state.api.deployment.resources}
         on_success={() => <ul class="list">
           {state.api.deployment.resources.value?.data.map((resource) => (
             <li
@@ -201,7 +194,7 @@ const ResourceDetails = () => {
 
   return <div class="process-details">
     <RequestState
-      signl={resource}
+      signal={resource}
       on_nothing={() => <p className="info-box">No resource selected</p>}
       on_success={() => <>
         {process_definition.value?.data?.length > 0
@@ -218,7 +211,7 @@ const ResourceDetails = () => {
               <dt>Instance Count</dt>
               <dd>
                 <RequestState
-                  signl={instance_count}
+                  signal={instance_count}
                   on_success={() => instance_count.value?.data.count}
                 />
               </dd>
@@ -232,7 +225,7 @@ const ResourceDetails = () => {
       </>
       } />
     <RequestState
-      signl={resource}
+      signal={resource}
       on_nothing={() => <p className="info-box">No resource selected</p>}
       on_success={() =>
         resource.value.data !== null

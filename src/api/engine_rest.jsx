@@ -11,20 +11,22 @@ import history from './resources/history.js'
 import job_definition from './resources/job_definition.js'
 import task from './resources/task.js'
 import authorization from './resources/authorization.js'
+import decision from './resources/decision.js'
 
 const engine_rest = {
   auth,
   authorization,
-  engine,
-  user,
-  group,
-  tenant,
-  process_definition,
-  process_instance,
+  decision,
   deployment,
+  engine,
+  group,
   history,
   job_definition,
-  task
+  process_definition,
+  process_instance,
+  task,
+  tenant,
+  user,
 }
 
 export default engine_rest

@@ -105,6 +105,11 @@ const createAppState = () => {
       resource: signal(null),
       delete: signal(null)
     },
+    decision: {
+      definitions: signal(null),
+      definition: signal(null),
+      dmn: signal(null),
+    },
     history: {
       incident: {
         by_process_definition: signal(null),

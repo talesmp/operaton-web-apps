@@ -27,21 +27,22 @@ export const RESPONSE_STATE = {
 /**
  * Displays the result (SUCCESS, ERROR) of an api request and all other states (LOADING, NOT_INITIALIZED, NULL)
  *
- * @param signl {Preact.Signal} the state signal where the result is stored
+ * @param signal {Preact.Signal} the state signal where the result is stored
  * @param on_success {function: JSXInternal.Element} the element that is shown when the result state is SUCCESS
  * @param on_error {function: JSXInternal.Element} (optional) the element that is shown when the result state is ERROR
  * @param on_nothing (optional) the element that is shown when the state is null
+ * @param on_load (optional) the element shown when the request is loading
  * @returns {JSXInternal.Element}
  */
-export const RequestState = ({ signl, on_success, on_error = null, on_nothing = null }) =>
+export const RequestState = ({ signal, on_success, on_error = null, on_nothing = null, on_load = null }) =>
   <>
-    {(signl.value !== null)
+    {(signal.value !== null)
       ? {
         NOT_INITIALIZED: <p>No data requested</p>,
-        LOADING: <p class="fade-in-delayed">Loading...</p>,
-        SUCCESS: signl.value?.data ? on_success() : <p>No data</p>,
-        ERROR: on_error ? on_error : <p class="error"><strong>Error:</strong> {signl.value.error !== undefined ? signl.value.error.message : 'No error message.'}</p>
-      }[signl.value.status]
+        LOADING: on_load ? on_load : <p class="fade-in-delayed">Loading...</p>,
+        SUCCESS: signal.value?.data ? on_success() : <p>No data</p>,
+        ERROR: on_error ? on_error : <p class="error"><strong>Error:</strong> {signal.value.error !== undefined ? signal.value.error.message : 'No error message.'}</p>
+      }[signal.value.status]
       : on_nothing
         ? on_nothing()
         : <p class="fade-in-delayed">Fetching...</p>

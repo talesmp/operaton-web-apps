@@ -48,7 +48,7 @@ const TaskForm = () => {
         {/*<a href={`${state.server.value.url}/${formLink}`} target="_blank" rel="noreferrer">Embedded Form</a>*/}
 
 
-        <RequestState signl={state.api.task.form} on_success={() =>
+        <RequestState signal={state.api.task.form} on_success={() =>
           // eslint-disable-next-line react/no-danger
           <div dangerouslySetInnerHTML={{ __html: state.api.task.form.value.data }} />
         } />

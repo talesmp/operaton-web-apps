@@ -104,7 +104,7 @@ const TenantCreate = () => {
   return <div>
     <h2>Create New Tenant</h2>
     <RequestState
-      signl={tenant_create}
+      signal={tenant_create}
       on_nothing={() => <></>}
       on_success={() => <p className="success">Successfully created new tenant.</p>}
       // on_error={() => <p className="error">Error: {user_create.value.error.message}</p>}
@@ -139,7 +139,7 @@ const TenantList = () => {
     <a href="/admin/tenants/new" class="button">Create new tenant</a>
 
     <RequestState
-      signl={tenants}
+      signal={tenants}
       on_success={() => tenants.value.data.length !== 0
         ? <table class="fade-in">
           <thead>
@@ -212,7 +212,7 @@ const GroupCreate = () => {
   return <div>
     <h2>Create New Group</h2>
     <RequestState
-      signl={group_create}
+      signal={group_create}
       on_nothing={() => <></>}
       on_success={() => <p className="success">Successfully created new group.</p>}
       // on_error={() => <p className="error">Error: {user_create.value.error.message}</p>}
@@ -247,7 +247,7 @@ const GroupsList = () => {
     <h2>Groups</h2>
     <a href="/admin/groups/new">Create New Group</a>
     <RequestState
-      signl={groups}
+      signal={groups}
       on_success={() => groups.value !== null ? <table class="fade-in">
           <thead>
           <tr>
@@ -306,7 +306,7 @@ const SystemPage = () => {
       { name: 'System' }]} />
     <h2>System</h2>
     <RequestState
-      signl={telemetry}
+      signal={telemetry}
       on_success={() => <pre class="fade-in">{telemetry.value !== undefined ? JSON.stringify(telemetry.value?.data, null, 2) : ''} </pre>}
     />
   </div>
@@ -351,7 +351,7 @@ const UserList = () => {
       </thead>
       <tbody>
       <RequestState
-        signl={users}
+        signal={users}
         on_success={() => users.value?.data.map(({ id, firstName, lastName, email }) => (
           <tr key={id}>
             <td><a href={`/admin/users/${id}`}>{id}</a></td>
@@ -398,7 +398,7 @@ const UserGroups = () => {
   return <>
     <h3>Groups</h3>
     <RequestState
-      signl={user_groups}
+      signal={user_groups}
       on_success={() =>
         <table>
           <caption class="screen-hidden">User Groups</caption>
@@ -491,7 +491,7 @@ const UserCreate = () => {
   return <div>
     <h2>Create New User</h2>
     <RequestState
-      signl={user_create}
+      signal={user_create}
       on_nothing={() => <></>}
       on_success={() => <p className="success">Successfully created new user.</p>}
       // on_error={() => <p className="error">Error: {user_create.value.error.message}</p>}
@@ -615,7 +615,7 @@ const AuthorizationsPage = () => {
               : ''
             }
             <RequestState
-              signl={state.api.authorization.all}
+              signal={state.api.authorization.all}
               on_success={() => <AuthorizationResourceRows authorizations={state.api.authorization.all.value.data} />} />
             </tbody>
           </table>

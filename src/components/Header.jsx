@@ -57,7 +57,8 @@ export function Header () {
                   Processes
                 </a>
               </li>
-              <li><a href="/">Decisions</a></li>
+              <li><a href="/decisions"
+                     className={url.startsWith('/decisions') && 'active'}>Decisions</a></li>
             </menu>
             <menu>
               <li><a href="/deployments"
@@ -168,7 +169,8 @@ export function Header () {
               Processes
             </a>
           </li>
-          <li><a href="/">Decisions</a></li>
+          <li><a href="/decisions"
+                 className={url.startsWith('/decisions') && 'active'}>Decisions</a></li>
         </menu>
         <menu>
           <li><a href="/deployments"

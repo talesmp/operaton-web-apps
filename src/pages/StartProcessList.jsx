@@ -54,7 +54,7 @@ const StartableProcessesList = () => {
       onChange={(e) => (search_term.value = e.target.value)} />
     <ul class="list">
       <RequestState
-        signl={state.api.process.definition.list}
+        signal={state.api.process.definition.list}
         on_success={() =>
           <>
             {state.api.process.definition.list.value.data
@@ -179,7 +179,7 @@ const StartProcessForm = () => {
 
   return <div>
     <h2>Form</h2>
-    <RequestState signl={state.api.task.form} on_success={() => <>
+    <RequestState signal={state.api.task.form} on_success={() => <>
       {/*eslint-disable-next-line react/no-danger*/}
       <form onSubmit={handleSubmit} dangerouslySetInnerHTML={{ __html: parse_form(state.api.task.form.value.data) }}>
         <div class="button-group">

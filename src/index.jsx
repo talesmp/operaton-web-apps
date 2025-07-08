@@ -21,6 +21,7 @@ import './css/components.css'
 import './css/normalize.css'
 import './css/animation.css'
 import { StartProcessList } from './pages/StartProcessList.jsx'
+import { DecisionsPage } from './pages/Decisions.jsx'
 
 'use strict'
 
@@ -31,6 +32,8 @@ export function App () {
         <Header />
         <Router>
           <Route path="/" component={Home} />
+          <Route path="/decisions" component={DecisionsPage} />
+          <Route path="/decisions/:decision_id" component={DecisionsPage} />
           <Route path="/tasks" component={TasksPage} />
           <Route path="/tasks/start" component={StartProcessList} />
           <Route path="/tasks/start/:id" component={StartProcessList} />

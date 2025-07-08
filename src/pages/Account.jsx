@@ -43,7 +43,7 @@ const ProfileAccountPage = () => {
     void engine_rest.user.profile.get(state)
   }
   return <RequestState
-    signl={state.api.user.profile}
+    signal={state.api.user.profile}
     on_success={() => selection_id === 'edit' ? <ProfileEditPage /> : <ProfileDetails />
     }
   />
@@ -75,7 +75,7 @@ const ProfileEditPage = () => {
       ? <>
         {user_profile_edit_response.value?.status}
         <RequestState
-          signl={user_profile_edit_response}
+          signal={user_profile_edit_response}
           on_success={() => <p className="success">Successfully updated user.</p>}
           on_error={() => <p className="error">Error: {user_profile_edit_response.value?.message}</p>} />
       </>
@@ -226,7 +226,7 @@ const GroupAccountPage = () => {
   return <section>
     <h2>Your Groups</h2>
     <RequestState
-      signl={groups}
+      signal={groups}
       on_success={() =>
         groups.value?.data.length > 0 ? <table>
             <thead>

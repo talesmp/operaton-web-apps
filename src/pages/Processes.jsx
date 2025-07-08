@@ -68,7 +68,6 @@ const ProcessesPage = () => {
   }, [details_width.value.data])
 
   if (definition_selected) {
-    console.log('history disabled? ', history_mode_disabled)
     if (history_mode_disabled) {
       if (no_definition_loaded) {
         void engine_rest.process_definition.one(state, params.definition_id)
@@ -241,8 +240,6 @@ const Instances = () => {
       void engine_rest.process_instance.all(state, params.definition_id)
     }
   }
-
-  console.log(state.history_mode.value)
 
   return !params?.selection_id
     ? (<table class="fade-in">

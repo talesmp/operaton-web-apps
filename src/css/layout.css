@@ -181,7 +181,7 @@
 }
 
 #app > header > nav menu > li > a {
-  padding: .2em var(--spacing-1) 0 var(--spacing-1);
+  padding: 0 var(--spacing-1);
   margin: var(--spacing-1) 0;
 }
 #app > header > nav menu > li > a.active {

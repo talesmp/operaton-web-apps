@@ -196,7 +196,8 @@ const ProcessDefinitionDetails = () => {
             <h1>{process_definition.value?.data.name ?? ' '}</h1>
             <dl>
               <dt>Definition ID</dt>
-              <dd className="font-mono copy-on-click" onClick={copyToClipboard}>
+              <dd className="font-mono copy-on-click" onClick={copyToClipboard}
+              title="Click to copy">
                 {process_definition.value?.data.id ?? '-/-'}
               </dd>
               {process_definition.value?.data.tenantId ?

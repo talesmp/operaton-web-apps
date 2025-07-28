@@ -1,6 +1,10 @@
 *** Settings ***
-Resource    operaton.resource
+Resource    operaton/browser.resource
 
 *** Test Cases ***
-Open Operaton-WebApps
-    Open Operaton-WebApps    https://example.com
+Demo
+    Open Web Apps    https://example.com
+
+View Process Model
+    Upload A Process Model
+    Open Web Apps    https://example.com/process-model

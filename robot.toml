@@ -1,0 +1,4 @@
+python-path = ["./atest/robot/resources", "./atest/robot/variables", "./atest/robot/lib"]
+
+[env]
+BROWSER_HEADLESS="true"

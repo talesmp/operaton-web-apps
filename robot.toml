@@ -7,13 +7,16 @@ BROWSER_HEADLESS="false"
 [profiles.headless.extend-env]
 BROWSER_HEADLESS="true"
 
+# Profile setting enviroment variables to new webapps. 
 [profiles.webapps]
 hidden = true
+# High precedence for loading this profile at last overriding the legacy-webapps properties.
 precedence = 100
 
 [profiles.webapps.extend-env]
 FRONTEND_TYPE="webapps"
 
+# Profile setting enviroment variables to legacy webapps.
 [profiles.legacy-webapps]
 hidden = true
 precedence = 10
@@ -21,18 +24,22 @@ precedence = 10
 [profiles.legacy-webapps.extend-env]
 FRONTEND_TYPE="legacy-webapps"
 
+# Profile for running against webapps dev environment.
 [profiles.webapps-dev]
 inherits = ["webapps"]
 
 [profiles.webapps-dev.extend-env]
 FRONTEND_URL="http://localhost:5173"
 
+# Profile for running against webapps preview environment.
 [profiles.webapps-preview]
 inherits = ["webapps"]
 
 [profiles.webapps-preview.extend-env]
 FRONTEND_URL="http://localhost:4173"
 
+# Profile for running against operaton. Uses legacy-webapps per default.
+# Additional, activate "webapps" profile to use the new webapps instead of legacy-webapps.
 [profiles.operaton]
 inherits = ["legacy-webapps"]
 
@@ -40,6 +47,8 @@ inherits = ["legacy-webapps"]
 ENGINE_URL="http://localhost:8084"
 FRONTEND_URL="http://localhost:8084"
 
+# Profile for running against camunda. Uses legacy-webapps per default.
+# Additional, activate "webapps" profile to use the new webapps instead of legacy-webapps.
 [profiles.camunda]
 inherits = ["legacy-webapps"]
 

@@ -9,14 +9,14 @@ BROWSER_HEADLESS="true"
 
 [profiles.webapps]
 hidden = true
-precedence = 10
+precedence = 100
 
 [profiles.webapps.extend-env]
 FRONTEND_TYPE="webapps"
 
 [profiles.legacy-webapps]
 hidden = true
-precedence = 20
+precedence = 10
 
 [profiles.legacy-webapps.extend-env]
 FRONTEND_TYPE="legacy-webapps"

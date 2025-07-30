@@ -1,22 +1,48 @@
 python-path = ["./atest/robot/resources", "./atest/robot/variables", "./atest/robot/lib"]
 
+
 [env]
+BROWSER_HEADLESS="false"
+
+[profiles.headless.extend-env]
 BROWSER_HEADLESS="true"
+
+[profiles.webapps]
+hidden = true
+precedence = 10
 
 [profiles.webapps.extend-env]
 FRONTEND_TYPE="webapps"
 
+[profiles.legacy-webapps]
+hidden = true
+precedence = 20
+
 [profiles.legacy-webapps.extend-env]
 FRONTEND_TYPE="legacy-webapps"
 
-[profiles.dev.extend-env]
-WEBAPPS_URL="http://localhost:5173"
+[profiles.webapps-dev]
+inherits = ["webapps"]
 
-[profiles.preview.extend-env]
-WEBAPPS_URL="http://localhost:4173"
+[profiles.webapps-dev.extend-env]
+FRONTEND_URL="http://localhost:5173"
+
+[profiles.webapps-preview]
+inherits = ["webapps"]
+
+[profiles.webapps-preview.extend-env]
+FRONTEND_URL="http://localhost:4173"
+
+[profiles.operaton]
+inherits = ["legacy-webapps"]
 
 [profiles.operaton.extend-env]
-LEGACY_FRONTEND_URL="http://localhost:8084"
+ENGINE_URL="http://localhost:8084"
+FRONTEND_URL="http://localhost:8084"
+
+[profiles.camunda]
+inherits = ["legacy-webapps"]
 
 [profiles.camunda.extend-env]
-LEGACY_FRONTEND_URL="http://localhost:8088"
+ENGINE_URL="http://localhost:8088"
+FRONTEND_URL="http://localhost:8088"

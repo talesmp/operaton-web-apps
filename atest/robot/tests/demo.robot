@@ -1,5 +1,5 @@
 *** Settings ***
-Resource    operaton/browser.resource
+Resource    %{FRONTEND_TYPE}/browser.resource
 
 *** Test Cases ***
 Demo

@@ -3,14 +3,20 @@ python-path = ["./atest/robot/resources", "./atest/robot/variables", "./atest/ro
 [env]
 BROWSER_HEADLESS="true"
 
-[profiles.dev.extends-env]
+[profiles.webapps.extend-env]
+FRONTEND_TYPE="webapps"
+
+[profiles.legacy-webapps.extend-env]
+FRONTEND_TYPE="legacy-webapps"
+
+[profiles.dev.extend-env]
 WEBAPPS_URL="http://localhost:5173"
 
-[profiles.preview.extends-env]
+[profiles.preview.extend-env]
 WEBAPPS_URL="http://localhost:4173"
 
-[profiles.operaton.extends-env]
+[profiles.operaton.extend-env]
 LEGACY_FRONTEND_URL="http://localhost:8084"
 
-[profiles.camunda.extends-env]
+[profiles.camunda.extend-env]
 LEGACY_FRONTEND_URL="http://localhost:8088"

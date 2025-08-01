@@ -10,6 +10,10 @@ BROWSER_HEADLESS = "false"
 [profiles.headless.extend-env]
 BROWSER_HEADLESS = "true"
 
+# Slow down browser actions for demonstration purposes.
+[profiles.demonstration.extend-env]
+BROWSER_SLOWMO = "300ms"
+
 # Profile setting enviroment variables to new webapps. 
 [profiles.webapps]
 hidden = true

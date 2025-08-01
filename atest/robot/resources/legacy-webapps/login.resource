@@ -25,5 +25,5 @@ Validate Welcome Page Is Shown
 
 Open Login Page
     [Tags]    robot:private
-    New Browser    headless=%{BROWSER_HEADLESS=False}
+    New Browser    headless=%{BROWSER_HEADLESS=False}    slowMo=%{BROWSER_SLOWMO=0:00:00}
     New Page    %{FRONTEND_URL}

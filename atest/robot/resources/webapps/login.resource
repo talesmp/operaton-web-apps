@@ -17,5 +17,5 @@ Validate Welcome Page Is Shown
     ...    message=We do not seem to be running on ${ENGINE_NAME}. Sure we are running against the correct engine?
 
 Open Login Page
-    New Browser    headless=%{BROWSER_HEADLESS=False}
+    New Browser    headless=%{BROWSER_HEADLESS=False}    slowMo=%{BROWSER_SLOWMO=0:00:00}
     New Page    %{FRONTEND_URL}

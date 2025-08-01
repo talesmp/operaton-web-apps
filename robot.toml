@@ -1,11 +1,14 @@
-python-path = ["./atest/robot/resources", "./atest/robot/variables", "./atest/robot/lib"]
-
+python-path = [
+    "./atest/robot/resources",
+    "./atest/robot/variables",
+    "./atest/robot/lib",
+]
 
 [env]
-BROWSER_HEADLESS="false"
+BROWSER_HEADLESS = "false"
 
 [profiles.headless.extend-env]
-BROWSER_HEADLESS="true"
+BROWSER_HEADLESS = "true"
 
 # Profile setting enviroment variables to new webapps. 
 [profiles.webapps]
@@ -14,7 +17,7 @@ hidden = true
 precedence = 100
 
 [profiles.webapps.extend-env]
-FRONTEND_TYPE="webapps"
+FRONTEND_TYPE = "webapps"
 
 # Profile setting enviroment variables to legacy webapps.
 [profiles.legacy-webapps]
@@ -22,36 +25,42 @@ hidden = true
 precedence = 10
 
 [profiles.legacy-webapps.extend-env]
-FRONTEND_TYPE="legacy-webapps"
+FRONTEND_TYPE = "legacy-webapps"
 
 # Profile for running against webapps dev environment.
 [profiles.webapps-dev]
 inherits = ["webapps"]
 
 [profiles.webapps-dev.extend-env]
-FRONTEND_URL="http://localhost:5173"
+FRONTEND_URL = "http://localhost:5173"
 
 # Profile for running against webapps preview environment.
 [profiles.webapps-preview]
 inherits = ["webapps"]
 
 [profiles.webapps-preview.extend-env]
-FRONTEND_URL="http://localhost:4173"
+FRONTEND_URL = "http://localhost:4173"
 
 # Profile for running against operaton. Uses legacy-webapps per default.
 # Additional, activate "webapps" profile to use the new webapps instead of legacy-webapps.
 [profiles.operaton]
 inherits = ["legacy-webapps"]
 
+[profiles.operaton.extend-variables]
+ENGINE_NAME = "Operaton"
+
 [profiles.operaton.extend-env]
-ENGINE_URL="http://localhost:8084"
-FRONTEND_URL="http://localhost:8084"
+ENGINE_URL = "http://localhost:8084"
+FRONTEND_URL = "http://localhost:8084"
 
 # Profile for running against camunda. Uses legacy-webapps per default.
 # Additional, activate "webapps" profile to use the new webapps instead of legacy-webapps.
 [profiles.camunda]
 inherits = ["legacy-webapps"]
 
+[profiles.camunda.extend-variables]
+ENGINE_NAME = "Camunda"
+
 [profiles.camunda.extend-env]
-ENGINE_URL="http://localhost:8088"
-FRONTEND_URL="http://localhost:8088"
+ENGINE_URL = "http://localhost:8088"
+FRONTEND_URL = "http://localhost:8088"

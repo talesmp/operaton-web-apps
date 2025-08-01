@@ -38,4 +38,5 @@ Test Teardown       Close Browser
 
 *** Test Cases ***
 Demo
+    [Documentation]    This test case opens a browser, logs in and checks the page title.
     Open Browser and Login

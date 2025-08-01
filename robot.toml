@@ -64,3 +64,6 @@ ENGINE_NAME = "Camunda"
 [profiles.camunda.extend-env]
 ENGINE_URL = "http://localhost:8088"
 FRONTEND_URL = "http://localhost:8088"
+
+[tool.robocop.lint]
+ignore = ["wrong-case-in-keyword-name", "missing-doc-keyword"]
